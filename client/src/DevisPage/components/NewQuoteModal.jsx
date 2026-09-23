@@ -14,6 +14,7 @@ import { useUser } from "../../utils/useUser";
 const initialClientDetails = [];
 
 import { apiFetch } from "../../utils/api";
+import { fetchClientsCompact, getCachedClients, fetchCatalogFast, getCachedCatalog } from "../../utils/dataCache";
 
 function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
     const { company } = useUser();
@@ -29,34 +30,14 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
     const [step, setStep] = useState(1);
 
     // Grouped Clients list matching /planning
-    const [clientDetails, setClientDetails] = useState(initialClientDetails);
+    const [clientDetails, setClientDetails] = useState(() => getCachedClients() || initialClientDetails);
 
     useEffect(() => {
-        const fetchClientsForModal = async () => {
-            try {
-                const data = await apiFetch('/v1/clients');
-                const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
-                if (list.length > 0) {
-                    const mapped = list.map(c => ({
-                        id: c.id,
-                        clientId: c.id,
-                        firstName: c.firstName || "",
-                        lastName: c.lastName || "",
-                        companyName: c.companyName || "",
-                        name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
-                        type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
-                        email: c.email || "",
-                        phone: c.phone || "",
-                        address: c.address ? `${c.address}${c.postalCode || c.city ? `, ${c.postalCode || ''} ${c.city || ''}` : ''}`.trim() : (c.city || "")
-                    }));
-                    setClientDetails(mapped);
-                }
-            } catch (err) {
-                console.warn("API clients non disponible pour NewQuoteModal:", err.message);
+        fetchClientsCompact().then(mapped => {
+            if (mapped && mapped.length > 0) {
+                setClientDetails(mapped);
             }
-        };
-
-        fetchClientsForModal();
+        });
     }, []);
 
     // Auto-select client if initialClient is passed
@@ -143,25 +124,12 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
     };
 
     // Real catalog items state fetched from backend
-    const [catalogItems, setCatalogItems] = useState([]);
+    const [catalogItems, setCatalogItems] = useState(() => getCachedCatalog() || []);
 
     const fetchCatalog = async () => {
-        try {
-            const res = await apiFetch('/v1/catalog');
-            const raw = res.data || res.items || (Array.isArray(res) ? res : []);
-            const mapped = raw.map(item => ({
-                id: item.id,
-                description: item.name || "Article",
-                name: item.name || "Article",
-                reference: item.reference || "",
-                unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
-                tvaRate: Number(item.tvaRate || 20),
-                urssafCategory: item.type === "PRODUCT" ? "Vente de marchandises (BIC)" : "Prestations de services (BIC / BNC)",
-                unit: item.unit || "À l'unité"
-            })).sort((a, b) => (a.description || "").localeCompare(b.description || ""));
+        const mapped = await fetchCatalogFast();
+        if (mapped && mapped.length > 0) {
             setCatalogItems(mapped);
-        } catch (e) {
-            console.warn("Failed to fetch catalog in quote modal:", e);
         }
     };
 
@@ -1985,7 +1953,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                                     border: '1px solid var(--border)',
                                                     padding: '0 12px',
                                                     fontSize: '0.85rem',
-                                                    backgroundColor: 'var(--card)',
+                                                    backgroundColor: 'var(--background)',
                                                     color: 'var(--foreground)',
                                                     cursor: 'pointer'
                                                 }}
@@ -2940,7 +2908,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                                 border: '1px solid var(--border)',
                                                 padding: '0 12px',
                                                 fontSize: '0.85rem',
-                                                backgroundColor: 'var(--card)',
+                                                backgroundColor: 'var(--background)',
                                                 color: 'var(--foreground)',
                                                 cursor: 'pointer'
                                             }}

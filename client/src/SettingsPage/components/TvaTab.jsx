@@ -164,28 +164,28 @@ export default function TvaTab({ isMobileView, triggerToast }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '24px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '24px' }}>
             {/* Régime de TVA */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
                 <h3 style={{
-                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
-                    fontSize: isMobileView ? '12.5px' : '15px',
+                    margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '15px' : '15px',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    <Receipt size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                    <Receipt size={isMobileView ? 18 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
                     <span>Régime de TVA & Mentions Légales</span>
                     <LegalHelpTooltip lawArticle="art. 293 B & 289 CGI" title="Régime de TVA" text="La franchise en base de TVA (art. 293 B) vous dispense de facturer la TVA. La mention obligatoire apparaît automatiquement sur vos factures." />
                 </h3>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '6px' : '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '10px' }}>
                     {[
                         {
                             key: 'franchise',
@@ -210,9 +210,9 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'flex-start',
-                                    gap: isMobileView ? '8px' : '12px',
-                                    padding: isMobileView ? '8px 10px' : '12px 14px',
-                                    borderRadius: '8px',
+                                    gap: isMobileView ? '12px' : '12px',
+                                    padding: isMobileView ? '12px 14px' : '12px 14px',
+                                    borderRadius: '10px',
                                     border: `1.5px solid ${isSelected ? 'var(--sidebar-primary)' : 'var(--border)'}`,
                                     backgroundColor: isSelected ? 'rgba(91, 77, 219, 0.03)' : 'var(--background)',
                                     cursor: 'pointer',
@@ -226,11 +226,11 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                     value={item.key}
                                     checked={isSelected}
                                     onChange={() => handleRegimeChange(item.key)}
-                                    style={{ marginTop: '2px', flexShrink: 0, width: isMobileView ? '14px' : '16px', height: isMobileView ? '14px' : '16px', accentColor: 'var(--sidebar-primary)' }}
+                                    style={{ marginTop: '2px', flexShrink: 0, width: isMobileView ? '18px' : '16px', height: isMobileView ? '18px' : '16px', accentColor: 'var(--sidebar-primary)' }}
                                 />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <span style={{
-                                        fontSize: isMobileView ? '12px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: isSelected ? 700 : 600,
                                         display: 'block',
                                         lineHeight: 1.3
@@ -244,10 +244,10 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                     }}>
                                         <div style={{ overflow: 'hidden' }}>
                                             <span style={{
-                                                fontSize: isMobileView ? '10px' : '12px',
+                                                fontSize: isMobileView ? '12.5px' : '12px',
                                                 color: 'var(--muted-foreground)',
                                                 display: 'block',
-                                                paddingTop: '3px',
+                                                paddingTop: '4px',
                                                 lineHeight: 1.35
                                             }}>
                                                 {item.desc}
@@ -264,13 +264,13 @@ export default function TvaTab({ isMobileView, triggerToast }) {
             {/* Taux TVA par défaut & Options */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
                 <h3 style={{
-                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
-                    fontSize: isMobileView ? '12.5px' : '15px',
+                    margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '15px' : '15px',
                     fontWeight: 700
                 }}>
                     Taux de TVA par défaut
@@ -278,13 +278,13 @@ export default function TvaTab({ isMobileView, triggerToast }) {
 
                 <div className="profile-form-grid">
                     <div className="form-field form-group-full">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', fontWeight: 700, marginBottom: '4px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '11px', fontWeight: 700, marginBottom: '6px' }}>
                             SÉLECTIONNEZ LE TAUX DE TVA PRÉ-APPLIQUÉ SUR LES DEVIS
                         </label>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-                            gap: isMobileView ? '6px' : '10px',
+                            gap: isMobileView ? '8px' : '10px',
                             marginTop: '4px'
                         }}>
                             {ratesOptions.map((rate) => (
@@ -293,13 +293,13 @@ export default function TvaTab({ isMobileView, triggerToast }) {
                                     type="button"
                                     onClick={() => handleRateChange(rate)}
                                     style={{
-                                        padding: isMobileView ? '7px 4px' : '10px',
+                                        padding: isMobileView ? '11px 8px' : '10px',
                                         borderRadius: '8px',
                                         border: defaultTvaRate === rate ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
                                         backgroundColor: defaultTvaRate === rate ? 'var(--sidebar-primary)' : 'var(--background)',
                                         color: defaultTvaRate === rate ? '#fff' : 'var(--foreground)',
                                         fontWeight: 700,
-                                        fontSize: isMobileView ? '11px' : '13.5px',
+                                        fontSize: isMobileView ? '13.5px' : '13.5px',
                                         cursor: 'pointer',
                                         textAlign: 'center',
                                         transition: 'all 0.15s ease'
@@ -349,56 +349,56 @@ export default function TvaTab({ isMobileView, triggerToast }) {
             {/* Historique Déclarations TVA */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
                 <h3 style={{
-                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
-                    fontSize: isMobileView ? '12.5px' : '15px',
+                    margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '15px' : '15px',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    <FileText size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                    <FileText size={isMobileView ? 18 : 18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
                     <span>TVA Collectée sur Factures Réglées</span>
                 </h3>
 
                 {isMobileView ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {tvaQuarters.map((q, idx) => (
                             <div key={idx} style={{
-                                padding: '8px 10px',
+                                padding: '12px 14px',
                                 backgroundColor: 'var(--background)',
-                                borderRadius: '8px',
+                                borderRadius: '10px',
                                 border: '1px solid var(--border)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '11.5px' }}>{q.quarter}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <span style={{ fontWeight: 700, fontSize: '13.5px' }}>{q.quarter}</span>
                                     <span style={{
                                         backgroundColor: q.status === 'Déclaré' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                                         color: q.status === 'Déclaré' ? '#22c55e' : '#f59e0b',
-                                        fontSize: '10px',
-                                        padding: '1px 6px',
+                                        fontSize: '11.5px',
+                                        padding: '2px 8px',
                                         borderRadius: '50px',
                                         fontWeight: 700
                                     }}>
                                         {q.status}
                                     </span>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', fontSize: '10.5px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', fontSize: '12px' }}>
                                     <div>
-                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '9.5px' }}>Collectée</div>
-                                        <div style={{ fontWeight: 700, marginTop: '1px', fontSize: '11px' }}>{q.collected}</div>
+                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '11.5px' }}>Collectée</div>
+                                        <div style={{ fontWeight: 700, marginTop: '2px', fontSize: '13px' }}>{q.collected}</div>
                                     </div>
                                     <div>
-                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '9.5px' }}>Déductible</div>
-                                        <div style={{ color: 'var(--muted-foreground)', marginTop: '1px', fontSize: '11px' }}>{q.deductible}</div>
+                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '11.5px' }}>Déductible</div>
+                                        <div style={{ color: 'var(--muted-foreground)', marginTop: '2px', fontSize: '13px' }}>{q.deductible}</div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '9.5px' }}>Nette à payer</div>
-                                        <div style={{ fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '1px', fontSize: '11px' }}>{q.netPayable}</div>
+                                        <div style={{ color: 'var(--muted-foreground)', fontSize: '11.5px' }}>Nette à payer</div>
+                                        <div style={{ fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '2px', fontSize: '13.5px' }}>{q.netPayable}</div>
                                     </div>
                                 </div>
                             </div>

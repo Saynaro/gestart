@@ -133,7 +133,7 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
-                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                 drag="y"
                 dragListener={false}
                 dragControls={dragControls}
@@ -151,10 +151,13 @@ function EcheancePickerModal({ selectedOptionId, customDate, onSelect, onClose }
                     borderRadius: "20px 20px 0 0",
                     border: "1px solid var(--border)",
                     borderBottom: "none",
-                    boxShadow: "0 -8px 40px rgba(0,0,0,0.2)",
+                    boxShadow: "0 -4px 20px rgba(0,0,0,0.18)",
                     display: "flex",
                     flexDirection: "column",
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    willChange: "transform",
+                    transform: "translate3d(0,0,0)",
+                    contain: "paint layout"
                 }}
                 onClick={e => e.stopPropagation()}
             >

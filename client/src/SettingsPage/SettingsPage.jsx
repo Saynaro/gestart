@@ -490,16 +490,21 @@ function SettingsPage() {
             ".settings-layout-container",
             ".main-content",
             ".settings-main-panel",
-            ".settings-content-panel"
+            ".settings-content-panel",
+            ".pull-to-refresh-container",
+            ".ptr-content",
+            "#root"
         ];
         selectors.forEach(sel => {
-            const el = document.querySelector(sel);
-            if (el) {
-                el.scrollTop = 0;
-                if (typeof el.scrollTo === "function") {
-                    el.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            const els = document.querySelectorAll(sel);
+            els.forEach(el => {
+                if (el) {
+                    el.scrollTop = 0;
+                    if (typeof el.scrollTo === "function") {
+                        el.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                    }
                 }
-            }
+            });
         });
     }, []);
 
@@ -563,10 +568,16 @@ function SettingsPage() {
             const rafId = requestAnimationFrame(scrollToTop);
             const timerId1 = setTimeout(scrollToTop, 25);
             const timerId2 = setTimeout(scrollToTop, 80);
+            const timerId3 = setTimeout(scrollToTop, 180);
+            const timerId4 = setTimeout(scrollToTop, 350);
+            const timerId5 = setTimeout(scrollToTop, 600);
             return () => {
                 cancelAnimationFrame(rafId);
                 clearTimeout(timerId1);
                 clearTimeout(timerId2);
+                clearTimeout(timerId3);
+                clearTimeout(timerId4);
+                clearTimeout(timerId5);
             };
         } else {
             restoreListScroll();
@@ -652,6 +663,7 @@ function SettingsPage() {
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
             if (mobileScreenState === "list" && mobileScrollRef.current) {
                 scrollYRef.current = mobileScrollRef.current.scrollTop;
+                mobileScrollRef.current.scrollTop = 0;
             }
             if (mobileScreenState === "detail") {
                 window.history.replaceState({ settingsDetail: true, tab: itemId }, "", window.location.href);
@@ -664,6 +676,9 @@ function SettingsPage() {
         requestAnimationFrame(scrollToTop);
         setTimeout(scrollToTop, 20);
         setTimeout(scrollToTop, 80);
+        setTimeout(scrollToTop, 180);
+        setTimeout(scrollToTop, 350);
+        setTimeout(scrollToTop, 600);
     }, [mobileScreenState, scrollToTop]);
 
     const handleMainListBack = () => {
@@ -688,7 +703,7 @@ function SettingsPage() {
                 initial={isMobileView ? { opacity: 1 } : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: isMobileView ? 0 : 0.2 }}
-                onAnimationComplete={isMobileView ? undefined : scrollToTop}
+                onAnimationComplete={scrollToTop}
             >
                 {!isMobileView && (
                     <>
@@ -970,11 +985,11 @@ function SettingsPage() {
 
                                 <motion.div
                                     className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-card text-foreground rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
-                                    style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                                    style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform", transform: "translate3d(0, 0, 0)", contain: "paint layout" }}
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0 }}
                                     exit={{ y: "100%" }}
-                                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                                    transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                                     drag="y"
                                     dragControls={dragControlsProfileSub}
                                     dragListener={false}

@@ -240,37 +240,37 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '20px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '20px' }}>
 
             {/* Header / Summary Card */}
             <div style={{
                 backgroundColor: 'var(--card)',
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '18px 20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '18px 20px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: isMobileView ? 'stretch' : 'center',
                 flexDirection: isMobileView ? 'column' : 'row',
-                gap: isMobileView ? '8px' : '16px'
+                gap: isMobileView ? '12px' : '16px'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '8px' : '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '12px' : '14px' }}>
                     <div style={{
-                        width: isMobileView ? '32px' : '44px',
-                        height: isMobileView ? '32px' : '44px',
-                        minWidth: isMobileView ? '32px' : '44px',
-                        borderRadius: isMobileView ? '8px' : '10px',
+                        width: isMobileView ? '40px' : '44px',
+                        height: isMobileView ? '40px' : '44px',
+                        minWidth: isMobileView ? '40px' : '44px',
+                        borderRadius: isMobileView ? '10px' : '10px',
                         backgroundColor: 'var(--muted)',
                         color: 'var(--sidebar-primary)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
-                        <Calculator size={isMobileView ? 16 : 22} />
+                        <Calculator size={isMobileView ? 20 : 22} />
                     </div>
                     <div style={{ minWidth: 0, flex: 1 }}>
                         <span style={{
-                            fontSize: isMobileView ? '9.5px' : '11.5px',
+                            fontSize: isMobileView ? '11px' : '11.5px',
                             color: 'var(--muted-foreground)',
                             fontWeight: 600,
                             textTransform: 'uppercase',
@@ -281,12 +281,12 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                         </span>
                         <h4 style={{
                             margin: '2px 0 0 0',
-                            fontSize: isMobileView ? '13.5px' : '17px',
+                            fontSize: isMobileView ? '16px' : '17px',
                             fontWeight: 800,
                             lineHeight: 1.25,
                             color: 'var(--foreground)'
                         }}>
-                            {currentDue.toLocaleString("fr-FR")} € à régler <span style={{ fontSize: isMobileView ? '10px' : '12.5px', fontWeight: 500, color: 'var(--muted-foreground)' }}>(sur {activeQuarterCA.toLocaleString("fr-FR")} € HT ce trimestre)</span>
+                            {currentDue.toLocaleString("fr-FR")} € à régler <span style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 500, color: 'var(--muted-foreground)' }}>(sur {activeQuarterCA.toLocaleString("fr-FR")} € HT ce trimestre)</span>
                         </h4>
                     </div>
                 </div>
@@ -294,13 +294,13 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     type="button"
                     onClick={() => window.open("https://www.autoentrepreneur.urssaf.fr", "_blank")}
                     style={{
-                        padding: isMobileView ? '6px 10px' : '9px 16px',
+                        padding: isMobileView ? '10px 14px' : '9px 16px',
                         backgroundColor: 'var(--muted)',
                         color: 'var(--foreground)',
                         border: '1px solid var(--border)',
-                        borderRadius: '7px',
+                        borderRadius: '8px',
                         fontWeight: 600,
-                        fontSize: isMobileView ? '11px' : '13px',
+                        fontSize: isMobileView ? '13px' : '13px',
                         cursor: 'pointer',
                         textAlign: 'center',
                         alignSelf: isMobileView ? 'stretch' : 'center'
@@ -313,32 +313,32 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
             {/* SECTION 1: STATUT JURIDIQUE & TVA */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
                 <h3 style={{
-                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
-                    fontSize: isMobileView ? '12.5px' : '15px',
+                    margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '15px' : '15px',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    <ShieldCheck size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
+                    <ShieldCheck size={isMobileView ? 18 : 18} style={{ color: '#556B2F' }} />
                     1. Statut juridique & Régime fiscal
                 </h3>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '6px' : '14px' }}>
+                <div className="profile-form-grid" style={{ gap: isMobileView ? '10px' : '14px' }}>
                     <div className="form-field">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Forme juridique</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 700, marginBottom: '4px' }}>Forme juridique</label>
                         <select
                             className="form-input"
                             style={{
-                                fontSize: isMobileView ? '11px' : '13.5px',
-                                padding: isMobileView ? '4px 8px' : '10px 12px',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px'
+                                fontSize: isMobileView ? '13.5px' : '13.5px',
+                                padding: isMobileView ? '8px 12px' : '10px 12px',
+                                height: isMobileView ? '42px' : '42px',
+                                minHeight: isMobileView ? '42px' : '42px'
                             }}
                             value={legalStatus}
                             onChange={(e) => {
@@ -356,14 +356,14 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Régime de TVA</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 700, marginBottom: '4px' }}>Régime de TVA</label>
                         <select
                             className="form-input"
                             style={{
-                                fontSize: isMobileView ? '11px' : '13.5px',
-                                padding: isMobileView ? '4px 8px' : '10px 12px',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px'
+                                fontSize: isMobileView ? '13.5px' : '13.5px',
+                                padding: isMobileView ? '8px 12px' : '10px 12px',
+                                height: isMobileView ? '42px' : '42px',
+                                minHeight: isMobileView ? '42px' : '42px'
                             }}
                             value={isTvaAssujetti ? "ASSUJETTI" : "FRANCHISE"}
                             onChange={(e) => {
@@ -383,32 +383,32 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
             {/* SECTION 2: OPTIONS URSSAF & IMPÔTS */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
                 <h3 style={{
-                    margin: isMobileView ? '0 0 8px 0' : '0 0 16px 0',
-                    fontSize: isMobileView ? '12.5px' : '15px',
+                    margin: isMobileView ? '0 0 12px 0' : '0 0 16px 0',
+                    fontSize: isMobileView ? '15px' : '15px',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                 }}>
-                    <Percent size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
+                    <Percent size={isMobileView ? 18 : 18} style={{ color: '#556B2F' }} />
                     2. Taux de cotisations sociales & Impôts (URSSAF)
                 </h3>
 
-                <div className="profile-form-grid" style={{ gap: isMobileView ? '6px' : '14px' }}>
+                <div className="profile-form-grid" style={{ gap: isMobileView ? '10px' : '14px' }}>
                     <div className="form-field form-group-full">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Type d'activité principale</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 700, marginBottom: '4px' }}>Type d'activité principale</label>
                         <select
                             className="form-input"
                             style={{
-                                fontSize: isMobileView ? '11px' : '13.5px',
-                                padding: isMobileView ? '4px 8px' : '10px 12px',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px'
+                                fontSize: isMobileView ? '13.5px' : '13.5px',
+                                padding: isMobileView ? '8px 12px' : '10px 12px',
+                                height: isMobileView ? '42px' : '42px',
+                                minHeight: isMobileView ? '42px' : '42px'
                             }}
                             value={activityType}
                             onChange={(e) => {
@@ -425,14 +425,14 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Périodicité des déclarations</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 700, marginBottom: '4px' }}>Périodicité des déclarations</label>
                         <select
                             className="form-input"
                             style={{
-                                fontSize: isMobileView ? '11px' : '13.5px',
-                                padding: isMobileView ? '4px 8px' : '10px 12px',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px'
+                                fontSize: isMobileView ? '13.5px' : '13.5px',
+                                padding: isMobileView ? '8px 12px' : '10px 12px',
+                                height: isMobileView ? '42px' : '42px',
+                                minHeight: isMobileView ? '42px' : '42px'
                             }}
                             value={declarationPeriodicity}
                             onChange={(e) => {
@@ -448,17 +448,17 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     </div>
 
                     <div className="form-field">
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '12.5px', fontWeight: 700, marginBottom: '2px' }}>Taux URSSAF personnalisé (optionnel)</label>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '12px' : '12.5px', fontWeight: 700, marginBottom: '4px' }}>Taux URSSAF personnalisé (optionnel)</label>
                         <input
                             type="number"
                             step="0.1"
                             placeholder={`Défaut : ${rateMap[activityType]?.rate}%`}
                             className="form-input"
                             style={{
-                                fontSize: isMobileView ? '11px' : '13.5px',
-                                padding: isMobileView ? '4px 8px' : '10px 12px',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px'
+                                fontSize: isMobileView ? '13.5px' : '13.5px',
+                                padding: isMobileView ? '8px 12px' : '10px 12px',
+                                height: isMobileView ? '42px' : '42px',
+                                minHeight: isMobileView ? '42px' : '42px'
                             }}
                             value={customUrssafRate}
                             onChange={(e) => {
@@ -472,17 +472,17 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                 </div>
 
                 {/* Toggles ACRE & Versement libératoire */}
-                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: isMobileView ? '6px' : '14px', marginTop: isMobileView ? '8px' : '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: isMobileView ? '10px' : '14px', marginTop: isMobileView ? '12px' : '16px' }}>
 
                     {/* ACRE */}
                     <div style={{
                         border: '1px solid var(--border)',
-                        borderRadius: isMobileView ? '8px' : '10px',
-                        padding: isMobileView ? '8px 10px' : '14px',
+                        borderRadius: isMobileView ? '10px' : '10px',
+                        padding: isMobileView ? '12px 14px' : '14px',
                         backgroundColor: isAcreBeneficiary ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)',
                         display: 'flex',
                         alignItems: 'flex-start',
-                        gap: isMobileView ? '8px' : '12px'
+                        gap: isMobileView ? '12px' : '12px'
                     }}>
                         <input
                             type="checkbox"
@@ -494,13 +494,13 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                                 setIsAcreBeneficiary(val);
                                 performSave({ isAcreBeneficiary: val });
                             }}
-                            style={{ width: isMobileView ? '15px' : '18px', height: isMobileView ? '15px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
+                            style={{ width: isMobileView ? '18px' : '18px', height: isMobileView ? '18px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
                         />
                         <label htmlFor="acre-checkbox" style={{ cursor: 'pointer', minWidth: 0, flex: 1 }}>
-                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '11.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
+                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '13.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
                                 Bénéficiaire de l'ACRE (1ère année)
                             </span>
-                            <span style={{ fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '1px' }}>
+                            <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
                                 Réduction de 50% (Taux appliqué : <strong>{effectiveUrssafRate}%</strong>).
                             </span>
                         </label>
@@ -509,12 +509,12 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                     {/* Versement Libératoire */}
                     <div style={{
                         border: '1px solid var(--border)',
-                        borderRadius: isMobileView ? '8px' : '10px',
-                        padding: isMobileView ? '8px 10px' : '14px',
+                        borderRadius: isMobileView ? '10px' : '10px',
+                        padding: isMobileView ? '12px 14px' : '14px',
                         backgroundColor: hasVersementLiberatoire ? 'rgba(85, 107, 47, 0.05)' : 'var(--background)',
                         display: 'flex',
                         alignItems: 'flex-start',
-                        gap: isMobileView ? '8px' : '12px'
+                        gap: isMobileView ? '12px' : '12px'
                     }}>
                         <input
                             type="checkbox"
@@ -526,13 +526,13 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
                                 setHasVersementLiberatoire(val);
                                 performSave({ hasVersementLiberatoire: val });
                             }}
-                            style={{ width: isMobileView ? '15px' : '18px', height: isMobileView ? '15px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
+                            style={{ width: isMobileView ? '18px' : '18px', height: isMobileView ? '18px' : '18px', marginTop: '2px', accentColor: '#556B2F', cursor: 'pointer', flexShrink: 0 }}
                         />
                         <label htmlFor="vl-checkbox" style={{ cursor: 'pointer', minWidth: 0, flex: 1 }}>
-                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '11.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
+                            <span style={{ fontWeight: 700, fontSize: isMobileView ? '13.5px' : '13.5px', color: 'var(--foreground)', display: 'block' }}>
                                 Versement Libératoire IR (+{rateMap[activityType]?.vlRate}%)
                             </span>
-                            <span style={{ fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '1px' }}>
+                            <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', display: 'block', marginTop: '2px' }}>
                                 Impôt sur le revenu payé avec chaque déclaration.
                             </span>
                         </label>
@@ -544,63 +544,63 @@ export default function CotisationsTab({ isMobileView, triggerToast }) {
             {/* SECTION 3: SIMULATEUR EN DIRECT */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '14px',
-                padding: isMobileView ? '10px 12px' : '20px',
+                borderRadius: isMobileView ? '14px' : '14px',
+                padding: isMobileView ? '14px 16px' : '20px',
                 backgroundColor: 'var(--card)'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: isMobileView ? '6px' : '12px', marginBottom: isMobileView ? '8px' : '16px' }}>
-                    <h3 style={{ margin: 0, fontSize: isMobileView ? '12.5px' : '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Sparkles size={isMobileView ? 15 : 18} style={{ color: '#556B2F' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: isMobileView ? '8px' : '12px', marginBottom: isMobileView ? '12px' : '16px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? '15px' : '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Sparkles size={isMobileView ? 18 : 18} style={{ color: '#556B2F' }} />
                         Simulateur : Revenu net en poche
                     </h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ fontSize: isMobileView ? '10px' : '13px', color: 'var(--muted-foreground)' }}>CA test :</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: isMobileView ? '12.5px' : '13px', color: 'var(--muted-foreground)' }}>CA test :</span>
                         <input
                             type="number"
                             value={simulatedCA}
                             onChange={(e) => setSimulatedCA(e.target.value)}
                             style={{
-                                width: isMobileView ? '65px' : '90px',
-                                height: isMobileView ? '26px' : 'auto',
-                                padding: isMobileView ? '2px 6px' : '6px 10px',
+                                width: isMobileView ? '80px' : '90px',
+                                height: isMobileView ? '34px' : 'auto',
+                                padding: isMobileView ? '4px 8px' : '6px 10px',
                                 borderRadius: '6px',
                                 border: '1px solid var(--border)',
                                 backgroundColor: 'var(--background)',
                                 color: 'var(--foreground)',
                                 fontWeight: 700,
-                                fontSize: isMobileView ? '11px' : '14px'
+                                fontSize: isMobileView ? '14px' : '14px'
                             }}
                         />
-                        <span style={{ fontWeight: 700, fontSize: isMobileView ? '11px' : '13px' }}>€ HT</span>
+                        <span style={{ fontWeight: 700, fontSize: isMobileView ? '13px' : '13px' }}>€ HT</span>
                     </div>
                 </div>
 
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobileView ? '1fr 1fr' : 'repeat(4, 1fr)',
-                    gap: isMobileView ? '6px' : '12px'
+                    gap: isMobileView ? '10px' : '12px'
                 }}>
-                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>URSSAF ({effectiveUrssafRate}%)</span>
-                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simUrssaf.toLocaleString("fr-FR")} €</h4>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '12px 14px', borderRadius: '10px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>URSSAF ({effectiveUrssafRate}%)</span>
+                        <h4 style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '14.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simUrssaf.toLocaleString("fr-FR")} €</h4>
                     </div>
 
-                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>CFP ({cfpRate}%)</span>
-                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simCfp.toLocaleString("fr-FR")} €</h4>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '12px 14px', borderRadius: '10px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>CFP ({cfpRate}%)</span>
+                        <h4 style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '14.5px' : '16px', fontWeight: 700, color: '#e11d48' }}>- {simCfp.toLocaleString("fr-FR")} €</h4>
                     </div>
 
-                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'var(--muted)' }}>
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>Impôt ({vlRate}%)</span>
-                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, color: hasVersementLiberatoire ? '#e11d48' : 'var(--muted-foreground)' }}>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '12px 14px', borderRadius: '10px', backgroundColor: 'var(--muted)' }}>
+                        <span style={{ fontSize: isMobileView ? '11px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'block' }}>Impôt ({vlRate}%)</span>
+                        <h4 style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '14.5px' : '16px', fontWeight: 700, color: hasVersementLiberatoire ? '#e11d48' : 'var(--muted-foreground)' }}>
                             {hasVersementLiberatoire ? `- ${simVl.toLocaleString("fr-FR")} €` : "0 €"}
                         </h4>
                     </div>
 
-                    <div style={{ padding: isMobileView ? '6px 8px' : '12px 14px', borderRadius: '8px', backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: '#166534', fontWeight: 700, display: 'block' }}>Net en poche</span>
-                        <h4 style={{ margin: '2px 0 0 0', fontSize: isMobileView ? '13px' : '17px', fontWeight: 800, color: '#16a34a' }}>
-                            {simNet.toLocaleString("fr-FR")} € <span style={{ fontSize: isMobileView ? '9px' : '11px', fontWeight: 600 }}>({simNetPercent}%)</span>
+                    <div style={{ padding: isMobileView ? '10px 12px' : '12px 14px', borderRadius: '10px', backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                        <span style={{ fontSize: isMobileView ? '11px' : '11.5px', color: '#166534', fontWeight: 700, display: 'block' }}>Net en poche</span>
+                        <h4 style={{ margin: '4px 0 0 0', fontSize: isMobileView ? '15px' : '17px', fontWeight: 800, color: '#16a34a' }}>
+                            {simNet.toLocaleString("fr-FR")} € <span style={{ fontSize: isMobileView ? '11px' : '11px', fontWeight: 600 }}>({simNetPercent}%)</span>
                         </h4>
                     </div>
                 </div>

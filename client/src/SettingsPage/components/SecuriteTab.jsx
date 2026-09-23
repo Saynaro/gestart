@@ -191,28 +191,28 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
 
     if (isMobileView) {
         return (
-            <div className="mobile-fields-stack">
+            <div className="mobile-fields-stack" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {/* 1. Email de connexion */}
-                <div className="mobile-group-section">
-                    <h4 className="mobile-group-header">
-                        <Shield size={13} style={{ color: "#556B2F" }} />
+                <div className="mobile-group-section" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <h4 className="mobile-group-header" style={{ margin: 0, fontSize: "15.5px", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Shield size={18} style={{ color: "#556B2F" }} />
                         <span>Email de connexion</span>
                     </h4>
 
                     <div style={{
                         backgroundColor: "var(--card)",
                         border: "1px solid var(--border)",
-                        borderRadius: "14px",
-                        padding: "12px 14px",
+                        borderRadius: "16px",
+                        padding: "16px 18px",
                         display: "flex",
                         flexDirection: "column",
-                        gap: "10px"
+                        gap: "12px"
                     }}>
                         {!isChangingEmail ? (
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-                                <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                                    <span style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>Adresse email actuelle</span>
-                                    <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", gap: "2px" }}>
+                                    <span style={{ fontSize: "12px", color: "var(--muted-foreground)", fontWeight: 600 }}>Adresse email actuelle</span>
+                                    <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--foreground)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                         {loginEmail || "Chargement..."}
                                     </span>
                                 </div>
@@ -227,13 +227,13 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                     style={{
                                         display: "inline-flex",
                                         alignItems: "center",
-                                        padding: "7px 12px",
+                                        padding: "9px 16px",
                                         borderRadius: "8px",
                                         backgroundColor: "var(--muted, #F4F3EF)",
                                         color: "var(--foreground)",
                                         border: "1px solid var(--border)",
-                                        fontSize: "12.5px",
-                                        fontWeight: 600,
+                                        fontSize: "13.5px",
+                                        fontWeight: 700,
                                         cursor: "pointer",
                                         flexShrink: 0
                                     }}
@@ -242,34 +242,35 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={handleChangeEmailSubmit} autoComplete="off" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                <div className="mobile-input-card">
-                                    <span className="mobile-input-card-label">Nouvelle adresse email</span>
+                            <form onSubmit={handleChangeEmailSubmit} autoComplete="off" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                <div className="mobile-input-card" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <span className="mobile-input-card-label" style={{ fontSize: "13px", fontWeight: 700 }}>Nouvelle adresse email</span>
                                     <input
                                         type="email"
                                         name="new_email_unique_field"
                                         autoComplete="off"
-                                        className="mobile-input-card-field"
+                                        className="mobile-input-card-field form-input"
                                         value={newEmailInput}
                                         onChange={(e) => setNewEmailInput(e.target.value)}
                                         placeholder="nouvel.email@domaine.fr"
+                                        style={{ height: "46px", minHeight: "46px", maxHeight: "46px", padding: "10px 14px", fontSize: "14.5px", borderRadius: "8px" }}
                                         required
                                         autoFocus
                                     />
                                 </div>
 
-                                <div className="mobile-input-card" style={{ position: "relative" }}>
-                                    <span className="mobile-input-card-label">Mot de passe actuel pour confirmation</span>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                <div className="mobile-input-card" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <span className="mobile-input-card-label" style={{ fontSize: "13px", fontWeight: 700 }}>Mot de passe actuel pour confirmation</span>
+                                    <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
                                         <input
                                             type={showEmailPassword ? "text" : "password"}
                                             name="security_confirm_pwd_unique"
                                             autoComplete="new-password"
-                                            className="mobile-input-card-field"
+                                            className="mobile-input-card-field form-input"
                                             value={emailPasswordInput}
                                             onChange={(e) => setEmailPasswordInput(e.target.value)}
                                             placeholder="••••••••••••"
-                                            style={{ paddingRight: "36px" }}
+                                            style={{ width: "100%", height: "46px", minHeight: "46px", maxHeight: "46px", padding: "10px 42px 10px 14px", fontSize: "14.5px", borderRadius: "8px" }}
                                         />
                                         <button
                                             type="button"
@@ -283,15 +284,15 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                                 border: "none",
                                                 color: "var(--muted-foreground)",
                                                 cursor: "pointer",
-                                                padding: "4px"
+                                                padding: "6px"
                                             }}
                                         >
-                                            {showEmailPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                            {showEmailPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "4px" }}>
+                                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "4px" }}>
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -299,12 +300,12 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                             setEmailPasswordInput("");
                                         }}
                                         style={{
-                                            padding: "7px 14px",
+                                            padding: "10px 18px",
                                             borderRadius: "8px",
                                             backgroundColor: "transparent",
                                             color: "var(--foreground)",
                                             border: "1px solid var(--border)",
-                                            fontSize: "12.5px",
+                                            fontSize: "13.5px",
                                             fontWeight: 600,
                                             cursor: "pointer"
                                         }}
@@ -315,13 +316,13 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                         type="submit"
                                         disabled={emailLoading}
                                         style={{
-                                            padding: "7px 14px",
+                                            padding: "10px 20px",
                                             borderRadius: "8px",
                                             backgroundColor: "#556B2F",
                                             color: "#fff",
                                             border: "none",
-                                            fontSize: "12.5px",
-                                            fontWeight: 600,
+                                            fontSize: "13.5px",
+                                            fontWeight: 700,
                                             cursor: "pointer"
                                         }}
                                     >
@@ -334,24 +335,24 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                 </div>
 
                 {/* 2. Changer de mot de passe */}
-                <div className="mobile-group-section">
-                    <h4 className="mobile-group-header">
-                        <Key size={13} style={{ color: "#556B2F" }} />
+                <div className="mobile-group-section" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <h4 className="mobile-group-header" style={{ margin: 0, fontSize: "15.5px", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Key size={18} style={{ color: "#556B2F" }} />
                         <span>Changer le mot de passe</span>
                     </h4>
 
-                    <form onSubmit={handlePasswordChangeSubmit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <div className="mobile-input-card" style={{ position: "relative" }}>
-                            <span className="mobile-input-card-label">Ancien mot de passe</span>
-                            <div style={{ display: "flex", alignItems: "center" }}>
+                    <form onSubmit={handlePasswordChangeSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div className="mobile-input-card" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <span className="mobile-input-card-label" style={{ fontSize: "13px", fontWeight: 700 }}>Ancien mot de passe</span>
+                            <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
                                 <input
                                     type={showOldPassword ? "text" : "password"}
-                                    className="mobile-input-card-field"
+                                    className="mobile-input-card-field form-input"
                                     value={oldPassword}
                                     onChange={(e) => setOldPassword(e.target.value)}
                                     placeholder="••••••••••••"
                                     required
-                                    style={{ paddingRight: "36px" }}
+                                    style={{ width: "100%", height: "46px", minHeight: "46px", maxHeight: "46px", padding: "10px 42px 10px 14px", fontSize: "14.5px", borderRadius: "8px" }}
                                 />
                                 <button
                                     type="button"
@@ -365,27 +366,27 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                         border: "none",
                                         color: "var(--muted-foreground)",
                                         cursor: "pointer",
-                                        padding: "4px"
+                                        padding: "6px"
                                     }}
                                 >
-                                    {showOldPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                    {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="mobile-input-card" style={{ position: "relative" }}>
-                            <span className="mobile-input-card-label">Nouveau mot de passe</span>
-                            <div style={{ display: "flex", alignItems: "center" }}>
+                        <div className="mobile-input-card" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <span className="mobile-input-card-label" style={{ fontSize: "13px", fontWeight: 700 }}>Nouveau mot de passe</span>
+                            <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
                                 <input
                                     type={showNewPassword ? "text" : "password"}
-                                    className="mobile-input-card-field"
+                                    className="mobile-input-card-field form-input"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     onFocus={() => setIsPasswordFocused(true)}
                                     onBlur={() => setIsPasswordFocused(false)}
                                     placeholder="Min. 8 caractères"
                                     required
-                                    style={{ paddingRight: "36px" }}
+                                    style={{ width: "100%", height: "46px", minHeight: "46px", maxHeight: "46px", padding: "10px 42px 10px 14px", fontSize: "14.5px", borderRadius: "8px" }}
                                 />
                                 <button
                                     type="button"
@@ -399,10 +400,10 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                         border: "none",
                                         color: "var(--muted-foreground)",
                                         cursor: "pointer",
-                                        padding: "4px"
+                                        padding: "6px"
                                     }}
                                 >
-                                    {showNewPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
@@ -412,42 +413,42 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                             <div style={{
                                 display: "grid",
                                 gridTemplateColumns: "1fr 1fr",
-                                gap: "4px 8px",
-                                padding: "8px 12px",
+                                gap: "6px 10px",
+                                padding: "10px 14px",
                                 backgroundColor: "var(--muted, #F8FAFC)",
-                                borderRadius: "8px",
+                                borderRadius: "10px",
                                 border: "1px solid var(--border)"
                             }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: rules.length ? "#15803D" : "#991B1B", fontWeight: 600 }}>
-                                    {rules.length ? <Check size={12} /> : <X size={12} />}
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: rules.length ? "#15803D" : "#991B1B", fontWeight: 600 }}>
+                                    {rules.length ? <Check size={14} /> : <X size={14} />}
                                     <span>8+ caractères</span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: rules.uppercase ? "#15803D" : "#991B1B", fontWeight: 600 }}>
-                                    {rules.uppercase ? <Check size={12} /> : <X size={12} />}
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: rules.uppercase ? "#15803D" : "#991B1B", fontWeight: 600 }}>
+                                    {rules.uppercase ? <Check size={14} /> : <X size={14} />}
                                     <span>1 majuscule (A-Z)</span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: rules.lowercase ? "#15803D" : "#991B1B", fontWeight: 600 }}>
-                                    {rules.lowercase ? <Check size={12} /> : <X size={12} />}
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: rules.lowercase ? "#15803D" : "#991B1B", fontWeight: 600 }}>
+                                    {rules.lowercase ? <Check size={14} /> : <X size={14} />}
                                     <span>1 minuscule (a-z)</span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: rules.number ? "#15803D" : "#991B1B", fontWeight: 600 }}>
-                                    {rules.number ? <Check size={12} /> : <X size={12} />}
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: rules.number ? "#15803D" : "#991B1B", fontWeight: 600 }}>
+                                    {rules.number ? <Check size={14} /> : <X size={14} />}
                                     <span>1 chiffre (0-9)</span>
                                 </div>
                             </div>
                         )}
 
-                        <div className="mobile-input-card" style={{ position: "relative" }}>
-                            <span className="mobile-input-card-label">Confirmer le nouveau mot de passe</span>
-                            <div style={{ display: "flex", alignItems: "center" }}>
+                        <div className="mobile-input-card" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <span className="mobile-input-card-label" style={{ fontSize: "13px", fontWeight: 700 }}>Confirmer le nouveau mot de passe</span>
+                            <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
-                                    className="mobile-input-card-field"
+                                    className="mobile-input-card-field form-input"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="Confirmez le mot de passe"
                                     required
-                                    style={{ paddingRight: "36px" }}
+                                    style={{ width: "100%", height: "46px", minHeight: "46px", maxHeight: "46px", padding: "10px 42px 10px 14px", fontSize: "14.5px", borderRadius: "8px" }}
                                 />
                                 <button
                                     type="button"
@@ -461,16 +462,16 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                         border: "none",
                                         color: "var(--muted-foreground)",
                                         cursor: "pointer",
-                                        padding: "4px"
+                                        padding: "6px"
                                     }}
                                 >
-                                    {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
 
                         {confirmPassword.length > 0 && (
-                            <span style={{ fontSize: "11px", fontWeight: 600, color: isMatch ? "#15803D" : "#991B1B", paddingLeft: "4px" }}>
+                            <span style={{ fontSize: "12px", fontWeight: 700, color: isMatch ? "#15803D" : "#991B1B", paddingLeft: "4px" }}>
                                 {isMatch ? "✓ Les mots de passe correspondent" : "✗ Les mots de passe ne correspondent pas"}
                             </span>
                         )}
@@ -479,15 +480,15 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                             type="submit"
                             disabled={passwordLoading || !oldPassword || !isPasswordValid || !isMatch}
                             style={{
-                                marginTop: "6px",
+                                marginTop: "8px",
                                 width: "100%",
-                                padding: "10px",
+                                padding: "13px 16px",
                                 borderRadius: "10px",
                                 backgroundColor: "#556B2F",
                                 color: "#ffffff",
                                 border: "none",
                                 fontWeight: 700,
-                                fontSize: "13px",
+                                fontSize: "14.5px",
                                 cursor: passwordLoading || !oldPassword || !isPasswordValid || !isMatch ? "not-allowed" : "pointer",
                                 opacity: passwordLoading || !oldPassword || !isPasswordValid || !isMatch ? 0.5 : 1
                             }}
@@ -498,37 +499,37 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                 </div>
 
                 {/* 3. Double Authentification (2FA) */}
-                <div className="mobile-group-section">
-                    <h4 className="mobile-group-header">
-                        <Lock size={13} style={{ color: "#556B2F" }} />
+                <div className="mobile-group-section" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <h4 className="mobile-group-header" style={{ margin: 0, fontSize: "15.5px", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Lock size={18} style={{ color: "#556B2F" }} />
                         <span>Double Authentification</span>
                     </h4>
 
                     <div style={{
                         backgroundColor: "var(--card)",
                         border: "1px solid var(--border)",
-                        borderRadius: "14px",
-                        padding: "12px 14px",
+                        borderRadius: "16px",
+                        padding: "16px 18px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        gap: "12px"
+                        gap: "14px"
                     }}>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)" }}>Code 2FA par e-mail</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--foreground)" }}>Code 2FA par e-mail</span>
                                 {is2FAEnabled && (
-                                    <span style={{ fontSize: "10px", fontWeight: 700, color: "#10B981", display: "inline-flex", alignItems: "center", gap: "2px" }}>
-                                        <CheckCircle2 size={11} /> Actif
+                                    <span style={{ fontSize: "11.5px", fontWeight: 700, color: "#10B981", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                                        <CheckCircle2 size={13} /> Actif
                                     </span>
                                 )}
                             </div>
-                            <span style={{ fontSize: "11px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                            <span style={{ fontSize: "12.5px", color: "var(--muted-foreground)", marginTop: "3px", lineHeight: 1.35 }}>
                                 Envoie un code à 6 chiffres par email à chaque connexion
                             </span>
                         </div>
 
-                        <label className="mobile-toggle-switch" style={{ opacity: twoFALoading ? 0.6 : 1 }}>
+                        <label className="mobile-toggle-switch" style={{ transform: "scale(1)", transformOrigin: "right center", margin: 0, opacity: twoFALoading ? 0.6 : 1 }}>
                             <input
                                 type="checkbox"
                                 checked={is2FAEnabled}
@@ -541,22 +542,22 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                 </div>
 
                 {/* 4. Déconnexion des autres appareils */}
-                <div className="mobile-group-section" style={{ marginBottom: "28px" }}>
-                    <h4 className="mobile-group-header">
-                        <LogOut size={13} style={{ color: "#ef4444" }} />
+                <div className="mobile-group-section" style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "28px" }}>
+                    <h4 className="mobile-group-header" style={{ margin: 0, fontSize: "15.5px", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <LogOut size={18} style={{ color: "#ef4444" }} />
                         <span>Gestion des appareils</span>
                     </h4>
 
                     <div style={{
                         backgroundColor: "var(--card)",
                         border: "1px solid var(--border)",
-                        borderRadius: "14px",
-                        padding: "12px 14px",
+                        borderRadius: "16px",
+                        padding: "16px 18px",
                         display: "flex",
                         flexDirection: "column",
-                        gap: "10px"
+                        gap: "14px"
                     }}>
-                        <span style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>
+                        <span style={{ fontSize: "13px", color: "var(--muted-foreground)", lineHeight: 1.4 }}>
                             Déconnecte immédiatement votre compte de tous les autres smartphones, tablettes ou ordinateurs connectés.
                         </span>
                         <button
@@ -567,19 +568,19 @@ export default function SecuriteTab({ isMobileView, triggerToast, triggerConfirm
                                 display: "inline-flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                gap: "6px",
+                                gap: "8px",
                                 width: "100%",
-                                padding: "9px 12px",
-                                borderRadius: "8px",
+                                padding: "12px 16px",
+                                borderRadius: "10px",
                                 backgroundColor: "transparent",
                                 color: "#ef4444",
                                 border: "1px solid var(--border)",
-                                fontSize: "12.5px",
-                                fontWeight: 600,
+                                fontSize: "14px",
+                                fontWeight: 700,
                                 cursor: "pointer"
                             }}
                         >
-                            <LogOut size={13} />
+                            <LogOut size={16} />
                             <span>{disconnectLoading ? "Déconnexion..." : "Déconnecter les autres appareils"}</span>
                         </button>
                     </div>

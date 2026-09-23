@@ -302,41 +302,41 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
     const isStripeRequiresInfo = stripeStatus.onboardingStatus === "REQUIRES_INFO";
 
     return (
-        <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "10px" : "24px" }}>
+        <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "14px" : "24px" }}>
             
             {/* ─────────────────────────────────────────────────────────────
                 1. MÉTHODES DE PAIEMENT ACCEPTÉES
             ───────────────────────────────────────────────────────────── */}
             <div style={{
                 border: "1px solid var(--border)",
-                borderRadius: isMobileView ? "12px" : "14px",
-                padding: isMobileView ? "10px 12px" : "24px",
+                borderRadius: isMobileView ? "14px" : "14px",
+                padding: isMobileView ? "14px 16px" : "24px",
                 backgroundColor: "var(--card)"
             }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isMobileView ? "8px" : "18px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isMobileView ? "14px" : "18px" }}>
                     <div>
-                        <h3 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
-                            <CreditCard size={isMobileView ? 16 : 20} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                        <h3 style={{ margin: 0, fontSize: isMobileView ? "15px" : "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
+                            <CreditCard size={isMobileView ? 18 : 20} style={{ color: "var(--primary)", flexShrink: 0 }} />
                             Méthodes de paiement acceptées sur les factures
                         </h3>
-                        <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "10.5px" : "13px", margin: isMobileView ? "2px 0 0 0" : "4px 0 0 0" }}>
+                        <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "12px" : "13px", margin: isMobileView ? "4px 0 0 0" : "4px 0 0 0", lineHeight: 1.35 }}>
                             Définissez les options de règlement proposées à vos clients par défaut.
                         </p>
                     </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "8px" : "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "12px" : "16px" }}>
                     
                     {/* Option 1 : Virement bancaire */}
                     <div style={{
                         border: `1px solid ${bankTransferEnabled ? "rgba(85, 107, 47, 0.4)" : "var(--border)"}`,
-                        borderRadius: isMobileView ? "10px" : "12px",
-                        padding: isMobileView ? "8px 10px" : "18px",
+                        borderRadius: isMobileView ? "12px" : "12px",
+                        padding: isMobileView ? "12px 14px" : "18px",
                         backgroundColor: bankTransferEnabled ? "rgba(85, 107, 47, 0.05)" : "transparent",
                         transition: "all 0.2s ease"
                     }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <label style={{ display: "flex", alignItems: "center", gap: isMobileView ? "7px" : "12px", cursor: "pointer", fontWeight: 600, fontSize: isMobileView ? "12px" : "15px" }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: isMobileView ? "10px" : "12px", cursor: "pointer", fontWeight: 700, fontSize: isMobileView ? "14px" : "15px" }}>
                                 <input
                                     type="checkbox"
                                     checked={bankTransferEnabled}
@@ -346,27 +346,27 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         setBankTransferEnabled(val);
                                         performAutoSave({ bankTransferEnabled: val });
                                     }}
-                                    style={{ width: isMobileView ? "15px" : "18px", height: isMobileView ? "15px" : "18px", accentColor: "var(--primary)", cursor: "pointer" }}
+                                    style={{ width: isMobileView ? "18px" : "18px", height: isMobileView ? "18px" : "18px", accentColor: "var(--primary)", cursor: "pointer" }}
                                 />
                                 <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <Landmark size={isMobileView ? 15 : 18} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                                    <Landmark size={isMobileView ? 16 : 18} style={{ color: "var(--primary)", flexShrink: 0 }} />
                                     Virement bancaire
                                 </span>
                             </label>
                             {bankIban ? (
-                                <span style={{ fontSize: isMobileView ? "10px" : "12px", color: "var(--primary)", fontWeight: 600, display: "flex", alignItems: "center", gap: "3px" }}>
-                                    <Check size={isMobileView ? 12 : 14} /> IBAN configuré
+                                <span style={{ fontSize: isMobileView ? "11.5px" : "12px", color: "var(--primary)", fontWeight: 600, display: "flex", alignItems: "center", gap: "3px" }}>
+                                    <Check size={isMobileView ? 13 : 14} /> IBAN configuré
                                 </span>
                             ) : (
-                                <span style={{ fontSize: isMobileView ? "10px" : "12px", color: "var(--muted-foreground)" }}>IBAN à renseigner</span>
+                                <span style={{ fontSize: isMobileView ? "11.5px" : "12px", color: "var(--muted-foreground)" }}>IBAN à renseigner</span>
                             )}
                         </div>
 
                         {bankTransferEnabled && (
-                            <div style={{ marginTop: isMobileView ? "8px" : "16px", paddingTop: isMobileView ? "8px" : "16px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: isMobileView ? "8px" : "14px" }}>
-                                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "6px" : "14px" }}>
+                            <div style={{ marginTop: isMobileView ? "12px" : "16px", paddingTop: isMobileView ? "12px" : "16px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: isMobileView ? "10px" : "14px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "10px" : "14px" }}>
                                     <div>
-                                        <label style={{ display: "block", fontSize: isMobileView ? "9.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "2px" : "4px", color: "var(--foreground)" }}>
+                                        <label style={{ display: "block", fontSize: isMobileView ? "12px" : "12.5px", fontWeight: 700, marginBottom: "4px", color: "var(--foreground)" }}>
                                             IBAN de l'entreprise
                                         </label>
                                         <div style={{ position: "relative" }}>
@@ -382,16 +382,18 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 }}
                                                 style={{
                                                     width: "100%",
-                                                    height: isMobileView ? "28px" : "42px",
-                                                    minHeight: isMobileView ? "28px" : "42px",
-                                                    maxHeight: isMobileView ? "28px" : "42px",
-                                                    padding: isMobileView ? "2px 28px 2px 7px" : "10px 38px 10px 12px",
+                                                    height: isMobileView ? "42px" : "42px",
+                                                    minHeight: isMobileView ? "42px" : "42px",
+                                                    maxHeight: isMobileView ? "42px" : "42px",
+                                                    padding: isMobileView ? "10px 32px 10px 8px" : "10px 38px 10px 12px",
                                                     borderRadius: "8px",
                                                     border: "1px solid var(--border)",
                                                     backgroundColor: "var(--background)",
                                                     color: "var(--foreground)",
-                                                    fontFamily: "monospace",
-                                                    fontSize: isMobileView ? "10px" : "13.5px",
+                                                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                                                    fontVariantNumeric: "tabular-nums",
+                                                    fontSize: isMobileView ? "11px" : "13.5px",
+                                                    letterSpacing: isMobileView ? "-0.2px" : "0.2px",
                                                     boxSizing: "border-box"
                                                 }}
                                             />
@@ -402,7 +404,7 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                     title="Copier l'IBAN"
                                                     style={{
                                                         position: "absolute",
-                                                        right: "6px",
+                                                        right: "8px",
                                                         top: "50%",
                                                         transform: "translateY(-50%)",
                                                         background: "none",
@@ -412,17 +414,17 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                         display: "flex",
                                                         alignItems: "center",
                                                         justifyContent: "center",
-                                                        padding: "2px"
+                                                        padding: "4px"
                                                     }}
                                                 >
-                                                    {ibanCopied ? <Check size={isMobileView ? 13 : 15} /> : <Copy size={isMobileView ? 13 : 15} />}
+                                                    {ibanCopied ? <Check size={isMobileView ? 15 : 15} /> : <Copy size={isMobileView ? 15 : 15} />}
                                                 </button>
                                             )}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label style={{ display: "block", fontSize: isMobileView ? "9.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "2px" : "4px", color: "var(--foreground)" }}>
+                                        <label style={{ display: "block", fontSize: isMobileView ? "12px" : "12.5px", fontWeight: 700, marginBottom: "4px", color: "var(--foreground)" }}>
                                             BIC / SWIFT
                                         </label>
                                         <input
@@ -437,25 +439,26 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                             }}
                                             style={{
                                                 width: "100%",
-                                                height: isMobileView ? "28px" : "42px",
-                                                minHeight: isMobileView ? "28px" : "42px",
-                                                maxHeight: isMobileView ? "28px" : "42px",
-                                                padding: isMobileView ? "2px 7px" : "10px 12px",
+                                                height: isMobileView ? "42px" : "42px",
+                                                minHeight: isMobileView ? "42px" : "42px",
+                                                maxHeight: isMobileView ? "42px" : "42px",
+                                                padding: isMobileView ? "10px 12px" : "10px 12px",
                                                 borderRadius: "8px",
                                                 border: "1px solid var(--border)",
                                                 backgroundColor: "var(--background)",
                                                 color: "var(--foreground)",
-                                                fontFamily: "monospace",
-                                                fontSize: isMobileView ? "10px" : "13.5px",
+                                                fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                                                fontVariantNumeric: "tabular-nums",
+                                                fontSize: isMobileView ? "13.5px" : "13.5px",
                                                 boxSizing: "border-box"
                                             }}
                                         />
                                     </div>
                                 </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "6px" : "14px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "10px" : "14px" }}>
                                     <div>
-                                        <label style={{ display: "block", fontSize: isMobileView ? "9.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "2px" : "4px", color: "var(--foreground)" }}>
+                                        <label style={{ display: "block", fontSize: isMobileView ? "12px" : "12.5px", fontWeight: 700, marginBottom: "4px", color: "var(--foreground)" }}>
                                             Nom du titulaire du compte
                                         </label>
                                         <input
@@ -470,22 +473,22 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                             }}
                                             style={{
                                                 width: "100%",
-                                                height: isMobileView ? "28px" : "42px",
-                                                minHeight: isMobileView ? "28px" : "42px",
-                                                maxHeight: isMobileView ? "28px" : "42px",
-                                                padding: isMobileView ? "2px 7px" : "10px 12px",
+                                                height: isMobileView ? "42px" : "42px",
+                                                minHeight: isMobileView ? "42px" : "42px",
+                                                maxHeight: isMobileView ? "42px" : "42px",
+                                                padding: isMobileView ? "10px 12px" : "10px 12px",
                                                 borderRadius: "8px",
                                                 border: "1px solid var(--border)",
                                                 backgroundColor: "var(--background)",
                                                 color: "var(--foreground)",
-                                                fontSize: isMobileView ? "10px" : "13.5px",
+                                                fontSize: isMobileView ? "13.5px" : "13.5px",
                                                 boxSizing: "border-box"
                                             }}
                                         />
                                     </div>
 
                                     <div>
-                                        <label style={{ display: "block", fontSize: isMobileView ? "9.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "2px" : "4px", color: "var(--foreground)" }}>
+                                        <label style={{ display: "block", fontSize: isMobileView ? "12px" : "12.5px", fontWeight: 700, marginBottom: "4px", color: "var(--foreground)" }}>
                                             Nom de la banque
                                         </label>
                                         <input
@@ -500,15 +503,15 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                             }}
                                             style={{
                                                 width: "100%",
-                                                height: isMobileView ? "28px" : "42px",
-                                                minHeight: isMobileView ? "28px" : "42px",
-                                                maxHeight: isMobileView ? "28px" : "42px",
-                                                padding: isMobileView ? "2px 7px" : "10px 12px",
+                                                height: isMobileView ? "42px" : "42px",
+                                                minHeight: isMobileView ? "42px" : "42px",
+                                                maxHeight: isMobileView ? "42px" : "42px",
+                                                padding: isMobileView ? "10px 12px" : "10px 12px",
                                                 borderRadius: "8px",
                                                 border: "1px solid var(--border)",
                                                 backgroundColor: "var(--background)",
                                                 color: "var(--foreground)",
-                                                fontSize: isMobileView ? "10px" : "13.5px",
+                                                fontSize: isMobileView ? "13.5px" : "13.5px",
                                                 boxSizing: "border-box"
                                             }}
                                         />
@@ -518,15 +521,16 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                 <div style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: "6px",
-                                    fontSize: isMobileView ? "10px" : "12px",
+                                    gap: "8px",
+                                    fontSize: isMobileView ? "12px" : "12px",
                                     color: "var(--muted-foreground)",
                                     backgroundColor: "var(--background)",
-                                    padding: isMobileView ? "6px 8px" : "10px 14px",
+                                    padding: isMobileView ? "10px 12px" : "10px 14px",
                                     borderRadius: "8px",
-                                    border: "1px solid var(--border)"
+                                    border: "1px solid var(--border)",
+                                    lineHeight: 1.4
                                 }}>
-                                    <Info size={isMobileView ? 13 : 15} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                                    <Info size={isMobileView ? 15 : 15} style={{ color: "var(--primary)", flexShrink: 0 }} />
                                     <span>
                                         <strong>Référence auto :</strong> Le n° de facture (ex: <em>INV-2026-001</em>) est indiqué au client comme référence de virement.
                                     </span>
@@ -538,13 +542,13 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                     {/* Option 2 : Paiement en ligne Stripe Connect */}
                     <div style={{
                         border: `1px solid ${isStripeComplete ? "rgba(85, 107, 47, 0.4)" : "var(--border)"}`,
-                        borderRadius: isMobileView ? "10px" : "12px",
-                        padding: isMobileView ? "8px 10px" : "18px",
+                        borderRadius: isMobileView ? "12px" : "12px",
+                        padding: isMobileView ? "12px 14px" : "18px",
                         backgroundColor: isStripeComplete ? "rgba(85, 107, 47, 0.05)" : "transparent",
                         transition: "all 0.2s ease"
                     }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
-                            <label style={{ display: "flex", alignItems: "center", gap: isMobileView ? "7px" : "12px", cursor: isStripeComplete ? "pointer" : "default", fontWeight: 600, fontSize: isMobileView ? "12px" : "15px" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: isMobileView ? "10px" : "12px", cursor: isStripeComplete ? "pointer" : "default", fontWeight: 700, fontSize: isMobileView ? "14px" : "15px" }}>
                                 <input
                                     type="checkbox"
                                     checked={stripePaymentEnabled && isStripeComplete}
@@ -555,10 +559,10 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         setStripePaymentEnabled(val);
                                         performAutoSave({ stripePaymentEnabled: val });
                                     }}
-                                    style={{ width: isMobileView ? "15px" : "18px", height: isMobileView ? "15px" : "18px", accentColor: "var(--primary)", cursor: isStripeComplete ? "pointer" : "not-allowed" }}
+                                    style={{ width: isMobileView ? "18px" : "18px", height: isMobileView ? "18px" : "18px", accentColor: "var(--primary)", cursor: isStripeComplete ? "pointer" : "not-allowed" }}
                                 />
                                 <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <CreditCard size={isMobileView ? 15 : 18} style={{ color: "#635BFF", flexShrink: 0 }} />
+                                    <CreditCard size={isMobileView ? 16 : 18} style={{ color: "#635BFF", flexShrink: 0 }} />
                                     Paiement en ligne par carte (Stripe Connect)
                                 </span>
                             </label>
@@ -570,54 +574,54 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         display: "inline-flex",
                                         alignItems: "center",
                                         gap: "4px",
-                                        padding: isMobileView ? "2px 7px" : "4px 10px",
+                                        padding: isMobileView ? "3px 9px" : "4px 10px",
                                         borderRadius: "20px",
-                                        fontSize: isMobileView ? "10px" : "12px",
+                                        fontSize: isMobileView ? "11.5px" : "12px",
                                         fontWeight: 600,
                                         backgroundColor: "rgba(16, 185, 129, 0.15)",
                                         color: "#10B981",
                                         border: "1px solid rgba(16, 185, 129, 0.3)"
                                     }}>
-                                        <CheckCircle2 size={isMobileView ? 11 : 12} /> Connecté
+                                        <CheckCircle2 size={isMobileView ? 12 : 12} /> Connecté
                                     </span>
                                 ) : isStripeInProgress ? (
                                     <span style={{
                                         display: "inline-flex",
                                         alignItems: "center",
                                         gap: "4px",
-                                        padding: isMobileView ? "2px 7px" : "4px 10px",
+                                        padding: isMobileView ? "3px 9px" : "4px 10px",
                                         borderRadius: "20px",
-                                        fontSize: isMobileView ? "10px" : "12px",
+                                        fontSize: isMobileView ? "11.5px" : "12px",
                                         fontWeight: 600,
                                         backgroundColor: "rgba(245, 158, 11, 0.15)",
                                         color: "#F59E0B",
                                         border: "1px solid rgba(245, 158, 11, 0.3)"
                                     }}>
-                                        <Clock size={isMobileView ? 11 : 12} /> En cours
+                                        <Clock size={isMobileView ? 12 : 12} /> En cours
                                     </span>
                                 ) : isStripeRequiresInfo ? (
                                     <span style={{
                                         display: "inline-flex",
                                         alignItems: "center",
                                         gap: "4px",
-                                        padding: isMobileView ? "2px 7px" : "4px 10px",
+                                        padding: isMobileView ? "3px 9px" : "4px 10px",
                                         borderRadius: "20px",
-                                        fontSize: isMobileView ? "10px" : "12px",
+                                        fontSize: isMobileView ? "11.5px" : "12px",
                                         fontWeight: 600,
                                         backgroundColor: "rgba(239, 68, 68, 0.15)",
                                         color: "#EF4444",
                                         border: "1px solid rgba(239, 68, 68, 0.3)"
                                     }}>
-                                        <AlertCircle size={isMobileView ? 11 : 12} /> Infos requises
+                                        <AlertCircle size={isMobileView ? 12 : 12} /> Infos requises
                                     </span>
                                 ) : (
                                     <span style={{
                                         display: "inline-flex",
                                         alignItems: "center",
                                         gap: "4px",
-                                        padding: isMobileView ? "2px 7px" : "4px 10px",
+                                        padding: isMobileView ? "3px 9px" : "4px 10px",
                                         borderRadius: "20px",
-                                        fontSize: isMobileView ? "10px" : "12px",
+                                        fontSize: isMobileView ? "11.5px" : "12px",
                                         fontWeight: 600,
                                         backgroundColor: "rgba(148, 163, 184, 0.15)",
                                         color: "#94A3B8",
@@ -630,15 +634,15 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         </div>
 
                         {/* Bloc action et détails Stripe Connect */}
-                        <div style={{ marginTop: isMobileView ? "8px" : "14px", paddingTop: isMobileView ? "8px" : "14px", borderTop: "1px solid var(--border)" }}>
-                            <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "10.5px" : "13px", margin: isMobileView ? "0 0 8px 0" : "0 0 14px 0", lineHeight: 1.4 }}>
+                        <div style={{ marginTop: isMobileView ? "12px" : "14px", paddingTop: isMobileView ? "12px" : "14px", borderTop: "1px solid var(--border)" }}>
+                            <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "12.5px" : "13px", margin: isMobileView ? "0 0 10px 0" : "0 0 14px 0", lineHeight: 1.4 }}>
                                 Vos clients peuvent régler leurs factures en ligne par carte. Les fonds sont versés <strong>directement sur votre compte</strong> via Stripe Express.
                             </p>
 
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", width: isMobileView ? "100%" : "auto" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", width: isMobileView ? "100%" : "auto" }}>
                                     {!isStripeComplete ? (
-                                        <div style={{ display: "flex", gap: "6px", flexDirection: isMobileView ? "column" : "row", width: isMobileView ? "100%" : "auto" }}>
+                                        <div style={{ display: "flex", gap: "8px", flexDirection: isMobileView ? "column" : "row", width: isMobileView ? "100%" : "auto" }}>
                                             <button
                                                 type="button"
                                                 onClick={handleStartOnboarding}
@@ -647,14 +651,14 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                     display: "inline-flex",
                                                     alignItems: "center",
                                                     justifyContent: "center",
-                                                    gap: "6px",
-                                                    padding: isMobileView ? "7px 12px" : "10px 20px",
-                                                    borderRadius: "7px",
+                                                    gap: "8px",
+                                                    padding: isMobileView ? "11px 16px" : "10px 20px",
+                                                    borderRadius: "8px",
                                                     backgroundColor: "#635BFF",
                                                     color: "#FFFFFF",
                                                     border: "none",
-                                                    fontWeight: 600,
-                                                    fontSize: isMobileView ? "11.5px" : "13.5px",
+                                                    fontWeight: 700,
+                                                    fontSize: isMobileView ? "13.5px" : "13.5px",
                                                     cursor: onboardingLoading ? "not-allowed" : "pointer",
                                                     boxShadow: "0 2px 8px rgba(99, 91, 255, 0.3)",
                                                     transition: "all 0.2s ease",
@@ -662,16 +666,16 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 }}
                                             >
                                                 {onboardingLoading ? (
-                                                    <Loader2 size={14} className="animate-spin" />
+                                                    <Loader2 size={16} className="animate-spin" />
                                                 ) : (
-                                                    <ExternalLink size={14} />
+                                                    <ExternalLink size={16} />
                                                 )}
                                                 {isStripeInProgress ? "Continuer la config Stripe" : (isStripeRequiresInfo ? "Compléter les infos Stripe" : "Activer le paiement en ligne (Stripe)")}
                                             </button>
                                         </div>
                                     ) : (
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", width: isMobileView ? "100%" : "auto" }}>
-                                            <span style={{ fontSize: isMobileView ? "10.5px" : "13px", color: "var(--foreground)", fontFamily: "monospace" }}>
+                                            <span style={{ fontSize: isMobileView ? "12px" : "13px", color: "var(--foreground)", fontFamily: "monospace" }}>
                                                 ID : {stripeStatus.stripeAccountId}
                                             </span>
                                             <button
@@ -682,17 +686,18 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 style={{
                                                     display: "inline-flex",
                                                     alignItems: "center",
-                                                    gap: "4px",
-                                                    padding: isMobileView ? "4px 8px" : "5px 10px",
+                                                    gap: "6px",
+                                                    padding: isMobileView ? "6px 12px" : "5px 10px",
                                                     borderRadius: "6px",
                                                     border: "1px solid var(--border)",
                                                     backgroundColor: "var(--background)",
                                                     color: "var(--foreground)",
-                                                    fontSize: isMobileView ? "10.5px" : "12px",
+                                                    fontSize: isMobileView ? "12px" : "12px",
+                                                    fontWeight: 600,
                                                     cursor: "pointer"
                                                 }}
                                             >
-                                                <RefreshCw size={11} className={syncingStripe ? "animate-spin" : ""} />
+                                                <RefreshCw size={12} className={syncingStripe ? "animate-spin" : ""} />
                                                 Synchroniser
                                             </button>
                                         </div>
@@ -704,16 +709,16 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         type="button"
                                         onClick={handleDisconnectStripe}
                                         style={{
-                                            padding: isMobileView ? "5px 10px" : "6px 14px",
+                                            padding: isMobileView ? "8px 12px" : "6px 14px",
                                             borderRadius: "6px",
                                             border: "1px solid var(--border)",
                                             backgroundColor: "var(--card)",
                                             color: "#EF4444",
-                                            fontSize: isMobileView ? "10.5px" : "12px",
+                                            fontSize: isMobileView ? "12px" : "12px",
                                             fontWeight: 600,
                                             cursor: "pointer",
                                             width: isMobileView ? "100%" : "auto",
-                                            marginTop: isMobileView ? "4px" : 0,
+                                            marginTop: isMobileView ? "6px" : 0,
                                             transition: "all 0.15s ease",
                                             display: "inline-flex",
                                             alignItems: "center",
@@ -734,21 +739,21 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
             ───────────────────────────────────────────────────────────── */}
             <div style={{
                 border: "1px solid var(--border)",
-                borderRadius: isMobileView ? "12px" : "14px",
-                padding: isMobileView ? "10px 12px" : "24px",
+                borderRadius: isMobileView ? "14px" : "14px",
+                padding: isMobileView ? "14px 16px" : "24px",
                 backgroundColor: "var(--card)"
             }}>
-                <div style={{ marginBottom: isMobileView ? "8px" : "16px" }}>
-                    <h3 style={{ margin: 0, fontSize: isMobileView ? "12.5px" : "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Percent size={isMobileView ? 16 : 20} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                <div style={{ marginBottom: isMobileView ? "12px" : "16px" }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? "15px" : "16px", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Percent size={isMobileView ? 18 : 20} style={{ color: "var(--primary)", flexShrink: 0 }} />
                         Frais de paiement en ligne (Stripe)
                     </h3>
-                    <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "10.5px" : "13px", margin: isMobileView ? "2px 0 0 0" : "4px 0 0 0" }}>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "12px" : "13px", margin: isMobileView ? "4px 0 0 0" : "4px 0 0 0", lineHeight: 1.35 }}>
                         Choisissez qui prend en charge les frais de traitement bancaire par carte.
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "6px" : "14px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "10px" : "14px" }}>
                     
                     {/* Mode A : Frais à la charge de l'entreprise */}
                     <div
@@ -759,8 +764,8 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         }}
                         style={{
                             border: `2px solid ${stripeFeeBearer === "COMPANY" ? "var(--primary)" : "var(--border)"}`,
-                            borderRadius: isMobileView ? "8px" : "12px",
-                            padding: isMobileView ? "8px 10px" : "16px",
+                            borderRadius: isMobileView ? "10px" : "12px",
+                            padding: isMobileView ? "12px 14px" : "16px",
                             backgroundColor: stripeFeeBearer === "COMPANY" ? "rgba(85, 107, 47, 0.06)" : "transparent",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
@@ -770,8 +775,8 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         }}
                     >
                         <div>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "3px" }}>
-                                <span style={{ fontWeight: 700, fontSize: isMobileView ? "11.5px" : "14.5px", color: "var(--foreground)" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                                <span style={{ fontWeight: 700, fontSize: isMobileView ? "13.5px" : "14.5px", color: "var(--foreground)" }}>
                                     À la charge de l'entreprise
                                 </span>
                                 <input
@@ -783,14 +788,14 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         setStripeFeeBearer("COMPANY");
                                         performAutoSave({ stripeFeeBearer: "COMPANY" });
                                     }}
-                                    style={{ accentColor: "var(--primary)", cursor: "pointer", width: isMobileView ? "14px" : "16px", height: isMobileView ? "14px" : "16px" }}
+                                    style={{ accentColor: "var(--primary)", cursor: "pointer", width: isMobileView ? "16px" : "16px", height: isMobileView ? "16px" : "16px" }}
                                 />
                             </div>
-                            <p style={{ margin: 0, fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)", lineHeight: 1.35 }}>
+                            <p style={{ margin: 0, fontSize: isMobileView ? "12px" : "13px", color: "var(--muted-foreground)", lineHeight: 1.35 }}>
                                 Le client paie <strong>exactement le montant TTC</strong>. Les frais Stripe (~1,5% + 0,25€) sont déduits du versement.
                             </p>
                         </div>
-                        <div style={{ marginTop: isMobileView ? "6px" : "12px", fontSize: isMobileView ? "9.5px" : "12px", color: "var(--primary)", fontWeight: 600 }}>
+                        <div style={{ marginTop: isMobileView ? "8px" : "12px", fontSize: isMobileView ? "11.5px" : "12px", color: "var(--primary)", fontWeight: 600 }}>
                             Recommandé pour une expérience client fluide
                         </div>
                     </div>
@@ -804,8 +809,8 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         }}
                         style={{
                             border: `2px solid ${stripeFeeBearer === "CLIENT" ? "var(--primary)" : "var(--border)"}`,
-                            borderRadius: isMobileView ? "8px" : "12px",
-                            padding: isMobileView ? "8px 10px" : "16px",
+                            borderRadius: isMobileView ? "10px" : "12px",
+                            padding: isMobileView ? "12px 14px" : "16px",
                             backgroundColor: stripeFeeBearer === "CLIENT" ? "rgba(85, 107, 47, 0.06)" : "transparent",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
@@ -815,8 +820,8 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                         }}
                     >
                         <div>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "3px" }}>
-                                <span style={{ fontWeight: 700, fontSize: isMobileView ? "11.5px" : "14.5px", color: "var(--foreground)" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                                <span style={{ fontWeight: 700, fontSize: isMobileView ? "13.5px" : "14.5px", color: "var(--foreground)" }}>
                                     À la charge du client
                                 </span>
                                 <input
@@ -828,14 +833,14 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                         setStripeFeeBearer("CLIENT");
                                         performAutoSave({ stripeFeeBearer: "CLIENT" });
                                     }}
-                                    style={{ accentColor: "var(--primary)", cursor: "pointer", width: isMobileView ? "14px" : "16px", height: isMobileView ? "14px" : "16px" }}
+                                    style={{ accentColor: "var(--primary)", cursor: "pointer", width: isMobileView ? "16px" : "16px", height: isMobileView ? "16px" : "16px" }}
                                 />
                             </div>
-                            <p style={{ margin: 0, fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)", lineHeight: 1.35 }}>
+                            <p style={{ margin: 0, fontSize: isMobileView ? "12px" : "13px", color: "var(--muted-foreground)", lineHeight: 1.35 }}>
                                 Le client règle le montant <strong>majoré des frais Stripe</strong>. Vous percevez l'intégralité de votre facture.
                             </p>
                         </div>
-                        <div style={{ marginTop: isMobileView ? "6px" : "12px", fontSize: isMobileView ? "9.5px" : "12px", color: "var(--muted-foreground)" }}>
+                        <div style={{ marginTop: isMobileView ? "8px" : "12px", fontSize: isMobileView ? "11.5px" : "12px", color: "var(--muted-foreground)" }}>
                             Calculé automatiquement avec formule inversée
                         </div>
                     </div>
@@ -865,24 +870,24 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
 
                     return (
                         <div style={{
-                            marginTop: isMobileView ? "8px" : "16px",
+                            marginTop: isMobileView ? "12px" : "16px",
                             backgroundColor: "var(--background)",
                             border: "1px solid var(--border)",
-                            borderRadius: isMobileView ? "8px" : "12px",
-                            padding: isMobileView ? "8px 10px" : "16px 20px"
+                            borderRadius: isMobileView ? "10px" : "12px",
+                            padding: isMobileView ? "12px 14px" : "16px 20px"
                         }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: isMobileView ? "4px" : "10px", marginBottom: isMobileView ? "8px" : "14px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                                    <Calculator size={isMobileView ? 13 : 16} style={{ color: "var(--primary)", flexShrink: 0 }} />
-                                    <span style={{ fontSize: isMobileView ? "11px" : "14px", fontWeight: 700, color: "var(--foreground)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: isMobileView ? "8px" : "10px", marginBottom: isMobileView ? "10px" : "14px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <Calculator size={isMobileView ? 15 : 16} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                                    <span style={{ fontSize: isMobileView ? "13px" : "14px", fontWeight: 700, color: "var(--foreground)" }}>
                                         Exemple de calcul :
                                     </span>
-                                    <span style={{ fontSize: isMobileView ? "9.5px" : "12px", color: "var(--muted-foreground)" }}>
+                                    <span style={{ fontSize: isMobileView ? "11px" : "12px", color: "var(--muted-foreground)" }}>
                                         (1,5% + 0,25 €)
                                     </span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                                    <span style={{ fontSize: isMobileView ? "10px" : "12.5px", color: "var(--muted-foreground)", fontWeight: 500 }}>Montant TTC :</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <span style={{ fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)", fontWeight: 500 }}>Montant TTC :</span>
                                     <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
                                         <input
                                             type="number"
@@ -891,40 +896,40 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                             min="1"
                                             step="10"
                                             style={{
-                                                width: isMobileView ? "75px" : "110px",
-                                                height: isMobileView ? "26px" : "auto",
-                                                padding: isMobileView ? "2px 18px 2px 6px" : "6px 24px 6px 10px",
+                                                width: isMobileView ? "90px" : "110px",
+                                                height: isMobileView ? "34px" : "auto",
+                                                padding: isMobileView ? "4px 22px 4px 8px" : "6px 24px 6px 10px",
                                                 borderRadius: "6px",
                                                 border: "1px solid var(--border)",
                                                 backgroundColor: "var(--card)",
                                                 color: "var(--foreground)",
                                                 fontWeight: 700,
-                                                fontSize: isMobileView ? "10px" : "13.5px",
+                                                fontSize: isMobileView ? "13.5px" : "13.5px",
                                                 textAlign: "right",
                                                 boxSizing: "border-box"
                                             }}
                                         />
-                                        <span style={{ position: "absolute", right: "6px", fontSize: isMobileView ? "10px" : "13px", color: "var(--muted-foreground)", pointerEvents: "none" }}>€</span>
+                                        <span style={{ position: "absolute", right: "7px", fontSize: isMobileView ? "12px" : "13px", color: "var(--muted-foreground)", pointerEvents: "none" }}>€</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Cartes de décomposition de l'exemple */}
-                            <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr 1fr", gap: isMobileView ? "5px" : "12px" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr 1fr", gap: isMobileView ? "8px" : "12px" }}>
                                 
                                 {/* Facture / Paiement Client */}
                                 <div style={{
                                     backgroundColor: "var(--card)",
-                                    padding: isMobileView ? "6px 8px" : "12px 14px",
-                                    borderRadius: "7px",
+                                    padding: isMobileView ? "10px 12px" : "12px 14px",
+                                    borderRadius: "8px",
                                     border: "1px solid var(--border)",
                                     display: isMobileView ? "flex" : "block",
                                     alignItems: isMobileView ? "center" : undefined,
                                     justifyContent: isMobileView ? "space-between" : undefined
                                 }}>
                                     <div>
-                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "9.5px" : "11.5px", color: "var(--muted-foreground)", marginBottom: isMobileView ? 0 : "4px" }}>
-                                            <User size={11} style={{ color: "var(--muted-foreground)" }} />
+                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "11.5px" : "11.5px", color: "var(--muted-foreground)", marginBottom: isMobileView ? 0 : "4px" }}>
+                                            <User size={13} style={{ color: "var(--muted-foreground)" }} />
                                             Le client paie
                                         </span>
                                         {!isMobileView && (
@@ -932,12 +937,12 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 {clientPays.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                             </div>
                                         )}
-                                        <span style={{ display: "block", fontSize: "9px", color: stripeFeeBearer === "CLIENT" ? "#F59E0B" : "var(--muted-foreground)" }}>
+                                        <span style={{ display: "block", fontSize: isMobileView ? "11px" : "9px", color: stripeFeeBearer === "CLIENT" ? "#F59E0B" : "var(--muted-foreground)" }}>
                                             {stripeFeeBearer === "CLIENT" ? `(+ ${stripeFee.toFixed(2)} € frais)` : "(Montant exact)"}
                                         </span>
                                     </div>
                                     {isMobileView && (
-                                        <div style={{ fontSize: "12.5px", fontWeight: 800, color: "var(--foreground)" }}>
+                                        <div style={{ fontSize: "14.5px", fontWeight: 800, color: "var(--foreground)" }}>
                                             {clientPays.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     )}
@@ -946,16 +951,16 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                 {/* Frais Stripe */}
                                 <div style={{
                                     backgroundColor: "var(--card)",
-                                    padding: isMobileView ? "6px 8px" : "12px 14px",
-                                    borderRadius: "7px",
+                                    padding: isMobileView ? "10px 12px" : "12px 14px",
+                                    borderRadius: "8px",
                                     border: "1px solid var(--border)",
                                     display: isMobileView ? "flex" : "block",
                                     alignItems: isMobileView ? "center" : undefined,
                                     justifyContent: isMobileView ? "space-between" : undefined
                                 }}>
                                     <div>
-                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "9.5px" : "11.5px", color: "var(--muted-foreground)", marginBottom: isMobileView ? 0 : "4px" }}>
-                                            <CreditCard size={11} style={{ color: "#635BFF" }} />
+                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "11.5px" : "11.5px", color: "var(--muted-foreground)", marginBottom: isMobileView ? 0 : "4px" }}>
+                                            <CreditCard size={13} style={{ color: "#635BFF" }} />
                                             Frais Stripe
                                         </span>
                                         {!isMobileView && (
@@ -963,12 +968,12 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 {stripeFee.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                             </div>
                                         )}
-                                        <span style={{ display: "block", fontSize: "9px", color: "var(--muted-foreground)" }}>
+                                        <span style={{ display: "block", fontSize: isMobileView ? "11px" : "9px", color: "var(--muted-foreground)" }}>
                                             {stripeFeeBearer === "CLIENT" ? "Payés par le client" : "Déduits du versement"}
                                         </span>
                                     </div>
                                     {isMobileView && (
-                                        <div style={{ fontSize: "12.5px", fontWeight: 800, color: "#635BFF" }}>
+                                        <div style={{ fontSize: "14.5px", fontWeight: 800, color: "#635BFF" }}>
                                             {stripeFee.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     )}
@@ -977,16 +982,16 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                 {/* Ce que reçoit l'entreprise */}
                                 <div style={{
                                     backgroundColor: "rgba(85, 107, 47, 0.08)",
-                                    padding: isMobileView ? "6px 8px" : "12px 14px",
-                                    borderRadius: "7px",
+                                    padding: isMobileView ? "10px 12px" : "12px 14px",
+                                    borderRadius: "8px",
                                     border: "1px solid rgba(85, 107, 47, 0.3)",
                                     display: isMobileView ? "flex" : "block",
                                     alignItems: isMobileView ? "center" : undefined,
                                     justifyContent: isMobileView ? "space-between" : undefined
                                 }}>
                                     <div>
-                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "9.5px" : "11.5px", color: "var(--primary)", fontWeight: 600, marginBottom: isMobileView ? 0 : "4px" }}>
-                                            <Building2 size={11} style={{ color: "var(--primary)" }} />
+                                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: isMobileView ? "11.5px" : "11.5px", color: "var(--primary)", fontWeight: 700, marginBottom: isMobileView ? 0 : "4px" }}>
+                                            <Building2 size={13} style={{ color: "var(--primary)" }} />
                                             Vous percevez (Net)
                                         </span>
                                         {!isMobileView && (
@@ -994,12 +999,12 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                                                 {companyReceives.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                             </div>
                                         )}
-                                        <span style={{ display: "block", fontSize: "9px", color: stripeFeeBearer === "CLIENT" ? "var(--primary)" : "var(--muted-foreground)", fontWeight: stripeFeeBearer === "CLIENT" ? 600 : 400 }}>
+                                        <span style={{ display: "block", fontSize: isMobileView ? "11px" : "9px", color: stripeFeeBearer === "CLIENT" ? "var(--primary)" : "var(--muted-foreground)", fontWeight: stripeFeeBearer === "CLIENT" ? 600 : 400 }}>
                                             {stripeFeeBearer === "CLIENT" ? "✓ 100% de la facture" : "Versé sur votre compte"}
                                         </span>
                                     </div>
                                     {isMobileView && (
-                                        <div style={{ fontSize: "12.5px", fontWeight: 800, color: "var(--primary)" }}>
+                                        <div style={{ fontSize: "14.5px", fontWeight: 800, color: "var(--primary)" }}>
                                             {companyReceives.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                         </div>
                                     )}

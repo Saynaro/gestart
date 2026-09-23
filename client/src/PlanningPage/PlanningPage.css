@@ -865,6 +865,13 @@
     overflow: hidden;
     background-color: var(--card);
     padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    contain: paint layout;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
 }
 
 /* Desktop: dim overlay + centered panel card */

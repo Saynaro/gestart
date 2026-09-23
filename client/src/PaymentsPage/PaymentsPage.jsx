@@ -920,15 +920,16 @@ export default function PaymentsPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ duration: 0.22 }}
                         onClick={() => setAssociatingTx(null)}
                     >
                         <motion.div
                             className="payments-associate-modal"
-                            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                            initial={{ opacity: 0, scale: 0.96, y: 15 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                            transition={{ duration: 0.2 }}
+                            exit={{ opacity: 0, scale: 0.96, y: 15 }}
+                            transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
+                            style={{ willChange: "transform", transform: "translate3d(0, 0, 0)", contain: "paint layout" }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="payments-modal-header">

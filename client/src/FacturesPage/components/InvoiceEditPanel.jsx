@@ -9,6 +9,7 @@ import PhoneInput from "../../components/PhoneInput";
 import { useDocumentCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
+import { fetchClientsCompact, getCachedClients, fetchCatalogFast, getCachedCatalog } from "../../utils/dataCache";
 
 // Same client list as NewInvoiceModal
 const CLIENT_LIST = [];
@@ -26,7 +27,7 @@ const INTERVENTION_TYPES = [
 function ClientPickerModal({ currentName, onSelect, onClose }) {
     const dragControlsClient = useDragControls();
     const [query, setQuery] = useState("");
-    const [clientsList, setClientsList] = useState(CLIENT_LIST);
+    const [clientsList, setClientsList] = useState(() => getCachedClients() || CLIENT_LIST);
     const [showNewClientForm, setShowNewClientForm] = useState(false);
     const [newName, setNewName] = useState("");
     const [newEmail, setNewEmail] = useState("");
@@ -36,26 +37,11 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
     const [creatingLoading, setCreatingLoading] = useState(false);
 
     useEffect(() => {
-        const fetchClients = async () => {
-            try {
-                const data = await apiFetch('/v1/clients');
-                const list = data.data?.clients || data.clients || (Array.isArray(data) ? data : []);
-                if (list.length > 0) {
-                    const mapped = list.map(c => ({
-                        id: c.id,
-                        name: c.companyName || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
-                        type: c.type === 'COMPANY' || c.companyName ? "Organisation" : "Particulier",
-                        email: c.email || "",
-                        phone: c.phone || "",
-                        address: c.address ? `${c.address}${c.postalCode || c.city ? `, ${c.postalCode || ''} ${c.city || ''}` : ''}`.trim() : (c.city || "")
-                    }));
-                    setClientsList(mapped);
-                }
-            } catch (err) {
-                console.warn("API clients error in InvoiceEditPanel:", err);
+        fetchClientsCompact().then(list => {
+            if (list && list.length > 0) {
+                setClientsList(list);
             }
-        };
-        fetchClients();
+        });
     }, []);
 
     const handleCreateClient = async (e) => {
@@ -144,7 +130,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
-                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                 drag="y"
                 dragListener={false}
                 dragControls={dragControlsClient}
@@ -156,7 +142,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                     }
                 }}
                 onClick={e => e.stopPropagation()}
-                style={{ maxHeight: "min(92vh, 720px)" }}
+                style={{ maxHeight: "min(92vh, 720px)", willChange: "transform", transform: "translate3d(0, 0, 0)", contain: "paint layout" }}
             >
                 {/* Drag handle */}
                 <div
@@ -182,7 +168,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                 </div>
 
                 {showNewClientForm ? (
-                    <form onSubmit={handleCreateClient} style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "14px", overflowY: "auto" }}>
+                    <form onSubmit={handleCreateClient} style={{ padding: "20px 20px calc(100px + env(safe-area-inset-bottom, 20px)) 20px", display: "flex", flexDirection: "column", gap: "14px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
                         <div style={{ display: "flex", gap: "10px", marginBottom: "4px" }}>
                             <button
                                 type="button"
@@ -305,7 +291,8 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                                     value={query}
                                     onChange={e => setQuery(e.target.value)}
                                     placeholder="Rechercher un client..."
-                                    style={{ border: "none", background: "transparent", outline: "none", fontFamily: "var(--font-body)", fontSize: "0.875rem", width: "100%", color: "var(--foreground)" }}
+                                    className="client-picker-search-input"
+                                    style={{ border: "none", background: "transparent", backgroundColor: "transparent", outline: "none", boxShadow: "none", WebkitAppearance: "none", appearance: "none", fontFamily: "var(--font-body)", fontSize: "0.875rem", width: "100%", color: "var(--foreground)" }}
                                 />
                             </div>
 
@@ -333,7 +320,7 @@ function ClientPickerModal({ currentName, onSelect, onClose }) {
                         </div>
 
                         {/* List */}
-                        <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+                        <div style={{ flex: 1, overflowY: "auto", padding: "8px 0 calc(36px + env(safe-area-inset-bottom, 20px))", WebkitOverflowScrolling: "touch" }}>
                             {Object.keys(grouped).sort().map(letter => (
                                 <div key={letter}>
                                     <div style={{ padding: "6px 20px 2px", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -393,25 +380,12 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
     // Mode determination
     const [showCatalogSearch, setShowCatalogSearch] = useState(!line);
     const [catalogSearchQuery, setCatalogSearchQuery] = useState("");
-    const [catalogItems, setCatalogItems] = useState([]);
+    const [catalogItems, setCatalogItems] = useState(() => getCachedCatalog() || []);
 
     const fetchCatalog = async () => {
-        try {
-            const res = await apiFetch('/v1/catalog');
-            const raw = res.data || res.items || (Array.isArray(res) ? res : []);
-            const mapped = raw.map(item => ({
-                id: item.id,
-                description: item.name || "Article",
-                name: item.name || "Article",
-                reference: item.reference || "",
-                unitPrice: Number(item.defaultPrice || item.unitPrice || 0),
-                tvaRate: Number(item.tvaRate !== undefined ? item.tvaRate : 20),
-                urssafCategory: item.type === "PRODUCT" ? "Vente de marchandises (BIC)" : "Prestations de services (BNC)",
-                unit: item.unit || "À l'unité"
-            })).sort((a, b) => (a.description || "").localeCompare(b.description || ""));
+        const mapped = await fetchCatalogFast();
+        if (mapped && mapped.length > 0) {
             setCatalogItems(mapped);
-        } catch (e) {
-            console.warn("Failed to fetch catalog:", e);
         }
     };
 
@@ -495,7 +469,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
-                            transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                            transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                             drag="y"
                             dragListener={false}
                             dragControls={dragControlsCatalog}
@@ -607,7 +581,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
-                        transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                        transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                         drag="y"
                         dragListener={false}
                         dragControls={dragControlsArticle}
@@ -719,7 +693,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                                 border: '1px solid var(--border)',
                                                 padding: '0 12px',
                                                 fontSize: '0.85rem',
-                                                backgroundColor: 'var(--card)',
+                                                backgroundColor: 'var(--background)',
                                                 color: 'var(--foreground)',
                                                 cursor: 'pointer'
                                             }}
@@ -786,7 +760,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                             <button type="button" className="drawer-primary-btn" onClick={handleSave}>
                                 {line ? "Enregistrer les modifications" : "Confirmer et ajouter"}
                             </button>
-                            <button type="button" className="drawer-cancel-btn" onClick={onClose} style={{ width: '100%', padding: '11px', borderRadius: '8px', border: '1.5px solid var(--border)', background: 'transparent', color: 'var(--foreground)', fontWeight: 600, cursor: 'pointer', marginTop: '8px' }}>
+                            <button type="button" className="drawer-cancel-btn" onClick={onClose} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1.5px solid var(--border)', background: 'transparent', color: 'var(--foreground)', fontWeight: 600, cursor: 'pointer' }}>
                                 Annuler
                             </button>
                         </div>
@@ -799,7 +773,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                 initial={{ y: "100%" }}
                                 animate={{ y: 0 }}
                                 exit={{ y: "100%" }}
-                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+                                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                                 drag="y"
                                 dragListener={false}
                                 dragControls={dragControlsUrssaf}
@@ -868,7 +842,7 @@ function ArticleEditorDrawer({ line, onSave, onClose }) {
                                 initial={{ y: "100%" }}
                                 animate={{ y: 0 }}
                                 exit={{ y: "100%" }}
-                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.28 }}
+                                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                                 drag="y"
                                 dragListener={false}
                                 dragControls={dragControlsUnit}
@@ -976,6 +950,12 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
     const [showArticleEditor, setShowArticleEditor] = useState(false);
     const [editingLine, setEditingLine] = useState(null); // null = new article
     const [showEcheancePicker, setShowEcheancePicker] = useState(false);
+
+    // Prefetch clients & catalog in background immediately on panel mount
+    useEffect(() => {
+        fetchClientsCompact();
+        fetchCatalogFast();
+    }, []);
 
     // Totals
     const subtotalHt = inv.lines.reduce((s, l) => s + (parseFloat(l.unitPrice) || 0) * (parseFloat(l.qty) || 1), 0);
@@ -1693,7 +1673,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                     initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
                     animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
                     exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
-                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                    transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                     onClick={e => e.stopPropagation()}
                     drag={isMobile ? "y" : false}
                     dragListener={false}
@@ -1790,7 +1770,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                                     }
                                     setInv(p => ({ ...p, date: v }));
                                 }}
-                                style={{ border: "none", background: "transparent", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer", outline: "none" }}
+                                style={{ border: "none", background: "transparent", backgroundColor: "transparent", outline: "none", boxShadow: "none", WebkitAppearance: "none", appearance: "none", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer" }}
                             />
                         </div>
 
@@ -1868,7 +1848,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                                         }
                                         setInv(p => ({ ...p, deliveryDate: v }));
                                     }}
-                                    style={{ border: "none", background: "transparent", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer", outline: "none", width: "100%" }}
+                                    style={{ border: "none", background: "transparent", backgroundColor: "transparent", outline: "none", boxShadow: "none", WebkitAppearance: "none", appearance: "none", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.875rem", color: "var(--foreground)", cursor: "pointer", width: "100%" }}
                                 />
                             </div>
                         )}
@@ -1977,6 +1957,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
             )}
 
             {/* Client picker overlay */}
+            <AnimatePresence>
             {showClientPicker && (
                 <ClientPickerModal
                     currentName={inv.clientName}
@@ -1984,6 +1965,7 @@ function InvoiceEditPanel({ invoice, onClose, onSave, onFinalise }) {
                     onClose={() => setShowClientPicker(false)}
                 />
             )}
+            </AnimatePresence>
 
             {/* Article editor overlay */}
             <AnimatePresence>

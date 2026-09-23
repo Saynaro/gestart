@@ -178,12 +178,12 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
         <form
             onSubmit={handleSubmit}
             className={isMobileView ? "facturation-mobile-container" : ""}
-            style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '24px' }}
+            style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '16px' : '24px' }}
         >
             {/* Numérotation et Préfixes */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Receipt size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '16px' : '16px', padding: isMobileView ? '16px 18px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 14px 0' : '0 0 14px 0', fontSize: isMobileView ? '16px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Receipt size={isMobileView ? 20 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                     <span>Séquences de Numérotation (art. 289 CGI)</span>
                     <LegalHelpTooltip lawArticle="art. 289 I-3 CGI" title="Numérotation continue" text="La numérotation des factures doit être continue, chronologique et sans rupture. GestArt garantit la conformité fiscale." />
                 </h3>
@@ -191,10 +191,10 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : '1fr 1fr',
-                    gap: isMobileView ? '8px' : '16px'
+                    gap: isMobileView ? '14px' : '16px'
                 }}>
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe factures</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe factures</label>
                         <input
                             type="text"
                             className="form-input"
@@ -206,20 +206,20 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             }}
                             placeholder="INV"
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '1px', lineHeight: 1.2 }}>
+                        <span style={{ fontSize: isMobileView ? '12.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '2px', lineHeight: 1.2 }}>
                             {isMobileView ? formattedInvoicePreview : `Aperçu : ${formattedInvoicePreview}`}
                         </span>
                     </div>
 
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe devis</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Préfixe devis</label>
                         <input
                             type="text"
                             className="form-input"
@@ -231,20 +231,20 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             }}
                             placeholder="D"
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
-                        <span style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '1px', lineHeight: 1.2 }}>
+                        <span style={{ fontSize: isMobileView ? '12.5px' : '11.5px', color: 'var(--sidebar-primary)', fontWeight: 700, marginTop: '2px', lineHeight: 1.2 }}>
                             {isMobileView ? formattedQuotePreview : `Aperçu : ${formattedQuotePreview}`}
                         </span>
                     </div>
 
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Facture</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Facture</label>
                         <input
                             type="number"
                             className="form-input"
@@ -256,17 +256,17 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             }}
                             min="1"
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
                     </div>
 
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Devis</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>N° suivant Devis</label>
                         <input
                             type="number"
                             className="form-input"
@@ -278,11 +278,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             }}
                             min="1"
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
                     </div>
@@ -290,16 +290,16 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Délais et Validités */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700 }}>Délais de Règlement & Validité Devis</h3>
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '16px' : '16px', padding: isMobileView ? '16px 18px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 14px 0' : '0 0 14px 0', fontSize: isMobileView ? '16px' : '14.5px', fontWeight: 700 }}>Délais de Règlement & Validité Devis</h3>
 
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
-                    gap: isMobileView ? '8px' : '16px'
+                    gap: isMobileView ? '14px' : '16px'
                 }}>
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Délai de paiement par défaut des factures</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Délai de paiement par défaut des factures</label>
                         <select
                             className="form-input"
                             value={defaultPaymentDelay}
@@ -309,11 +309,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                 performSave({ defaultPaymentDelay: val });
                             }}
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         >
                             <option value="15">15 jours (Paiement rapide)</option>
@@ -323,8 +323,8 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         </select>
                     </div>
 
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Durée de validité par défaut des devis</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Durée de validité par défaut des devis</label>
                         <select
                             className="form-input"
                             value={defaultQuoteValidity}
@@ -334,11 +334,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                 performSave({ defaultQuoteValidity: val });
                             }}
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         >
                             <option value="15">15 jours</option>
@@ -347,9 +347,9 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         </select>
                     </div>
 
-                    <div className="form-field" style={{ gridColumn: isMobileView ? undefined : 'span 2', gap: isMobileView ? '3px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Taux TVA par défaut (Pills)</label>
-                        <div style={{ display: 'flex', gap: isMobileView ? '5px' : '8px', marginTop: '2px' }}>
+                    <div className="form-field" style={{ gridColumn: isMobileView ? undefined : 'span 2', gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Taux TVA par défaut (Pills)</label>
+                        <div style={{ display: 'flex', gap: isMobileView ? '8px' : '8px', marginTop: '2px' }}>
                             {[0, 5.5, 10, 20].map((rate) => (
                                 <button
                                     key={rate}
@@ -360,13 +360,13 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                     }}
                                     style={{
                                         flex: 1,
-                                        padding: isMobileView ? '4px 2px' : '8px',
-                                        borderRadius: '8px',
+                                        padding: isMobileView ? '12px 6px' : '8px',
+                                        borderRadius: '10px',
                                         border: defaultTvaRate === rate ? '2px solid var(--sidebar-primary)' : '1px solid var(--border)',
                                         backgroundColor: defaultTvaRate === rate ? 'var(--sidebar-primary)' : 'var(--background)',
                                         color: defaultTvaRate === rate ? '#fff' : 'var(--foreground)',
                                         fontWeight: 700,
-                                        fontSize: isMobileView ? '10px' : '13px',
+                                        fontSize: isMobileView ? '14px' : '13px',
                                         cursor: 'pointer',
                                         textAlign: 'center',
                                         whiteSpace: 'nowrap'
@@ -381,40 +381,40 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Relances Automatiques (Factures & Devis) */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobileView ? '4px' : '10px', flexWrap: 'wrap', gap: '8px' }}>
-                    <h3 style={{ margin: 0, fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Bell size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '16px' : '16px', padding: isMobileView ? '16px 18px' : '20px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobileView ? '8px' : '10px', flexWrap: 'wrap', gap: '8px' }}>
+                    <h3 style={{ margin: 0, fontSize: isMobileView ? '16px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Bell size={isMobileView ? 20 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                         Relances Automatiques (Factures & Devis)
                     </h3>
-                    <span style={{ fontSize: isMobileView ? '9px' : '11px', padding: '2px 6px', borderRadius: '12px', background: 'rgba(85, 107, 47, 0.12)', color: 'var(--sidebar-primary)', fontWeight: 600 }}>
+                    <span style={{ fontSize: isMobileView ? '11.5px' : '11px', padding: '3px 8px', borderRadius: '12px', background: 'rgba(85, 107, 47, 0.12)', color: 'var(--sidebar-primary)', fontWeight: 600 }}>
                         Envoi unique
                     </span>
                 </div>
-                <p style={{ margin: isMobileView ? '0 0 6px 0' : '0 0 12px 0', fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)', lineHeight: '1.35' }}>
+                <p style={{ margin: isMobileView ? '0 0 12px 0' : '0 0 12px 0', fontSize: isMobileView ? '12.5px' : '12px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
                     Rappels automatiques par email avec lien de paiement ou signature.
                 </p>
 
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
-                    gap: isMobileView ? '6px' : '14px',
+                    gap: isMobileView ? '12px' : '14px',
                     alignItems: 'start'
                 }}>
                     {/* Relance Factures */}
                     <div style={{
-                        padding: isMobileView ? '6px 8px' : '12px 14px',
-                        borderRadius: '10px',
+                        padding: isMobileView ? '14px 16px' : '12px 14px',
+                        borderRadius: '12px',
                         border: '1px solid var(--border)',
                         background: 'var(--background)',
                         alignSelf: 'start',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <label htmlFor="inv-reminder-toggle" style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
+                            <label htmlFor="inv-reminder-toggle" style={{ fontSize: isMobileView ? '14.5px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
                                 Relance auto Factures
                             </label>
-                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
+                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(1)' : undefined, transformOrigin: 'right center' }}>
                                 <input
                                     type="checkbox"
                                     id="inv-reminder-toggle"
@@ -433,12 +433,12 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             gridTemplateRows: invoiceReminderEnabled ? '1fr' : '0fr',
                             opacity: invoiceReminderEnabled ? 1 : 0,
                             transition: 'grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, margin-top 0.28s ease',
-                            marginTop: invoiceReminderEnabled ? '4px' : '0px'
+                            marginTop: invoiceReminderEnabled ? '10px' : '0px'
                         }}>
                             <div style={{ overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '2px' }}>
-                                    <label htmlFor="inv-days-select" style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', margin: 0 }}>
-                                        <Clock size={11} /> Délai :
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '4px' }}>
+                                    <label htmlFor="inv-days-select" style={{ fontSize: isMobileView ? '13px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', margin: 0 }}>
+                                        <Clock size={14} /> Délai :
                                     </label>
                                     <select
                                         id="inv-days-select"
@@ -449,7 +449,7 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                             setInvoiceReminderDays(val);
                                             performSave({ invoiceReminderDays: val });
                                         }}
-                                        style={{ height: isMobileView ? '28px' : '34px', minHeight: isMobileView ? '28px' : '34px', maxHeight: isMobileView ? '28px' : '34px', padding: '2px 6px', fontSize: isMobileView ? '10.5px' : '12px', flex: 1 }}
+                                        style={{ height: isMobileView ? '42px' : '34px', minHeight: isMobileView ? '42px' : '34px', maxHeight: isMobileView ? '42px' : '34px', padding: '6px 12px', fontSize: isMobileView ? '13.5px' : '12px', flex: 1 }}
                                     >
                                         <option value={3}>3 jours après envoi</option>
                                         <option value={5}>5 jours après envoi</option>
@@ -465,18 +465,18 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
 
                     {/* Relance Devis */}
                     <div style={{
-                        padding: isMobileView ? '6px 8px' : '12px 14px',
-                        borderRadius: '10px',
+                        padding: isMobileView ? '14px 16px' : '12px 14px',
+                        borderRadius: '12px',
                         border: '1px solid var(--border)',
                         background: 'var(--background)',
                         alignSelf: 'start',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <label htmlFor="quote-reminder-toggle" style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
+                            <label htmlFor="quote-reminder-toggle" style={{ fontSize: isMobileView ? '14.5px' : '13px', fontWeight: 700, cursor: 'pointer', margin: 0 }}>
                                 Relance auto Devis
                             </label>
-                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
+                            <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(1)' : undefined, transformOrigin: 'right center' }}>
                                 <input
                                     type="checkbox"
                                     id="quote-reminder-toggle"
@@ -495,12 +495,12 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             gridTemplateRows: quoteReminderEnabled ? '1fr' : '0fr',
                             opacity: quoteReminderEnabled ? 1 : 0,
                             transition: 'grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, margin-top 0.28s ease',
-                            marginTop: quoteReminderEnabled ? '4px' : '0px'
+                            marginTop: quoteReminderEnabled ? '10px' : '0px'
                         }}>
                             <div style={{ overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '2px' }}>
-                                    <label htmlFor="quote-days-select" style={{ fontSize: isMobileView ? '9.5px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap', margin: 0 }}>
-                                        <Clock size={11} /> Délai :
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '4px' }}>
+                                    <label htmlFor="quote-days-select" style={{ fontSize: isMobileView ? '13px' : '11.5px', color: 'var(--muted-foreground)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', margin: 0 }}>
+                                        <Clock size={14} /> Délai :
                                     </label>
                                     <select
                                         id="quote-days-select"
@@ -511,7 +511,7 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                             setQuoteReminderDays(val);
                                             performSave({ quoteReminderDays: val });
                                         }}
-                                        style={{ height: isMobileView ? '28px' : '34px', minHeight: isMobileView ? '28px' : '34px', maxHeight: isMobileView ? '28px' : '34px', padding: '2px 6px', fontSize: isMobileView ? '10.5px' : '12px', flex: 1 }}
+                                        style={{ height: isMobileView ? '42px' : '34px', minHeight: isMobileView ? '42px' : '34px', maxHeight: isMobileView ? '42px' : '34px', padding: '6px 12px', fontSize: isMobileView ? '13.5px' : '12px', flex: 1 }}
                                     >
                                         <option value={2}>2 jours après envoi</option>
                                         <option value={3}>3 jours après envoi</option>
@@ -528,19 +528,19 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Mentions Légales PDF, Pénalités & Escompte */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <FileText size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '16px' : '16px', padding: isMobileView ? '16px 18px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 14px 0' : '0 0 14px 0', fontSize: isMobileView ? '16px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText size={isMobileView ? 20 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                     Mentions Légales du Pied de Page PDF (Art. L441-10 C.com)
                 </h3>
 
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: isMobileView ? 'repeat(2, 1fr)' : '1fr 1fr',
-                    gap: isMobileView ? '8px' : '16px'
+                    gap: isMobileView ? '14px' : '16px'
                 }}>
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Pénalités retard (%)</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Pénalités retard (%)</label>
                         <input
                             type="text"
                             className="form-input"
@@ -548,17 +548,17 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             onChange={(e) => setPenaltyRate(e.target.value)}
                             placeholder="10%"
                             style={{
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '11px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
                     </div>
 
-                    <div className="form-field" style={{ gap: isMobileView ? '2px' : '6px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Indemnité forfaitaire</label>
+                    <div className="form-field" style={{ gap: isMobileView ? '6px' : '6px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Indemnité forfaitaire</label>
                         <input
                             type="text"
                             className="form-input"
@@ -568,11 +568,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                 backgroundColor: 'rgba(0,0,0,0.03)',
                                 fontWeight: 700,
                                 color: 'var(--sidebar-primary)',
-                                height: isMobileView ? '30px' : '42px',
-                                minHeight: isMobileView ? '30px' : '42px',
-                                maxHeight: isMobileView ? '30px' : '42px',
-                                padding: isMobileView ? '3px 8px' : '10px 14px',
-                                fontSize: isMobileView ? '10.5px' : '13.5px'
+                                height: isMobileView ? '46px' : '42px',
+                                minHeight: isMobileView ? '46px' : '42px',
+                                maxHeight: isMobileView ? '46px' : '42px',
+                                padding: isMobileView ? '10px 14px' : '10px 14px',
+                                fontSize: isMobileView ? '14.5px' : '13.5px'
                             }}
                         />
                     </div>
@@ -583,16 +583,16 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: isMobileView ? '6px 8px' : '10px 14px',
-                        borderRadius: '10px',
+                        padding: isMobileView ? '14px 16px' : '10px 14px',
+                        borderRadius: '12px',
                         border: '1px solid var(--border)',
                         backgroundColor: 'var(--background)',
                         gap: '8px'
                     }}>
-                        <label htmlFor="escompte-check" style={{ fontSize: isMobileView ? '10.5px' : '12.5px', fontWeight: 600, cursor: 'pointer', margin: 0, lineHeight: 1.3 }}>
+                        <label htmlFor="escompte-check" style={{ fontSize: isMobileView ? '13.5px' : '12.5px', fontWeight: 600, cursor: 'pointer', margin: 0, lineHeight: 1.3 }}>
                             Imprimer la mention : "Aucun escompte pour paiement anticipé"
                         </label>
-                        <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(0.8)' : undefined, transformOrigin: 'right center' }}>
+                        <label className="mobile-toggle-switch" style={{ margin: 0, transform: isMobileView ? 'scale(1)' : undefined, transformOrigin: 'right center' }}>
                             <input
                                 type="checkbox"
                                 id="escompte-check"
@@ -603,11 +603,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                         </label>
                     </div>
 
-                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '2px' : '4px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Mentions de bas de page PDF</label>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '6px' : '4px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Mentions de bas de page PDF</label>
                         <textarea
                             className="form-input"
-                            rows={isMobileView ? 2 : 3}
+                            rows={isMobileView ? 3 : 3}
                             value={pdfFooterText}
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -617,20 +617,20 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             style={{
                                 width: '100%',
                                 fontFamily: 'inherit',
-                                minHeight: isMobileView ? '60px' : '68px',
+                                minHeight: isMobileView ? '85px' : '68px',
                                 height: 'auto',
-                                fontSize: isMobileView ? '10.5px' : '13px',
-                                lineHeight: '1.35',
-                                padding: isMobileView ? '4px 8px' : '10px 12px'
+                                fontSize: isMobileView ? '13.5px' : '13px',
+                                lineHeight: '1.4',
+                                padding: isMobileView ? '12px 14px' : '10px 12px'
                             }}
                         />
                     </div>
 
-                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '2px' : '4px' }}>
-                        <label className="form-label" style={{ fontSize: isMobileView ? '9.5px' : '11px', marginBottom: 0, fontWeight: 700 }}>Conditions Générales de Vente (CGV PDF)</label>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: isMobileView ? '6px' : '4px' }}>
+                        <label className="form-label" style={{ fontSize: isMobileView ? '13px' : '11px', marginBottom: 0, fontWeight: 700 }}>Conditions Générales de Vente (CGV PDF)</label>
                         <textarea
                             className="form-input"
-                            rows={isMobileView ? 2 : 4}
+                            rows={isMobileView ? 4 : 4}
                             value={cgvText}
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -640,11 +640,11 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             style={{
                                 width: '100%',
                                 fontFamily: 'inherit',
-                                minHeight: isMobileView ? '60px' : '92px',
+                                minHeight: isMobileView ? '95px' : '92px',
                                 height: 'auto',
-                                fontSize: isMobileView ? '10.5px' : '13px',
-                                lineHeight: '1.35',
-                                padding: isMobileView ? '4px 8px' : '10px 12px'
+                                fontSize: isMobileView ? '13.5px' : '13px',
+                                lineHeight: '1.4',
+                                padding: isMobileView ? '12px 14px' : '10px 12px'
                             }}
                         />
                     </div>
@@ -652,17 +652,17 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
             </div>
 
             {/* Design & Couleur du PDF */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '16px', padding: isMobileView ? '10px 12px' : '20px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ margin: isMobileView ? '0 0 6px 0' : '0 0 12px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Palette size={isMobileView ? 15 : 17} style={{ color: 'var(--sidebar-primary)' }} />
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '16px' : '16px', padding: isMobileView ? '16px 18px' : '20px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ margin: isMobileView ? '0 0 8px 0' : '0 0 12px 0', fontSize: isMobileView ? '16px' : '14.5px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Palette size={isMobileView ? 20 : 17} style={{ color: 'var(--sidebar-primary)' }} />
                     Couleur Principale par Défaut pour les Devis & Factures
                 </h3>
-                <p style={{ margin: isMobileView ? '-2px 0 8px 0' : '-6px 0 14px 0', fontSize: isMobileView ? '10px' : '12px', color: 'var(--muted-foreground)' }}>
+                <p style={{ margin: isMobileView ? '0 0 14px 0' : '-6px 0 14px 0', fontSize: isMobileView ? '12.5px' : '12px', color: 'var(--muted-foreground)' }}>
                     Cette couleur sera appliquée par défaut à tous vos devis et factures PDF.
                 </p>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '8px' : '16px', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: isMobileView ? '6px' : '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '14px' : '16px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: isMobileView ? '10px' : '8px', flexWrap: 'wrap' }}>
                         {colorSwatches.map((swatch) => (
                             <button
                                 key={swatch.value}
@@ -673,8 +673,8 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                     performSave({ pdfColor: swatch.value });
                                 }}
                                 style={{
-                                    width: isMobileView ? '24px' : '34px',
-                                    height: isMobileView ? '24px' : '34px',
+                                    width: isMobileView ? '36px' : '34px',
+                                    height: isMobileView ? '36px' : '34px',
                                     borderRadius: '50%',
                                     backgroundColor: swatch.value,
                                     border: pdfColor.toLowerCase() === swatch.value.toLowerCase() ? '3px solid var(--foreground)' : '2px solid transparent',
@@ -686,8 +686,8 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                             />
                         ))}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: isMobileView ? '10.5px' : '12.5px', fontWeight: 600 }}>Ou Hex :</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: isMobileView ? '13px' : '12.5px', fontWeight: 600 }}>Ou Hex :</span>
                         <input
                             type="text"
                             className="form-input"
@@ -698,18 +698,18 @@ export default function FacturationTab({ isMobileView, triggerToast }) {
                                 queueAutoSave({ pdfColor: val });
                             }}
                             style={{
-                                width: isMobileView ? '70px' : '95px',
-                                height: isMobileView ? '28px' : '42px',
-                                minHeight: isMobileView ? '28px' : '42px',
-                                maxHeight: isMobileView ? '28px' : '42px',
+                                width: isMobileView ? '95px' : '95px',
+                                height: isMobileView ? '44px' : '42px',
+                                minHeight: isMobileView ? '44px' : '42px',
+                                maxHeight: isMobileView ? '44px' : '42px',
                                 fontFamily: 'monospace',
                                 fontWeight: 700,
                                 textAlign: 'center',
-                                padding: '2px 4px',
-                                fontSize: isMobileView ? '10.5px' : '13.5px'
+                                padding: '4px 8px',
+                                fontSize: isMobileView ? '14px' : '13.5px'
                             }}
                         />
-                        <div style={{ width: isMobileView ? '18px' : '24px', height: isMobileView ? '18px' : '24px', borderRadius: '6px', backgroundColor: pdfColor, border: '1px solid var(--border)' }} />
+                        <div style={{ width: isMobileView ? '28px' : '24px', height: isMobileView ? '28px' : '24px', borderRadius: '6px', backgroundColor: pdfColor, border: '1px solid var(--border)' }} />
                     </div>
                 </div>
 

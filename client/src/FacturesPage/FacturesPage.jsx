@@ -197,6 +197,7 @@ function FacturesPage() {
             navigate(location.pathname, { replace: true, state: {} });
         }
     }, [location.state, navigate]);
+
     const [paymentModalInvoice, setPaymentModalInvoice] = useState(null);
     const [invoiceToFinalise, setInvoiceToFinalise] = useState(null);
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -204,6 +205,18 @@ function FacturesPage() {
     const [linkedQuoteForDrawer, setLinkedQuoteForDrawer] = useState(null);
     const [pdfModalQuote, setPdfModalQuote] = useState(null);
     const [toast, setToast] = useState(null);
+
+    useEffect(() => {
+        const isAnyModalOpen = showDetailDrawer || showEditPanel || showNewModal || showSendDrawer || Boolean(paymentModalInvoice) || Boolean(invoiceToFinalise) || Boolean(invoiceToDelete);
+        if (isAnyModalOpen) {
+            const prevOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = prevOverflow || "";
+            };
+        }
+    }, [showDetailDrawer, showEditPanel, showNewModal, showSendDrawer, paymentModalInvoice, invoiceToFinalise, invoiceToDelete]);
+
     const showToast = (msg, type = "success") => {
         const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;
         setToast({ msg: cleanMsg, type, id: Date.now() });

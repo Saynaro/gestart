@@ -206,11 +206,21 @@
 
 /* Disable auto-zoom on inputs in iOS Safari */
 @media screen and (max-width: 768px) {
-
   input,
   select,
   textarea {
     font-size: 16px !important;
+  }
+
+  .fp-drawer-footer,
+  .fp-edit-footer,
+  .dv-drawer-footer,
+  .article-drawer-footer,
+  .payment-sheet-footer,
+  .bottom-sheet-footer,
+  .mobile-bottom-sheet-footer,
+  .mobile-save-bar {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 4px)) !important;
   }
 }
 
@@ -221,15 +231,14 @@
   box-shadow: none !important;
 }
 
-.dark input,
+.dark input:not([type="checkbox"]):not([type="radio"]):not(.no-border),
 .dark select,
 .dark textarea,
-.dark .search-input-field,
 .dark .desktop-modal-input,
 .dark .civility-select {
-  background-color: var(--background) !important;
-  color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: var(--background);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
 }
 
 .dark .mobile-input-card-field,
@@ -253,12 +262,29 @@
 .dark .payments-search-input,
 .dark .payments-search-input:focus,
 .dark .payments-modal-search-box input,
-.dark .payments-modal-search-box input:focus {
+.dark .payments-modal-search-box input:focus,
+.dark .client-picker-search-input,
+.dark .client-picker-search-input:focus,
+.dark .search-input-field,
+.dark .search-input-field:focus,
+.dark .mobile-search-input-field,
+.dark .mobile-search-input-field:focus,
+.dark .search-input-wrapper input,
+.dark .search-input-wrapper input:focus,
+.dark .client-search-filter-card input,
+.dark .client-search-filter-card input:focus {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.client-search-list-container {
+  padding-bottom: calc(36px + env(safe-area-inset-bottom, 20px)) !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dark input::placeholder,
@@ -305,6 +331,45 @@ select:-webkit-autofill:active {
   transition: background-color 500000s ease-in-out 0s !important;
 }
 
+/* Clean modern Date input styling across dark and light mode without square box/border artifacts */
+input[type="date"] {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--foreground) !important;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--foreground) !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+:root.dark input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8);
+}
+
 /* Client Search Input Wrapper Global Rounded Styling */
 .client-search-input-wrapper {
   position: relative;
@@ -330,15 +395,51 @@ select:-webkit-autofill:active {
   outline: none !important;
   box-sizing: border-box;
   transition: border-color 0.2s ease;
+  -webkit-appearance: none !important;
+  appearance: none !important;
 }
 
 .dark .client-search-input {
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
   color: #ffffff !important;
 }
 
 .client-search-input:focus {
+  border-color: #556B2F !important;
+}
+
+.dark .client-search-item {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dark .client-search-item:hover,
+.dark .client-search-item.selected {
+  background-color: rgba(85, 107, 47, 0.12) !important;
+  border-color: #556B2F !important;
+}
+
+.dark .form-field-select {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dark .selector-option-card,
+.dark .type-picker-option-card {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dark .selector-option-card:hover,
+.dark .type-picker-option-card:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark .selector-option-card.selected,
+.dark .type-picker-option-card.selected {
+  background-color: rgba(85, 107, 47, 0.12) !important;
   border-color: #556B2F !important;
 }
 

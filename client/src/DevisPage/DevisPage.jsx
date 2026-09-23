@@ -220,9 +220,21 @@ function DevisPage() {
             });
         }
     }, [location.search, location.state, quotes]);
+
     const [linkedInvoiceForDrawer, setLinkedInvoiceForDrawer] = useState(null);
     const [pdfModalInvoice, setPdfModalInvoice] = useState(null);
     const [toast, setToast] = useState(null);
+
+    useEffect(() => {
+        const isAnyModalOpen = showDetailDrawer || showEditPanel || showNewModal || showSendDrawer;
+        if (isAnyModalOpen) {
+            const prevOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = prevOverflow || "";
+            };
+        }
+    }, [showDetailDrawer, showEditPanel, showNewModal, showSendDrawer]);
 
     const showToast = (msg, type = "success") => {
         const cleanMsg = typeof msg === 'string' ? msg.replace(/^[✓✔\s]+/, '') : msg;

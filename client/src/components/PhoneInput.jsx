@@ -411,7 +411,11 @@ function PhoneInput({
                                         width: "100%",
                                         border: "none",
                                         background: "transparent",
+                                        backgroundColor: "transparent",
                                         outline: "none",
+                                        boxShadow: "none",
+                                        WebkitAppearance: "none",
+                                        appearance: "none",
                                         fontSize: "14px",
                                         color: "var(--foreground, #0f172a)"
                                     }}

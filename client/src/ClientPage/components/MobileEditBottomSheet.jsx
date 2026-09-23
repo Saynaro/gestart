@@ -126,11 +126,11 @@ function MobileEditBottomSheet({
                         {/* Bottom Sheet Container */}
                         <motion.div
                             className="fixed bottom-0 left-0 right-0 z-[2150] mx-auto w-full max-w-md bg-[var(--background)] dark:bg-[#141416] rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] overflow-y-auto outline-none"
-                            style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                            style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform", transform: "translate3d(0, 0, 0)", contain: "paint layout" }}
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
-                            transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                            transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                             drag="y"
                             dragControls={dragControlsMain}
                             dragListener={false}
@@ -303,11 +303,11 @@ function MobileEditBottomSheet({
                         {/* Sub-Sheet Container */}
                         <motion.div
                             className="fixed bottom-0 left-0 right-0 z-[2250] mx-auto w-full max-w-md bg-white dark:bg-[#141416] rounded-t-[32px] shadow-[0_-12px_45px_rgba(0,0,0,0.18)] outline-none overflow-y-auto"
-                            style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform" }}
+                            style={{ maxHeight: '92vh', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', willChange: "transform", transform: "translate3d(0, 0, 0)", contain: "paint layout" }}
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
-                            transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.38 }}
+                            transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                             drag="y"
                             dragControls={dragControlsSub}
                             dragListener={false}

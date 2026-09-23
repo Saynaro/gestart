@@ -376,7 +376,7 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
         ];
 
         return (
-            <div style={{ display: 'flex', gap: isMobileView ? '5px' : '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: isMobileView ? '6px' : '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 {channels.map(({ id, label, icon: Icon }) => {
                     const active = Boolean(item[id]);
                     return (
@@ -388,12 +388,12 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: isMobileView ? '3px' : '5px',
-                                padding: isMobileView ? '3px 8px' : '5px 10px',
-                                height: isMobileView ? '24px' : '28px',
-                                minHeight: isMobileView ? '24px' : '28px',
-                                borderRadius: '6px',
-                                fontSize: isMobileView ? '10px' : '11.5px',
+                                gap: isMobileView ? '4px' : '5px',
+                                padding: isMobileView ? '4px 10px' : '5px 10px',
+                                height: isMobileView ? '28px' : '28px',
+                                minHeight: isMobileView ? '28px' : '28px',
+                                borderRadius: '7px',
+                                fontSize: isMobileView ? '11.5px' : '11.5px',
                                 fontWeight: 600,
                                 border: active ? '1px solid var(--sidebar-primary)' : '1px solid var(--border)',
                                 backgroundColor: active ? 'var(--sidebar-primary)' : 'var(--card)',
@@ -404,7 +404,7 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 boxSizing: 'border-box'
                             }}
                         >
-                            <Icon size={isMobileView ? 11 : 13} />
+                            <Icon size={isMobileView ? 12 : 13} />
                             <span>{label}</span>
                         </button>
                     );
@@ -414,16 +414,16 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
     };
 
     return (
-        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '20px' }}>
+        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '14px' : '20px' }}>
             {/* Bannière d'état des notifications du navigateur (Push sur cet appareil) */}
             <div style={{
                 border: '1px solid var(--border)',
-                borderRadius: isMobileView ? '12px' : '16px',
-                padding: isMobileView ? '10px 12px' : '16px 20px',
+                borderRadius: isMobileView ? '14px' : '16px',
+                padding: isMobileView ? '14px 16px' : '16px 20px',
                 backgroundColor: 'var(--card)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: isMobileView ? '8px' : '12px'
+                gap: isMobileView ? '10px' : '12px'
             }}>
                 <div style={{
                     display: 'flex',
@@ -432,11 +432,11 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                     flexWrap: 'wrap',
                     gap: isMobileView ? '8px' : '12px'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobileView ? '8px' : '12px', flex: '1 1 280px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobileView ? '10px' : '12px', flex: '1 1 280px' }}>
                         <div style={{
-                            width: isMobileView ? '32px' : '36px',
-                            height: isMobileView ? '32px' : '36px',
-                            borderRadius: '8px',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
                             backgroundColor: browserPermission === 'granted' 
                                 ? 'rgba(34, 197, 94, 0.1)' 
                                 : (browserPermission === 'denied' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(85, 107, 47, 0.1)'),
@@ -445,16 +445,16 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                             justifyContent: 'center',
                             flexShrink: 0
                         }}>
-                            {browserPermission === 'granted' && <CheckCircle2 size={isMobileView ? 16 : 18} style={{ color: '#16A34A' }} />}
-                            {browserPermission === 'denied' && <BellOff size={isMobileView ? 16 : 18} style={{ color: '#CA8A04' }} />}
+                            {browserPermission === 'granted' && <CheckCircle2 size={18} style={{ color: '#16A34A' }} />}
+                            {browserPermission === 'denied' && <BellOff size={18} style={{ color: '#CA8A04' }} />}
                             {(browserPermission === 'default' || browserPermission === 'unsupported') && (
-                                <Bell size={isMobileView ? 16 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                                <Bell size={18} style={{ color: 'var(--sidebar-primary)' }} />
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: isMobileView ? '12.5px' : '14px', fontWeight: 700 }}>
+                                <span style={{ fontSize: isMobileView ? '14px' : '14px', fontWeight: 700 }}>
                                     {browserPermission === 'granted' && "Notifications du navigateur activées"}
                                     {browserPermission === 'denied' && "Notifications bloquées dans votre navigateur"}
                                     {browserPermission === 'default' && "Activer les notifications sur cet appareil"}
@@ -462,9 +462,9 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 </span>
                                 {browserPermission === 'granted' && (
                                     <span style={{
-                                        fontSize: '10px',
+                                        fontSize: '11px',
                                         fontWeight: 700,
-                                        padding: '2px 7px',
+                                        padding: '2px 8px',
                                         borderRadius: '9999px',
                                         backgroundColor: 'rgba(34, 197, 94, 0.12)',
                                         color: '#16A34A'
@@ -473,7 +473,7 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                     </span>
                                 )}
                             </div>
-                            <span style={{ fontSize: isMobileView ? '11px' : '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
+                            <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
                                 {browserPermission === 'granted' && "Cet appareil reçoit les alertes instantanées (paiements, messages, interventions)."}
                                 {browserPermission === 'denied' && "L'autorisation a été bloquée. Débloquez-la pour recevoir les alertes push."}
                                 {browserPermission === 'default' && "Pour recevoir les alertes push en temps réel même lorsque l'application est fermée, autorisez les notifications."}
@@ -488,12 +488,12 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 type="button"
                                 onClick={requestBrowserPermission}
                                 style={{
-                                    padding: isMobileView ? '6px 12px' : '8px 16px',
+                                    padding: isMobileView ? '8px 14px' : '8px 16px',
                                     borderRadius: '8px',
                                     backgroundColor: 'var(--sidebar-primary)',
                                     color: '#ffffff',
                                     border: 'none',
-                                    fontSize: isMobileView ? '11.5px' : '12.5px',
+                                    fontSize: isMobileView ? '12.5px' : '12.5px',
                                     fontWeight: 600,
                                     cursor: 'pointer',
                                     display: 'inline-flex',
@@ -511,12 +511,12 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 type="button"
                                 onClick={() => setShowDeniedGuide(prev => !prev)}
                                 style={{
-                                    padding: isMobileView ? '5px 10px' : '6px 12px',
-                                    borderRadius: '7px',
+                                    padding: isMobileView ? '7px 12px' : '6px 12px',
+                                    borderRadius: '8px',
                                     backgroundColor: 'var(--background)',
                                     color: 'var(--foreground)',
                                     border: '1px solid var(--border)',
-                                    fontSize: isMobileView ? '10.5px' : '11.5px',
+                                    fontSize: isMobileView ? '12px' : '11.5px',
                                     fontWeight: 600,
                                     cursor: 'pointer',
                                     display: 'inline-flex',
@@ -524,7 +524,7 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                     gap: '5px'
                                 }}
                             >
-                                <Info size={12} />
+                                <Info size={13} />
                                 {showDeniedGuide ? "Masquer l'aide" : "Comment débloquer ?"}
                             </button>
                         )}
@@ -535,11 +535,11 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                 {browserPermission === 'denied' && showDeniedGuide && (
                     <div style={{
                         marginTop: '4px',
-                        padding: isMobileView ? '8px 10px' : '12px 14px',
+                        padding: isMobileView ? '10px 12px' : '12px 14px',
                         backgroundColor: 'var(--background)',
                         border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        fontSize: isMobileView ? '10.5px' : '12px',
+                        borderRadius: '10px',
+                        fontSize: isMobileView ? '12px' : '12px',
                         color: 'var(--foreground)',
                         lineHeight: 1.5
                     }}>
@@ -558,14 +558,14 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                 style={{
                     position: 'relative',
                     border: '1px solid var(--border)',
-                    borderRadius: isMobileView ? '10px' : '12px',
-                    padding: isMobileView ? '8px 12px' : '12px 16px',
+                    borderRadius: isMobileView ? '14px' : '12px',
+                    padding: isMobileView ? '12px 14px' : '12px 16px',
                     backgroundColor: 'var(--card)',
                     display: 'flex',
                     alignItems: isMobileView ? 'stretch' : 'center',
                     justifyContent: 'space-between',
                     flexDirection: isMobileView ? 'column' : 'row',
-                    gap: isMobileView ? '8px' : '12px'
+                    gap: isMobileView ? '10px' : '12px'
                 }}
             >
                 <div style={{
@@ -575,9 +575,9 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                     gap: '8px',
                     width: isMobileView ? '100%' : 'auto'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '6px' : '8px' }}>
-                        <Bell size={isMobileView ? 14 : 16} style={{ color: 'var(--sidebar-primary)' }} />
-                        <span style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 700 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '8px' : '8px' }}>
+                        <Bell size={isMobileView ? 16 : 16} style={{ color: 'var(--sidebar-primary)' }} />
+                        <span style={{ fontSize: isMobileView ? '13.5px' : '13px', fontWeight: 700 }}>
                             {isMobileView ? "Canaux disponibles :" : "Canaux de notification disponibles :"}
                         </span>
                     </div>
@@ -594,8 +594,8 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: '22px',
-                                height: '22px',
+                                width: '26px',
+                                height: '26px',
                                 border: 'none',
                                 backgroundColor: 'transparent',
                                 color: showChannelsHelp ? 'var(--sidebar-primary)' : 'var(--muted-foreground)',
@@ -603,15 +603,15 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                 padding: 0
                             }}
                         >
-                            <HelpCircle size={15} />
+                            <HelpCircle size={17} />
                         </button>
                     )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMobileView ? 'flex-start' : 'flex-end', gap: isMobileView ? '8px' : '16px', fontSize: isMobileView ? '10px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><Smartphone size={isMobileView ? 11 : 13} /> Push Mobile</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><Mail size={isMobileView ? 11 : 13} /> Email</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><Monitor size={isMobileView ? 11 : 13} /> In-app</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMobileView ? 'flex-start' : 'flex-end', gap: isMobileView ? '12px' : '16px', fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Smartphone size={13} /> Push Mobile</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={13} /> Email</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Monitor size={13} /> In-app</span>
 
                     {!isMobileView && (
                         <button
@@ -767,24 +767,24 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
             {!isTechnician && (
                 <div style={{
                     border: '1px solid var(--border)',
-                    borderRadius: isMobileView ? '12px' : '16px',
-                    padding: isMobileView ? '10px 12px' : '20px',
+                    borderRadius: isMobileView ? '14px' : '16px',
+                    padding: isMobileView ? '14px 16px' : '20px',
                     backgroundColor: 'var(--card)'
                 }}>
                     <h3 style={{
-                        margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0',
-                        fontSize: isMobileView ? '11.5px' : '14.5px',
+                        margin: isMobileView ? '0 0 12px 0' : '0 0 14px 0',
+                        fontSize: isMobileView ? '15px' : '14.5px',
                         fontWeight: 700,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: isMobileView ? '6px' : '8px',
+                        gap: isMobileView ? '8px' : '8px',
                         lineHeight: 1.3
                     }}>
-                        <Shield size={isMobileView ? 14 : 17} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                        <Shield size={isMobileView ? 17 : 17} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
                         {isMobileView ? "Notifications Administrateur & Gérant" : "Notifications Administrateur & Gestionnaire (Owner / Manager)"}
                     </h3>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '6px' : '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '10px' }}>
                         {Object.keys(ownerNotifs).map((key) => {
                             const item = ownerNotifs[key];
                             return (
@@ -794,20 +794,20 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        padding: isMobileView ? '7px 9px' : '10px 14px',
+                                        padding: isMobileView ? '10px 12px' : '10px 14px',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '8px',
+                                        borderRadius: '10px',
                                         backgroundColor: 'var(--background)',
                                         flexWrap: 'wrap',
-                                        gap: isMobileView ? '6px' : '10px'
+                                        gap: isMobileView ? '8px' : '10px'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '7px' : '10px', minWidth: isMobileView ? 'auto' : '220px', flex: isMobileView ? '1 1 auto' : undefined }}>
-                                        <label className="mobile-toggle-switch" style={{ transform: isMobileView ? 'scale(0.82)' : undefined, transformOrigin: 'left center', margin: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '10px' : '10px', minWidth: isMobileView ? 'auto' : '220px', flex: isMobileView ? '1 1 auto' : undefined }}>
+                                        <label className="mobile-toggle-switch" style={{ transform: isMobileView ? 'scale(0.95)' : undefined, transformOrigin: 'left center', margin: 0 }}>
                                             <input type="checkbox" checked={item.enabled} onChange={() => toggleOwner(key)} />
                                             <span className="toggle-slider" />
                                         </label>
-                                        <span style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 600 }}>{item.label}</span>
+                                        <span style={{ fontSize: isMobileView ? '13px' : '13px', fontWeight: 600 }}>{item.label}</span>
                                     </div>
 
                                     {item.enabled && (
@@ -826,24 +826,24 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
             {isTechnician && (
                 <div style={{
                     border: '1px solid var(--border)',
-                    borderRadius: isMobileView ? '12px' : '16px',
-                    padding: isMobileView ? '10px 12px' : '20px',
+                    borderRadius: isMobileView ? '14px' : '16px',
+                    padding: isMobileView ? '14px 16px' : '20px',
                     backgroundColor: 'var(--card)'
                 }}>
                     <h3 style={{
-                        margin: isMobileView ? '0 0 8px 0' : '0 0 14px 0',
-                        fontSize: isMobileView ? '11.5px' : '14.5px',
+                        margin: isMobileView ? '0 0 12px 0' : '0 0 14px 0',
+                        fontSize: isMobileView ? '15px' : '14.5px',
                         fontWeight: 700,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: isMobileView ? '6px' : '8px',
+                        gap: isMobileView ? '8px' : '8px',
                         lineHeight: 1.3
                     }}>
-                        <Wrench size={isMobileView ? 14 : 17} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
+                        <Wrench size={isMobileView ? 17 : 17} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
                         {isMobileView ? "Notifications Techniciens" : "Notifications Techniciens de terrain"}
                     </h3>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '6px' : '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '10px' }}>
                         {Object.keys(techNotifs).map((key) => {
                             const item = techNotifs[key];
                             return (
@@ -853,20 +853,20 @@ export default function NotificationsTab({ isMobileView, triggerToast }) {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        padding: isMobileView ? '7px 9px' : '10px 14px',
+                                        padding: isMobileView ? '10px 12px' : '10px 14px',
                                         border: '1px solid var(--border)',
-                                        borderRadius: '8px',
+                                        borderRadius: '10px',
                                         backgroundColor: 'var(--background)',
                                         flexWrap: 'wrap',
-                                        gap: isMobileView ? '6px' : '10px'
+                                        gap: isMobileView ? '8px' : '10px'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '7px' : '10px', minWidth: isMobileView ? 'auto' : '220px', flex: isMobileView ? '1 1 auto' : undefined }}>
-                                        <label className="mobile-toggle-switch" style={{ transform: isMobileView ? 'scale(0.82)' : undefined, transformOrigin: 'left center', margin: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobileView ? '10px' : '10px', minWidth: isMobileView ? 'auto' : '220px', flex: isMobileView ? '1 1 auto' : undefined }}>
+                                        <label className="mobile-toggle-switch" style={{ transform: isMobileView ? 'scale(0.95)' : undefined, transformOrigin: 'left center', margin: 0 }}>
                                             <input type="checkbox" checked={item.enabled} onChange={() => toggleTech(key)} />
                                             <span className="toggle-slider" />
                                         </label>
-                                        <span style={{ fontSize: isMobileView ? '11px' : '13px', fontWeight: 600 }}>{item.label}</span>
+                                        <span style={{ fontSize: isMobileView ? '13px' : '13px', fontWeight: 600 }}>{item.label}</span>
                                     </div>
 
                                     {item.enabled && (

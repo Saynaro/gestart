@@ -6,13 +6,12 @@
     height: 42px;
     min-height: 42px;
     max-height: 42px;
-    background-color: var(--card);
+    background-color: var(--background, var(--card));
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     transition: all 0.2s ease;
     box-sizing: border-box;
     overflow: visible;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .phone-input-container:focus-within {
@@ -20,17 +19,16 @@
     box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.12);
 }
 
-/* Clear crisp input border separation in dark mode to match .form-input */
 .dark .phone-input-container,
 :root.dark .phone-input-container {
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    background-color: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border) !important;
+    background-color: var(--background) !important;
 }
 
 .dark .phone-input-container:focus-within,
 :root.dark .phone-input-container:focus-within {
     border-color: var(--sidebar-primary) !important;
-    box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.25) !important;
+    box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.25) !important;
 }
 
 .phone-input-container.disabled {

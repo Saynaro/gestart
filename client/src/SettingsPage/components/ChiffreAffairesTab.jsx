@@ -156,16 +156,16 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
     const projectionYearEnd = Math.round(currentCA > 0 ? currentCA * 1.35 : 0);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '10px' : '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobileView ? '16px' : '24px' }}>
             {/* Alerte si proche du plafond */}
             {isWarning && (
-                <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', alignItems: 'flex-start', gap: isMobileView ? '8px' : '12px' }}>
-                    <AlertTriangle size={isMobileView ? 18 : 22} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: isMobileView ? '12px' : '12px', padding: isMobileView ? '12px 14px' : '16px', display: 'flex', alignItems: 'flex-start', gap: isMobileView ? '10px' : '12px' }}>
+                    <AlertTriangle size={isMobileView ? 20 : 22} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
                     <div>
-                        <h4 style={{ margin: '0 0 4px 0', fontSize: isMobileView ? '12.5px' : '14.5px', fontWeight: 700, color: '#ef4444' }}>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: isMobileView ? '14px' : '14.5px', fontWeight: 700, color: '#ef4444' }}>
                             Alerte Franchise TVA : Plafond atteint à {percentage}% !
                         </h4>
-                        <p style={{ margin: 0, fontSize: isMobileView ? '10.5px' : '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
+                        <p style={{ margin: 0, fontSize: isMobileView ? '12px' : '12.5px', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
                             Vous êtes à <strong>{Math.max(0, thresholdServices - currentCA).toLocaleString("fr-FR")} €</strong> du seuil de franchise en base de TVA ({thresholdServices.toLocaleString("fr-FR")} €). Si vous dépassez le seuil majoré ({thresholdServicesMax.toLocaleString("fr-FR")} €), vous devrez facturer la TVA sur vos interventions.
                         </p>
                     </div>
@@ -173,45 +173,45 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
             )}
 
             {/* Metric Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobileView ? '8px' : '16px' }}>
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
-                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>CA Annuel encaissé (2026)</span>
-                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: 'var(--foreground)', marginTop: '2px' }}>
-                        {currentCA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € <span style={{ fontSize: isMobileView ? '10px' : '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>HT</span>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobileView ? '10px' : '16px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '12px', padding: isMobileView ? '14px 16px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>CA Annuel encaissé (2026)</span>
+                    <div style={{ fontSize: isMobileView ? '22px' : '24px', fontWeight: 800, color: 'var(--foreground)', marginTop: '2px' }}>
+                        {currentCA.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} € <span style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 500, color: 'var(--muted-foreground)' }}>HT</span>
                     </div>
-                    <span style={{ fontSize: isMobileView ? '9.5px' : '11px', color: '#22c55e', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px', marginTop: '4px' }}>
-                        <ArrowUpRight size={isMobileView ? 12 : 14} /> Factures réglées en temps réel
+                    <span style={{ fontSize: isMobileView ? '11.5px' : '11px', color: '#22c55e', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                        <ArrowUpRight size={isMobileView ? 14 : 14} /> Factures réglées en temps réel
                     </span>
                 </div>
 
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
-                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Seuil Franchise TVA (Services)</span>
-                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '2px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '12px', padding: isMobileView ? '14px 16px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Seuil Franchise TVA (Services)</span>
+                    <div style={{ fontSize: isMobileView ? '22px' : '24px', fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '2px' }}>
                         {thresholdServices.toLocaleString("fr-FR")} €
                     </div>
-                    <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '3px', marginTop: '6px', overflow: 'hidden' }}>
-                        <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: isWarning ? '#ef4444' : 'var(--sidebar-primary)', borderRadius: '3px' }} />
+                    <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
+                        <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: isWarning ? '#ef4444' : 'var(--sidebar-primary)', borderRadius: '4px' }} />
                     </div>
                 </div>
 
-                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '18px' }}>
-                    <span style={{ fontSize: isMobileView ? '10.5px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Projection Fin d'année</span>
-                    <div style={{ fontSize: isMobileView ? '18px' : '24px', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
+                <div style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '12px', padding: isMobileView ? '14px 16px' : '18px' }}>
+                    <span style={{ fontSize: isMobileView ? '12px' : '12px', color: 'var(--muted-foreground)', fontWeight: 600 }}>Projection Fin d'année</span>
+                    <div style={{ fontSize: isMobileView ? '22px' : '24px', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
                         ~ {projectionYearEnd.toLocaleString("fr-FR")} €
                     </div>
-                    <span style={{ fontSize: isMobileView ? '10px' : '11.5px', color: 'var(--muted-foreground)', marginTop: '2px', display: 'block' }}>Estimation basée sur l'activité en cours</span>
+                    <span style={{ fontSize: isMobileView ? '11.5px' : '11.5px', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>Estimation basée sur l'activité en cours</span>
                 </div>
             </div>
 
             {/* Section Configuration des Plafonds & Seuils légaux */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '14px', padding: isMobileView ? '10px 12px' : '22px', backgroundColor: 'var(--card)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobileView ? 'flex-start' : 'center', flexDirection: isMobileView ? 'column' : 'row', gap: isMobileView ? '8px' : '12px', marginBottom: isMobileView ? '12px' : '18px' }}>
+            <div style={{ border: '1px solid var(--border)', borderRadius: isMobileView ? '14px' : '14px', padding: isMobileView ? '16px 16px' : '22px', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobileView ? 'flex-start' : 'center', flexDirection: isMobileView ? 'column' : 'row', gap: isMobileView ? '10px' : '12px', marginBottom: isMobileView ? '14px' : '18px' }}>
                     <div>
-                        <h4 style={{ margin: '0 0 2px 0', fontSize: isMobileView ? '12.5px' : '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--foreground)' }}>
-                            <Sliders size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                        <h4 style={{ margin: '0 0 2px 0', fontSize: isMobileView ? '15px' : '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--foreground)' }}>
+                            <Sliders size={isMobileView ? 18 : 18} style={{ color: 'var(--sidebar-primary)' }} />
                             Plafonds & Seuils légaux (Micro-entreprise)
                         </h4>
-                        <p style={{ margin: 0, fontSize: isMobileView ? '10.5px' : '13px', color: 'var(--muted-foreground)' }}>
+                        <p style={{ margin: 0, fontSize: isMobileView ? '12px' : '13px', color: 'var(--muted-foreground)' }}>
                             Personnalisez vos plafonds légaux ou adaptez-les en cas d'ouverture en cours d'année (prorata temporis).
                         </p>
                     </div>
@@ -222,12 +222,12 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '6px',
-                            padding: isMobileView ? '5px 10px' : '8px 14px',
+                            padding: isMobileView ? '7px 12px' : '8px 14px',
                             borderRadius: '8px',
                             border: '1px solid var(--border)',
                             backgroundColor: 'var(--background)',
                             color: 'var(--foreground)',
-                            fontSize: isMobileView ? '10.5px' : '12.5px',
+                            fontSize: isMobileView ? '12px' : '12.5px',
                             fontWeight: 600,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
@@ -235,21 +235,21 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                             justifyContent: 'center'
                         }}
                     >
-                        <RotateCcw size={isMobileView ? 12 : 14} />
+                        <RotateCcw size={isMobileView ? 13 : 14} />
                         Réinitialiser valeurs CGI
                     </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobileView ? '10px' : '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobileView ? '12px' : '20px' }}>
                     {/* Colonne 1: Prestations de services */}
-                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '14px' }}>
+                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '12px', padding: isMobileView ? '14px 16px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '12px' : '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <ShieldCheck size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
-                            <span style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Prestations de services (BTP / Artisans)</span>
+                            <ShieldCheck size={isMobileView ? 17 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                            <span style={{ fontSize: isMobileView ? '13.5px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Prestations de services (BTP / Artisans)</span>
                         </div>
                         
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Plafond CA max annuel (statut micro) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -259,25 +259,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Seuil Franchise TVA (de base) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -287,25 +287,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesTva', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Seuil Majoré TVA (limite tolérance) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -315,33 +315,33 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('servicesTvaMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Colonne 2: Activités commerciales */}
-                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '10px' : '12px', padding: isMobileView ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '8px' : '14px' }}>
+                    <div style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)', borderRadius: isMobileView ? '12px' : '12px', padding: isMobileView ? '14px 16px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobileView ? '12px' : '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <DollarSign size={isMobileView ? 15 : 18} style={{ color: 'var(--sidebar-primary)' }} />
-                            <span style={{ fontSize: isMobileView ? '12px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Activités commerciales (Vente matériel / BIC)</span>
+                            <DollarSign size={isMobileView ? 17 : 18} style={{ color: 'var(--sidebar-primary)' }} />
+                            <span style={{ fontSize: isMobileView ? '13.5px' : '14px', fontWeight: 700, color: 'var(--foreground)' }}>Activités commerciales (Vente matériel / BIC)</span>
                         </div>
                         
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Plafond CA max annuel (statut micro) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -351,25 +351,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Seuil Franchise TVA (de base) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -379,25 +379,25 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialTva', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
 
                         <div>
-                            <label style={{ fontSize: isMobileView ? '9.5px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '2px' }}>
+                            <label style={{ fontSize: isMobileView ? '12px' : '12px', fontWeight: 600, color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                                 Seuil Majoré TVA (limite tolérance) :
                             </label>
                             <div style={{ position: 'relative' }}>
@@ -407,20 +407,20 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                                     onChange={(e) => handlePlafondChange('commercialTvaMax', e.target.value)}
                                     style={{
                                         width: '100%',
-                                        height: isMobileView ? '30px' : '42px',
-                                        minHeight: isMobileView ? '30px' : '42px',
-                                        maxHeight: isMobileView ? '30px' : '42px',
-                                        padding: isMobileView ? '3px 30px 3px 8px' : '8px 36px 8px 12px',
+                                        height: isMobileView ? '42px' : '42px',
+                                        minHeight: isMobileView ? '42px' : '42px',
+                                        maxHeight: isMobileView ? '42px' : '42px',
+                                        padding: isMobileView ? '8px 36px 8px 12px' : '8px 36px 8px 12px',
                                         borderRadius: '8px',
                                         border: '1px solid var(--border)',
                                         backgroundColor: 'var(--card)',
                                         color: 'var(--foreground)',
-                                        fontSize: isMobileView ? '11px' : '14px',
+                                        fontSize: isMobileView ? '14px' : '14px',
                                         fontWeight: 600,
                                         boxSizing: 'border-box'
                                     }}
                                 />
-                                <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '11px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: isMobileView ? '13px' : '13px', color: 'var(--muted-foreground)', fontWeight: 600 }}>€</span>
                             </div>
                         </div>
                     </div>

@@ -1126,7 +1126,7 @@ function QuoteDetailDrawer({
                     initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
                     animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
                     exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 15 }}
-                    transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                    transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                     onClick={e => e.stopPropagation()}
                     drag={isMobile ? "y" : false}
                     dragListener={false}
@@ -1538,7 +1538,7 @@ function QuoteDetailDrawer({
                                 initial={{ y: "100%" }}
                                 animate={{ y: 0 }}
                                 exit={{ y: "100%" }}
-                                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                                transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                                 drag="y"
                                 dragListener={false}
                                 dragControls={dragControlsStatus}

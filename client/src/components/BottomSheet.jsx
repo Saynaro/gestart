@@ -90,9 +90,11 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
-                        transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
+                        transition={{ type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.28 }}
                         style={{ 
-                            willChange: "transform", 
+                            willChange: "transform",
+                            transform: "translate3d(0, 0, 0)",
+                            contain: "paint layout",
                             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
                             paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 16px))'
                         }}

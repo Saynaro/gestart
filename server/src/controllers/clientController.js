@@ -8,7 +8,8 @@ export const getClients = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const { search, status, city } = req.query;
+    const { search, status, city, compact, fields, simple } = req.query;
+    const isCompact = compact === "true" || fields === "compact" || simple === "true";
 
     const where = {
         companyId,
@@ -35,70 +36,72 @@ export const getClients = async (req, res) => {
                 skip,
                 take: limit,
                 orderBy: { createdAt: "desc" },
-                include: {
-                    equipment: true,
-                    interventions: {
-                        include: {
-                            technician: {
-                                select: { id: true, firstName: true, lastName: true, email: true }
+                ...(isCompact ? {} : {
+                    include: {
+                        equipment: true,
+                        interventions: {
+                            include: {
+                                technician: {
+                                    select: { id: true, firstName: true, lastName: true, email: true }
+                                },
+                                photos: true,
+                                services: {
+                                    include: { serviceType: true }
+                                }
                             },
-                            photos: true,
-                            services: {
-                                include: { serviceType: true }
+                            orderBy: { scheduledAt: "desc" }
+                        },
+                        reminderAutomations: {
+                            include: {
+                                trackedServices: { include: { serviceType: true } },
+                                executions: {
+                                    orderBy: { scheduledAt: "desc" },
+                                    take: 3
+                                }
+                            },
+                            orderBy: { nextReminderAt: "asc" }
+                        },
+                        invoices: {
+                            select: {
+                                id: true,
+                                number: true,
+                                issuedAt: true,
+                                createdAt: true,
+                                amountTTC: true,
+                                amountHT: true,
+                                status: true
+                            },
+                            orderBy: { createdAt: "desc" },
+                            take: 20
+                        },
+                        quotes: {
+                            select: {
+                                id: true,
+                                number: true,
+                                issuedAt: true,
+                                createdAt: true,
+                                amountTTC: true,
+                                amountHT: true,
+                                status: true
+                            },
+                            orderBy: { createdAt: "desc" },
+                            take: 20
+                        },
+                        smsLogs: {
+                            orderBy: { createdAt: "desc" },
+                            take: 15
+                        },
+                        _count: {
+                            select: {
+                                equipment: true,
+                                interventions: true,
+                                invoices: true,
+                                quotes: true,
+                                smsLogs: true
                             }
-                        },
-                        orderBy: { scheduledAt: "desc" }
-                    },
-                    reminderAutomations: {
-                        include: {
-                            trackedServices: { include: { serviceType: true } },
-                            executions: {
-                                orderBy: { scheduledAt: "desc" },
-                                take: 3
-                            }
-                        },
-                        orderBy: { nextReminderAt: "asc" }
-                    },
-                    invoices: {
-                        select: {
-                            id: true,
-                            number: true,
-                            issuedAt: true,
-                            createdAt: true,
-                            amountTTC: true,
-                            amountHT: true,
-                            status: true
-                        },
-                        orderBy: { createdAt: "desc" },
-                        take: 20
-                    },
-                    quotes: {
-                        select: {
-                            id: true,
-                            number: true,
-                            issuedAt: true,
-                            createdAt: true,
-                            amountTTC: true,
-                            amountHT: true,
-                            status: true
-                        },
-                        orderBy: { createdAt: "desc" },
-                        take: 20
-                    },
-                    smsLogs: {
-                        orderBy: { createdAt: "desc" },
-                        take: 15
-                    },
-                    _count: {
-                        select: {
-                            equipment: true,
-                            interventions: true,
-                            invoices: true,
-                            quotes: true,
-                            smsLogs: true
                         }
                     }
-                }
+                })
             })
         ]);
 

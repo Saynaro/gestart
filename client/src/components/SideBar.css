@@ -674,6 +674,12 @@
         display: none !important;
     }
 
+    body.hide-mobile-bottom-nav .mobile-bottom-nav,
+    body.hide-mobile-bottom-nav .mobile-fab,
+    body.hide-mobile-bottom-nav .mobile-fab-btn {
+        display: none !important;
+    }
+
     .mobile-bottom-nav {
         display: flex;
         position: fixed;

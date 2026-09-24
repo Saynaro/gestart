@@ -776,6 +776,18 @@ function MessagesPage() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [isMobile, activeChatIdParam, setSearchParams]);
 
+  // Hide mobile bottom navigation bar when inside an active chat
+  useEffect(() => {
+    if (isMobile && (activeChatIdParam || selectedClientData)) {
+      document.body.classList.add("hide-mobile-bottom-nav");
+    } else {
+      document.body.classList.remove("hide-mobile-bottom-nav");
+    }
+    return () => {
+      document.body.classList.remove("hide-mobile-bottom-nav");
+    };
+  }, [isMobile, activeChatIdParam, selectedClientData]);
+
   const handleBackToChatPane = () => {
     navigate(`/messages?chat=${activeChatIdParam}`);
   };
@@ -1292,7 +1304,7 @@ function MessagesPage() {
     if (c === "WHATSAPP") {
       return (
         <span className={`channel-badge channel-badge-whatsapp ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal WhatsApp">
-          <WhatsAppIcon size={size === "lg" ? 15 : 13} />
+          <WhatsAppIcon size={size === "lg" ? 17 : 13} />
           <span>WhatsApp</span>
         </span>
       );
@@ -1300,14 +1312,14 @@ function MessagesPage() {
     if (c === "EMAIL") {
       return (
         <span className={`channel-badge channel-badge-email ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal Email">
-          <EmailIcon size={size === "lg" ? 15 : 13} />
+          <EmailIcon size={size === "lg" ? 17 : 13} />
           <span>Email</span>
         </span>
       );
     }
     return (
       <span className={`channel-badge channel-badge-sms ${size === "lg" ? "channel-badge-lg" : ""}`} title="Canal SMS">
-        <SmsIcon size={size === "lg" ? 15 : 13} />
+        <SmsIcon size={size === "lg" ? 17 : 13} />
         <span>SMS</span>
       </span>
     );
@@ -1695,7 +1707,7 @@ function MessagesPage() {
             onClick={handleBackToChats}
             aria-label="Retour aux messages"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={22} />
           </button>
           <div className="chat-header-user-clickable" onClick={toggleClientInfo}>
             <div className="active-chat-avatar">{getInitials(activeClientName)}</div>
@@ -1703,13 +1715,13 @@ function MessagesPage() {
               <h3>{activeClientName}</h3>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, overflow: "hidden" }}>
                 {renderChannelBadge(selectedChannel, "sm")}
-                <span className="active-chat-status font-mono text-xs" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{clientObj.phone || clientObj.email || "Contact"}</span>
+                <span className="active-chat-status font-mono" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{clientObj.phone || clientObj.email || "Contact"}</span>
               </div>
             </div>
           </div>
           <div className="chat-pane-header-actions">
             <button className="pane-header-action-btn" title="Appeler" onClick={() => setActiveCall({ type: "audio", contactName: activeClientName })}>
-              <Phone size={17} />
+              <Phone size={20} />
             </button>
             <div className="pane-header-action-btn-wrapper" style={{ position: "relative" }}>
               <button
@@ -1720,7 +1732,7 @@ function MessagesPage() {
                   setIsActionsMenuOpen(!isActionsMenuOpen);
                 }}
               >
-                <MoreVertical size={18} />
+                <MoreVertical size={20} />
               </button>
               {isActionsMenuOpen && (
                 <div className="chat-actions-dropdown">
@@ -2457,8 +2469,8 @@ function MessagesPage() {
                 setIsChannelDropdownOpen(!isChannelDropdownOpen);
               }}
             >
-              {renderChannelBadge(selectedChannel, "sm")}
-              <ChevronDown size={14} />
+              {renderChannelBadge(selectedChannel, "lg")}
+              <ChevronDown size={16} />
             </button>
 
             {/* Email Meta Details Toggle Button (À, Objet) */}

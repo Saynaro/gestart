@@ -60,8 +60,8 @@ function InterventionsWidget({ startDate, endDate }) {
 
     // Status colors
     const statusConfig = [
-        { label: "Terminées", count: stats.completed, color: "var(--success)" },
-        { label: "Planifiées", count: stats.scheduled, color: "var(--primary)" },
+        { label: "Terminées", count: stats.completed, color: "#556B2F" },
+        { label: "Planifiées", count: stats.scheduled, color: "#8FBC8F" },
         { label: "En attente", count: stats.pending, color: "var(--warning)" },
         { label: "Annulées", count: stats.cancelled, color: "var(--destructive)" }
     ];
@@ -111,19 +111,19 @@ function InterventionsWidget({ startDate, endDate }) {
 
             {/* KPI grid */}
             <div className="kpi-grid">
-                <div className="kpi-card success-accent">
+                <div className="kpi-card">
                     <span className="kpi-label">Terminées</span>
                     <span className="kpi-value text-success">{stats.completed}</span>
                     <span className="kpi-subtext">Visites effectuées</span>
                 </div>
                 <div className="kpi-card">
                     <span className="kpi-label">Planifiées</span>
-                    <span className="kpi-value text-primary">{stats.scheduled}</span>
+                    <span className="kpi-value">{stats.scheduled}</span>
                     <span className="kpi-subtext">À venir</span>
                 </div>
-                <div className="kpi-card warning-accent">
+                <div className="kpi-card">
                     <span className="kpi-label">En attente</span>
-                    <span className="kpi-value text-warning">{stats.pending}</span>
+                    <span className={`kpi-value ${stats.pending > 0 ? "text-warning" : ""}`}>{stats.pending}</span>
                     <span className="kpi-subtext">Sans date fixée</span>
                 </div>
                 <div className="kpi-card">
@@ -153,7 +153,7 @@ function InterventionsWidget({ startDate, endDate }) {
                                             cy="60" 
                                             r="50" 
                                             fill="none" 
-                                            stroke="var(--success)" 
+                                            stroke="#556B2F" 
                                             strokeWidth="12" 
                                             strokeDasharray={`${circumference}`}
                                             strokeDashoffset={`${circumference * (1 - completedRatio)}`}
@@ -168,7 +168,7 @@ function InterventionsWidget({ startDate, endDate }) {
                                             cy="60" 
                                             r="50" 
                                             fill="none" 
-                                            stroke="var(--primary)" 
+                                            stroke="#8FBC8F" 
                                             strokeWidth="12" 
                                             strokeDasharray={`${circumference}`}
                                             strokeDashoffset={`${circumference * (1 - scheduledRatio)}`}

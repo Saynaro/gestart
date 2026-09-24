@@ -602,14 +602,14 @@ export const getClientsReport = async (req, res) => {
             prisma.client.count({ where: { companyId, isActive: true, status: "URGENT" } }),
         ]);
 
-        // Clients nécessitant une action (URGENT ou WARNING en priorité)
-        let actionClients = await prisma.client.findMany({
+        // Clients nécessitant une action (URGENT ou WARNING uniquement)
+        const actionClients = await prisma.client.findMany({
             where: {
                 companyId,
                 isActive: true,
                 status: { in: ["URGENT", "WARNING"] }
             },
-            take: 5,
+            take: 10,
             orderBy: [
                 { status: "desc" },
                 { updatedAt: "desc" }
@@ -629,31 +629,6 @@ export const getClientsReport = async (req, res) => {
             }
         });
 
-        // Si aucun client n'est en warning/urgent, renvoyer les derniers clients actifs
-        if (actionClients.length === 0) {
-            actionClients = await prisma.client.findMany({
-                where: {
-                    companyId,
-                    isActive: true
-                },
-                take: 5,
-                orderBy: { updatedAt: "desc" },
-                select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    companyName: true,
-                    phone: true,
-                    status: true,
-                    equipment: {
-                        where: { isActive: true },
-                        take: 1,
-                        select: { brand: true, model: true, power: true }
-                    }
-                }
-            });
-        }
-
         const formattedActionClients = actionClients.map(c => {
             const fullName = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.companyName || "Client";
             const eq = c.equipment?.[0];
@@ -664,7 +639,7 @@ export const getClientsReport = async (req, res) => {
                 id: c.id,
                 name: fullName,
                 phone: c.phone || "",
-                status: c.status || "OK",
+                status: c.status || "WARNING",
                 equipment: eqDesc
             };
         });

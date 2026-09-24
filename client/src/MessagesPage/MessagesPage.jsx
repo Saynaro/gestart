@@ -807,17 +807,13 @@ function MessagesPage() {
       } else {
         next.add(msgId);
       }
-      if (next.size === 0) {
-        setIsSelectMode(false);
-      }
       return next;
     });
   };
 
   const handleToggleSelectAll = () => {
-    if (selectedMessageIds.size === messages.length) {
+    if (selectedMessageIds.size === messages.length && messages.length > 0) {
       setSelectedMessageIds(new Set());
-      setIsSelectMode(false);
     } else {
       setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
     }
@@ -2331,9 +2327,9 @@ function MessagesPage() {
         </div>
       )}
 
-      {/* Floating Selection & Delete Action Bar */}
+      {/* Floating Selection & Delete Action Bar (Matching Planning / Interventions style) */}
       <AnimatePresence>
-        {isSelectMode && selectedMessageIds.size > 0 && (
+        {isSelectMode && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2341,39 +2337,76 @@ function MessagesPage() {
             transition={{ duration: 0.15 }}
             className="messages-floating-action-bar"
           >
-            <div className="floating-bar-left">
-              <span className="floating-bar-selected-text">
-                <strong>{selectedMessageIds.size}</strong> {selectedMessageIds.size > 1 ? "sélectionnés" : "sélectionné"}
-              </span>
-              <button
-                type="button"
-                className="floating-bar-btn secondary"
-                onClick={handleToggleSelectAll}
-                title={selectedMessageIds.size === messages.length ? "Tout désélectionner" : "Tout sélectionner"}
-              >
-                <CheckCheck size={13} />
-                <span>{selectedMessageIds.size === messages.length ? "Aucun" : "Tout"}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className="bell-select-all-btn"
+              onClick={handleToggleSelectAll}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--foreground)',
+                fontSize: '0.94rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                padding: '8px 4px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {selectedMessageIds.size === messages.length && messages.length > 0 ? (
+                <CheckSquare size={19} color="#556B2F" style={{ flexShrink: 0 }} />
+              ) : (
+                <Square size={19} color="var(--muted-foreground)" style={{ flexShrink: 0 }} />
+              )}
+              <span>{selectedMessageIds.size === messages.length && messages.length > 0 ? "Aucun" : "Tous"}</span>
+            </button>
 
-            <div className="floating-bar-right">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
               <button
                 type="button"
-                className="floating-bar-btn delete"
-                disabled={selectedMessageIds.size === 0}
+                className="bell-delete-selected-btn"
+                disabled={selectedMessageIds.size === 0 || isDeleting}
                 onClick={() => setIsDeleteModalOpen(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  backgroundColor: selectedMessageIds.size === 0 ? 'rgba(220, 38, 38, 0.35)' : '#dc2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  minHeight: '42px',
+                  padding: '9px 16px',
+                  borderRadius: '12px',
+                  fontSize: '0.90rem',
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  cursor: selectedMessageIds.size === 0 ? 'not-allowed' : 'pointer',
+                  boxShadow: selectedMessageIds.size === 0 ? 'none' : '0 2px 8px rgba(220, 38, 38, 0.25)',
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
+                  transform: 'translateZ(0)',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
+                  isolation: 'isolate'
+                }}
               >
-                <Trash2 size={13} />
-                <span>Supprimer ({selectedMessageIds.size})</span>
+                <Trash2 size={18} style={{ flexShrink: 0 }} />
+                <span style={{ whiteSpace: 'nowrap' }}>Supprimer{selectedMessageIds.size > 0 ? ` (${selectedMessageIds.size})` : ""}</span>
               </button>
+
               <button
                 type="button"
-                className="floating-bar-btn cancel"
-                onClick={handleCancelSelectMode}
-                title="Annuler"
+                className="chat-select-done-btn"
+                onClick={() => {
+                  setIsSelectMode(false);
+                  setSelectedMessageIds(new Set());
+                }}
+                title="Fermer la sélection"
+                aria-label="Fermer la sélection"
               >
-                <X size={13} />
-                <span>Annuler</span>
+                <X size={18} />
               </button>
             </div>
           </motion.div>

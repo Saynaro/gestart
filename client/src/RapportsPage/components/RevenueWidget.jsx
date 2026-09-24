@@ -146,14 +146,14 @@ function RevenueWidget({ startDate, endDate }) {
                             <span className="kpi-value">{totalTTC.toLocaleString("fr-FR")} €</span>
                             <span className="kpi-subtext">HT: {totalHT.toLocaleString("fr-FR")} €</span>
                         </div>
-                        <div className="kpi-card success-accent">
+                        <div className="kpi-card">
                             <span className="kpi-label">CA Encaissé</span>
                             <span className="kpi-value text-success">{totalPaid.toLocaleString("fr-FR")} €</span>
                             <span className="kpi-subtext">Taux: {paidRate}%</span>
                         </div>
-                        <div className="kpi-card warning-accent">
+                        <div className="kpi-card">
                             <span className="kpi-label">Restant dû (TTC)</span>
-                            <span className="kpi-value text-warning">{totalPending.toLocaleString("fr-FR")} €</span>
+                            <span className={`kpi-value ${totalPending > 0 ? "text-warning" : ""}`}>{totalPending.toLocaleString("fr-FR")} €</span>
                             <span className="kpi-subtext">Factures non réglées</span>
                         </div>
                         <div className="kpi-card">

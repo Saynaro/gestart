@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ToastNotification from "../components/ToastNotification";
@@ -116,6 +116,32 @@ function PremiumPage() {
 
     // Tab state
     const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "automations" | "templates" | "services" | "history" | "accounting"
+    const tabsBarRef = useRef(null);
+
+    const handleTabClick = (tabKey, event) => {
+        setActiveTab(tabKey);
+        if (event?.currentTarget) {
+            event.currentTarget.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest"
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (tabsBarRef.current) {
+            const activeBtn = tabsBarRef.current.querySelector('.premium-tab-btn.active');
+            if (activeBtn) {
+                activeBtn.scrollIntoView({
+                    behavior: "smooth",
+                    inline: "center",
+                    block: "nearest"
+                });
+            }
+        }
+    }, [activeTab]);
+
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
 
@@ -158,6 +184,77 @@ function PremiumPage() {
 
     const [automationFilterClient, setAutomationFilterClient] = useState("");
     const [automationSearchText, setAutomationSearchText] = useState("");
+
+    const scrollToTopList = () => {
+        const doScroll = (behavior = "smooth") => {
+            try {
+                window.scrollTo({ top: 0, left: 0, behavior });
+            } catch (_) {
+                window.scrollTo(0, 0);
+            }
+            if (document.documentElement) {
+                document.documentElement.scrollTop = 0;
+                if (typeof document.documentElement.scrollTo === "function") {
+                    try { document.documentElement.scrollTo({ top: 0, left: 0, behavior }); } catch (_) {}
+                }
+            }
+            if (document.body) {
+                document.body.scrollTop = 0;
+                if (typeof document.body.scrollTo === "function") {
+                    try { document.body.scrollTo({ top: 0, left: 0, behavior }); } catch (_) {}
+                }
+            }
+            const selectors = [
+                ".main-content",
+                ".page-content",
+                ".premium-page-wrapper",
+                ".home-page",
+                ".pull-to-refresh-container",
+                ".ptr-content",
+                "#root"
+            ];
+            selectors.forEach((sel) => {
+                const els = document.querySelectorAll(sel);
+                els.forEach((el) => {
+                    if (el) {
+                        el.scrollTop = 0;
+                        if (typeof el.scrollTo === "function") {
+                            try { el.scrollTo({ top: 0, left: 0, behavior }); } catch (_) {}
+                        }
+                    }
+                });
+            });
+        };
+
+        doScroll("smooth");
+        requestAnimationFrame(() => doScroll("smooth"));
+        setTimeout(() => doScroll("smooth"), 30);
+        setTimeout(() => doScroll("smooth"), 100);
+    };
+
+    const isFirstPageMount = useRef(true);
+    useEffect(() => {
+        if (isFirstPageMount.current) {
+            isFirstPageMount.current = false;
+            return;
+        }
+        scrollToTopList();
+    }, [futurePage, automationsPage, historyPage]);
+
+    const handleFuturePageChange = (newPage) => {
+        setFuturePage(newPage);
+        scrollToTopList();
+    };
+
+    const handleAutomationsPageChange = (newPage) => {
+        setAutomationsPage(newPage);
+        scrollToTopList();
+    };
+
+    const handleHistoryPageChange = (newPage) => {
+        setHistoryPage(newPage);
+        scrollToTopList();
+    };
 
     // Reset page to 1 when filters change
     useEffect(() => {
@@ -659,46 +756,49 @@ function PremiumPage() {
                     </div>
 
                     {/* Navigation Tabs Bar */}
-                    <div className="premium-tabs-bar">
-                        <button
-                            className={`premium-tab-btn ${activeTab === "dashboard" ? "active" : ""}`}
-                            onClick={() => setActiveTab("dashboard")}
-                        >
-                            <Calendar size={16} /> Tableau de bord
-                            {dashboardData?.stats?.todayCount > 0 && (
-                                <span className="tab-badge-count">{dashboardData.stats.todayCount}</span>
-                            )}
-                        </button>
-                        <button
-                            className={`premium-tab-btn ${activeTab === "automations" ? "active" : ""}`}
-                            onClick={() => setActiveTab("automations")}
-                        >
-                            <Sliders size={16} /> Règles actives ({automations.length})
-                        </button>
-                        <button
-                            className={`premium-tab-btn ${activeTab === "templates" ? "active" : ""}`}
-                            onClick={() => setActiveTab("templates")}
-                        >
-                            <MessageSquare size={16} /> Modèles & Simulateur
-                        </button>
-                        <button
-                            className={`premium-tab-btn ${activeTab === "services" ? "active" : ""}`}
-                            onClick={() => setActiveTab("services")}
-                        >
-                            <Wrench size={16} /> Métiers & Services ({services.length})
-                        </button>
-                        <button
-                            className={`premium-tab-btn ${activeTab === "history" ? "active" : ""}`}
-                            onClick={() => setActiveTab("history")}
-                        >
-                            <History size={16} /> Historique des relances
-                        </button>
-                        <button
-                            className={`premium-tab-btn ${activeTab === "accounting" ? "active" : ""}`}
-                            onClick={() => setActiveTab("accounting")}
-                        >
-                            <FileSpreadsheet size={16} /> Intégration comptable
-                        </button>
+                    <div className="premium-tabs-bar-container">
+                        <div className="premium-tabs-bar" ref={tabsBarRef}>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "dashboard" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("dashboard", e)}
+                            >
+                                <Calendar size={16} /> Tableau de bord
+                                {dashboardData?.stats?.todayCount > 0 && (
+                                    <span className="tab-badge-count">{dashboardData.stats.todayCount}</span>
+                                )}
+                            </button>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "automations" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("automations", e)}
+                            >
+                                <Sliders size={16} /> Règles actives ({automations.length})
+                            </button>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "templates" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("templates", e)}
+                            >
+                                <MessageSquare size={16} /> Modèles & Simulateur
+                            </button>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "services" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("services", e)}
+                            >
+                                <Wrench size={16} /> Métiers & Services ({services.length})
+                            </button>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "history" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("history", e)}
+                            >
+                                <History size={16} /> Historique des relances
+                            </button>
+                            <button
+                                className={`premium-tab-btn ${activeTab === "accounting" ? "active" : ""}`}
+                                onClick={(e) => handleTabClick("accounting", e)}
+                            >
+                                <FileSpreadsheet size={16} /> Intégration comptable
+                            </button>
+                        </div>
+                        <div className="premium-tabs-fade-right" aria-hidden="true" />
                     </div>
 
                     {/* ── TAB 1: TABLEAU DE BORD ─────────────────────────────── */}
@@ -960,7 +1060,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={futurePage <= 1}
-                                                            onClick={() => setFuturePage(p => Math.max(1, p - 1))}
+                                                            onClick={() => handleFuturePageChange(Math.max(1, futurePage - 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             <ChevronLeft size={14} /> Précédent
@@ -971,7 +1071,7 @@ function PremiumPage() {
                                                                 key={pNum}
                                                                 type="button"
                                                                 className={`action-btn-pill ${futurePage === pNum ? "primary" : ""}`}
-                                                                onClick={() => setFuturePage(pNum)}
+                                                                onClick={() => handleFuturePageChange(pNum)}
                                                                 style={{ minWidth: "32px", padding: "6px 10px", fontSize: "0.78rem", fontWeight: futurePage === pNum ? 700 : 500 }}
                                                             >
                                                                 {pNum}
@@ -982,7 +1082,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={futurePage >= totalFuturePages}
-                                                            onClick={() => setFuturePage(p => Math.min(totalFuturePages, p + 1))}
+                                                            onClick={() => handleFuturePageChange(Math.min(totalFuturePages, futurePage + 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             Suivant <ChevronRight size={14} />
@@ -1009,7 +1109,7 @@ function PremiumPage() {
                                 </div>
 
                                 {/* Filter & Search Toolbar */}
-                                <div className="automation-filter-toolbar" style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", backgroundColor: "rgba(0, 0, 0, 0.02)", padding: "12px 14px", borderRadius: "10px", border: "1px solid var(--border)" }}>
+                                <div className="automation-filter-toolbar">
                                     <div className="automation-filter-field" style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 240px", minWidth: "200px" }}>
                                         <Search size={16} color="var(--muted-foreground)" />
                                         <input
@@ -1018,7 +1118,6 @@ function PremiumPage() {
                                             placeholder="Rechercher par mot-clé, règle..."
                                             value={automationSearchText}
                                             onChange={(e) => setAutomationSearchText(e.target.value)}
-                                            style={{ width: "100%", padding: "7px 12px", fontSize: "0.84rem" }}
                                         />
                                     </div>
 
@@ -1028,7 +1127,6 @@ function PremiumPage() {
                                             className="profile-input option-select"
                                             value={automationFilterClient}
                                             onChange={(e) => setAutomationFilterClient(e.target.value)}
-                                            style={{ width: "100%", padding: "7px 12px", fontSize: "0.84rem" }}
                                         >
                                             <option value="">Tous les clients ({automations.length})</option>
                                             {clientsList.map((c) => {
@@ -1258,7 +1356,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={automationsPage <= 1}
-                                                            onClick={() => setAutomationsPage(p => Math.max(1, p - 1))}
+                                                            onClick={() => handleAutomationsPageChange(Math.max(1, automationsPage - 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             <ChevronLeft size={14} /> Précédent
@@ -1269,7 +1367,7 @@ function PremiumPage() {
                                                                 key={pNum}
                                                                 type="button"
                                                                 className={`action-btn-pill ${automationsPage === pNum ? "primary" : ""}`}
-                                                                onClick={() => setAutomationsPage(pNum)}
+                                                                onClick={() => handleAutomationsPageChange(pNum)}
                                                                 style={{ minWidth: "32px", padding: "6px 10px", fontSize: "0.78rem", fontWeight: automationsPage === pNum ? 700 : 500 }}
                                                             >
                                                                 {pNum}
@@ -1280,7 +1378,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={automationsPage >= totalAutomationsPages}
-                                                            onClick={() => setAutomationsPage(p => Math.min(totalAutomationsPages, p + 1))}
+                                                            onClick={() => handleAutomationsPageChange(Math.min(totalAutomationsPages, automationsPage + 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             Suivant <ChevronRight size={14} />
@@ -1505,12 +1603,12 @@ function PremiumPage() {
 
                                             {/* Email Look */}
                                             {previewChannel === "EMAIL" && (
-                                                <div style={{ flex: 1, backgroundColor: "#ffffff", padding: "14px", overflowY: "auto" }}>
-                                                    <div style={{ borderBottom: "1px solid #e5e5ea", paddingBottom: "8px", marginBottom: "10px" }}>
-                                                        <span style={{ fontSize: "0.72rem", color: "#8e8e93" }}>De : {company?.email || user?.email || `contact@${companyName.toLowerCase().replace(/[^a-z0-9]/g, '') || "climpro"}.fr`}</span>
-                                                        <h5 style={{ margin: "4px 0 0 0", fontSize: "0.85rem" }}>Rappel d'entretien — {companyName}</h5>
+                                                <div className="email-preview-screen">
+                                                    <div className="email-preview-header">
+                                                        <span className="email-preview-sender">De : {company?.email || user?.email || `contact@${companyName.toLowerCase().replace(/[^a-z0-9]/g, '') || "climpro"}.fr`}</span>
+                                                        <h5 className="email-preview-subject">Rappel d'entretien — {companyName}</h5>
                                                     </div>
-                                                    <p style={{ fontSize: "0.78rem", color: "#1c1c1e", lineHeight: 1.45, whiteSpace: "pre-wrap" }}>
+                                                    <p className="email-preview-body">
                                                         {renderedLivePreview}
                                                     </p>
                                                 </div>
@@ -1809,7 +1907,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={historyPage <= 1}
-                                                            onClick={() => setHistoryPage(p => Math.max(1, p - 1))}
+                                                            onClick={() => handleHistoryPageChange(Math.max(1, historyPage - 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             <ChevronLeft size={14} /> Précédent
@@ -1820,7 +1918,7 @@ function PremiumPage() {
                                                                 key={pNum}
                                                                 type="button"
                                                                 className={`action-btn-pill ${historyPage === pNum ? "primary" : ""}`}
-                                                                onClick={() => setHistoryPage(pNum)}
+                                                                onClick={() => handleHistoryPageChange(pNum)}
                                                                 style={{ minWidth: "32px", padding: "6px 10px", fontSize: "0.78rem", fontWeight: historyPage === pNum ? 700 : 500 }}
                                                             >
                                                                 {pNum}
@@ -1831,7 +1929,7 @@ function PremiumPage() {
                                                             type="button"
                                                             className="action-btn-pill"
                                                             disabled={historyPage >= totalHistoryPages}
-                                                            onClick={() => setHistoryPage(p => Math.min(totalHistoryPages, p + 1))}
+                                                            onClick={() => handleHistoryPageChange(Math.min(totalHistoryPages, historyPage + 1))}
                                                             style={{ padding: "6px 12px", fontSize: "0.78rem", display: "inline-flex", alignItems: "center", gap: "4px" }}
                                                         >
                                                             Suivant <ChevronRight size={14} />
@@ -2214,7 +2312,7 @@ function PremiumPage() {
                                         />
                                     </div>
 
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                    <div className="modal-grid-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                                         <div className="form-field">
                                             <label className="form-label">Métier / Domaine</label>
                                             <select
@@ -2242,21 +2340,22 @@ function PremiumPage() {
                                         </div>
                                     </div>
 
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                    <div className="modal-grid-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                                         <div className="form-field">
-                                            <label className="form-label">Fréquence par défaut</label>
+                                            <label className="form-label">Fréquence</label>
                                             <div style={{ display: "flex", gap: "6px" }}>
                                                 <input
                                                     type="number"
                                                     className="profile-input"
                                                     value={serviceForm.defaultFrequencyValue}
                                                     onChange={(e) => setServiceForm({ ...serviceForm, defaultFrequencyValue: parseInt(e.target.value, 10) || 12 })}
-                                                    style={{ width: "80px" }}
+                                                    style={{ width: "70px", flexShrink: 0 }}
                                                 />
                                                 <select
                                                     className="profile-input option-select"
                                                     value={serviceForm.defaultFrequencyUnit}
                                                     onChange={(e) => setServiceForm({ ...serviceForm, defaultFrequencyUnit: e.target.value })}
+                                                    style={{ flex: 1, minWidth: 0 }}
                                                 >
                                                     <option value="MONTHS">Mois</option>
                                                     <option value="DAYS">Jours</option>
@@ -2265,7 +2364,7 @@ function PremiumPage() {
                                             </div>
                                         </div>
                                         <div className="form-field">
-                                            <label className="form-label">Préavis par défaut</label>
+                                            <label className="form-label">Préavis (jours)</label>
                                             <input
                                                 type="number"
                                                 className="profile-input"
@@ -2280,7 +2379,7 @@ function PremiumPage() {
                                         Annuler
                                     </button>
                                     <button type="submit" className="action-btn-pill primary">
-                                        <Save size={15} /> Enregistrer la prestation
+                                        <Save size={18} /> Enregistrer
                                     </button>
                                 </div>
                             </form>
@@ -2416,7 +2515,7 @@ function ReminderRowItem({ exec, onExecuteNow, onOpenEdit, actionLoading, naviga
                     className="action-btn-pill rdv-btn"
                     onClick={() => navigate("/planning", { state: { clientId: client.id, clientName: `${client.firstName || ""} ${client.lastName || ""}`.trim(), serviceType: serviceName, returnUrl: "/premium" } })}
                     title="Planifier un rendez-vous (RDV)"
-                    style={{ display: "inline-flex", alignItems: "center", gap: "5px", borderColor: "rgba(85, 107, 47, 0.4)", color: "var(--foreground)" }}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "5px", color: "var(--foreground)" }}
                 >
                     <Calendar size={13} color="#556B2F" /> RDV
                 </button>

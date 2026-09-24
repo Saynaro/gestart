@@ -920,6 +920,7 @@
 .bell-delete-selected-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background-color: #dc2626;
     color: #ffffff;
@@ -929,8 +930,17 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, transform 0.15s ease;
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.bell-delete-selected-btn span {
+    white-space: nowrap;
 }
 
 .bell-delete-selected-btn:hover:not(:disabled) {
@@ -939,7 +949,6 @@
 }
 
 .bell-delete-selected-btn:disabled {
-    opacity: 0.45;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;

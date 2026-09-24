@@ -254,11 +254,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #556B2F;
-    background-color: rgba(85, 107, 47, 0.1);
+    color: var(--foreground);
+    background-color: var(--muted);
     width: 36px;
     height: 36px;
     border-radius: 8px;
+    border: 1px solid var(--border);
 }
 
 .header-icon-container svg {
@@ -331,46 +332,14 @@
 }
 
 .kpi-card:hover {
-    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.kpi-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 24px;
-    height: 24px;
-    background-color: var(--muted-foreground);
-    border-bottom-left-radius: 12px;
-    transition: opacity 0.2s;
-}
-
-.kpi-card.success-accent {
-    background-color: rgba(26, 158, 92, 0.04);
-    border-color: rgba(26, 158, 92, 0.15);
-}
-
-.kpi-card.success-accent::after {
-    background-color: var(--success);
-}
-
-.kpi-card.warning-accent {
-    background-color: rgba(217, 119, 6, 0.04);
-    border-color: rgba(217, 119, 6, 0.15);
-}
-
-.kpi-card.warning-accent::after {
-    background-color: var(--warning);
-}
-
+.kpi-card.success-accent,
+.kpi-card.warning-accent,
 .kpi-card.destructive-accent {
-    background-color: rgba(192, 57, 43, 0.04);
-    border-color: rgba(192, 57, 43, 0.15);
-}
-
-.kpi-card.destructive-accent::after {
-    background-color: var(--destructive);
+    background-color: var(--card);
+    border-color: var(--border);
 }
 
 .kpi-label {
@@ -834,9 +803,9 @@
 
 .status-ratio-bar {
     width: 100%;
-    height: 12px;
+    height: 8px;
     background-color: var(--muted);
-    border-radius: 6px;
+    border-radius: 4px;
     overflow: hidden;
     display: flex;
 }
@@ -847,7 +816,7 @@
 }
 
 .status-ratio-bar .segment.bg-success {
-    background-color: var(--success);
+    background-color: #556B2F;
 }
 
 .status-ratio-bar .segment.bg-warning {
@@ -913,16 +882,27 @@
     padding: 3px 8px;
     border-radius: 4px;
     text-transform: uppercase;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
 }
 
 .status-tag.danger {
-    background-color: rgba(192, 57, 43, 0.15);
+    background-color: var(--muted);
     color: var(--destructive);
+    border-color: var(--border);
 }
 
 .status-tag.warning {
-    background-color: rgba(217, 119, 6, 0.15);
+    background-color: var(--muted);
     color: var(--warning);
+    border-color: var(--border);
+}
+
+.status-tag.success {
+    background-color: var(--muted);
+    color: var(--foreground);
+    border-color: var(--border);
 }
 
 .phone-btn {
@@ -931,15 +911,16 @@
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
-    background-color: #556B2F;
-    color: white;
+    border-radius: 6px;
+    background-color: var(--muted);
+    color: var(--foreground);
+    border: 1px solid var(--border);
     text-decoration: none;
-    transition: opacity 0.2s;
+    transition: background-color 0.2s;
 }
 
 .phone-btn:hover {
-    opacity: 0.9;
+    background-color: var(--card);
 }
 
 /* SMS usage gauge styling */
@@ -1054,12 +1035,6 @@
         padding: 12px 14px !important;
         gap: 4px !important;
         border-radius: 10px !important;
-    }
-
-    .kpi-card::after {
-        width: 16px !important;
-        height: 16px !important;
-        border-bottom-left-radius: 10px !important;
     }
 
     .kpi-label {

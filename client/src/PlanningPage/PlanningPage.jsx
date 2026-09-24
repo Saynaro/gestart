@@ -801,6 +801,27 @@ function PlanningPage() {
         setShowEditModal(true);
     };
 
+    const handleDirectDeleteFromDetail = (item) => {
+        if (!item || isTechnician) return;
+        const raw = item.raw || item;
+        const targetId = item.id || raw.id;
+        const clientName = item.client?.name 
+            || (item.client?.firstName ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() : null)
+            || raw.client?.name 
+            || (raw.client?.firstName ? `${raw.client.firstName || ''} ${raw.client.lastName || ''}`.trim() : null)
+            || item.title 
+            || raw.title 
+            || "ce client";
+
+        setSelectedEvent({
+            id: targetId,
+            title: item.title || raw.title || "Intervention"
+        });
+        setEditClientName(clientName);
+        setShowDetailModal(false);
+        setShowDeleteConfirm(true);
+    };
+
     // Event click → open Detail modal if completed, cancelled or date is in the past; otherwise open Edit modal
     const handleEventClick = (clickInfo) => {
         const { event } = clickInfo;
@@ -2251,6 +2272,45 @@ function PlanningPage() {
                 </AnimatePresence>,
                 document.body
             )}
+
+            {/* Modal de confirmation de suppression groupée */}
+            {showBatchDeleteModal && typeof document !== "undefined" && createPortal(
+                <div className="planning-batch-delete-modal-overlay" onClick={() => !isBatchDeleting && setShowBatchDeleteModal(false)}>
+                    <div className="planning-batch-delete-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="pbdm-header">
+                            <div className="pbdm-icon-wrap">
+                                <AlertTriangle size={22} color="#dc2626" />
+                            </div>
+                            <h3 className="pbdm-title">Supprimer {selectedHistoryIds.size} intervention{selectedHistoryIds.size > 1 ? 's' : ''} ?</h3>
+                        </div>
+                        <p className="pbdm-desc">
+                            Êtes-vous sûr de vouloir supprimer définitivement ces {selectedHistoryIds.size} intervention(s) ?<br/><br/>
+                            Leurs enregistrements, photos et comptes-rendus seront supprimés. Elles disparaîtront du calendrier, de l'espace technicien et ne seront plus comptabilisées dans le tableau de bord.
+                        </p>
+                        <div className="pbdm-actions">
+                            <button
+                                type="button"
+                                className="pbdm-cancel-btn"
+                                disabled={isBatchDeleting}
+                                onClick={() => setShowBatchDeleteModal(false)}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                className="pbdm-confirm-btn"
+                                disabled={isBatchDeleting}
+                                onClick={handleBatchDeleteConfirm}
+                            >
+                                {isBatchDeleting ? "Suppression..." : "Supprimer"}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </>
     );
 
@@ -2777,15 +2837,21 @@ function PlanningPage() {
                                 background: 'transparent',
                                 border: 'none',
                                 color: 'var(--foreground)',
-                                fontSize: '0.92rem',
+                                fontSize: '0.94rem',
                                 fontWeight: 700,
                                 cursor: 'pointer',
-                                padding: '8px 4px'
+                                padding: '8px 4px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px'
                             }}
                         >
-                            {selectedHistoryIds.size === filteredHistoryInterventions.length && filteredHistoryInterventions.length > 0
-                                ? "Tout désélectionner"
-                                : "Tout sélectionner"}
+                            {selectedHistoryIds.size === filteredHistoryInterventions.length && filteredHistoryInterventions.length > 0 ? (
+                                <CheckSquare size={19} color="#556B2F" style={{ flexShrink: 0 }} />
+                            ) : (
+                                <Square size={19} color="var(--muted-foreground)" style={{ flexShrink: 0 }} />
+                            )}
+                            <span>Tout sélectionner</span>
                         </button>
                         <button
                             type="button"
@@ -2795,17 +2861,24 @@ function PlanningPage() {
                             style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 gap: '8px',
-                                backgroundColor: '#dc2626',
+                                backgroundColor: selectedHistoryIds.size === 0 ? 'rgba(220, 38, 38, 0.35)' : '#dc2626',
                                 color: '#ffffff',
                                 border: 'none',
+                                minWidth: '140px',
+                                minHeight: '44px',
                                 padding: '10px 18px',
                                 borderRadius: '12px',
-                                fontSize: '0.9rem',
+                                fontSize: '0.92rem',
                                 fontWeight: 700,
                                 cursor: selectedHistoryIds.size === 0 ? 'not-allowed' : 'pointer',
-                                opacity: selectedHistoryIds.size === 0 ? 0.45 : 1,
-                                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)'
+                                boxShadow: selectedHistoryIds.size === 0 ? 'none' : '0 2px 8px rgba(220, 38, 38, 0.25)',
+                                transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
+                                transform: 'translateZ(0)',
+                                WebkitBackfaceVisibility: 'hidden',
+                                backfaceVisibility: 'hidden',
+                                isolation: 'isolate'
                             }}
                         >
                             <Trash2 size={16} />
@@ -2821,6 +2894,7 @@ function PlanningPage() {
                     intervention={selectedDetailIntervention}
                     client={selectedDetailIntervention?.client}
                     onEdit={isTechnician ? null : handleDirectOpenEdit}
+                    onDelete={isTechnician ? null : handleDirectDeleteFromDetail}
                 />
             </div>
         );
@@ -3351,46 +3425,8 @@ function PlanningPage() {
                 intervention={selectedDetailIntervention}
                 client={selectedDetailIntervention?.client}
                 onEdit={isTechnician ? null : handleDirectOpenEdit}
+                onDelete={isTechnician ? null : handleDirectDeleteFromDetail}
             />
-
-            {/* Modal de confirmation de suppression groupée */}
-            {showBatchDeleteModal && typeof document !== "undefined" && createPortal(
-                <div className="planning-batch-delete-modal-overlay" onClick={() => !isBatchDeleting && setShowBatchDeleteModal(false)}>
-                    <div className="planning-batch-delete-modal-card" onClick={(e) => e.stopPropagation()}>
-                        <div className="pbdm-header">
-                            <div className="pbdm-icon-wrap">
-                                <AlertTriangle size={22} color="#dc2626" />
-                            </div>
-                            <h3 className="pbdm-title">Supprimer {selectedHistoryIds.size} intervention{selectedHistoryIds.size > 1 ? 's' : ''} ?</h3>
-                        </div>
-                        <p className="pbdm-desc">
-                            Êtes-vous sûr de vouloir supprimer définitivement ces {selectedHistoryIds.size} intervention(s) ?<br/><br/>
-                            Leurs enregistrements, photos et comptes-rendus seront supprimés. Elles disparaîtront du calendrier, de l'espace technicien et ne seront plus comptabilisées dans le tableau de bord.
-                        </p>
-                        <div className="pbdm-actions">
-                            <button
-                                type="button"
-                                className="pbdm-cancel-btn"
-                                disabled={isBatchDeleting}
-                                onClick={() => setShowBatchDeleteModal(false)}
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="button"
-                                className="pbdm-confirm-btn"
-                                disabled={isBatchDeleting}
-                                onClick={handleBatchDeleteConfirm}
-                            >
-                                {isBatchDeleting ? "Suppression en cours..." : `Supprimer définitivement (${selectedHistoryIds.size})`}
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
-
-            <ToastNotification toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

@@ -109,19 +109,19 @@ function ClientSmsWidget({ startDate, endDate }) {
                     ))
                 ) : (
                     <>
-                        <div className="kpi-card success-accent">
+                        <div className="kpi-card">
                             <span className="kpi-label">Clients OK</span>
                             <span className="kpi-value text-success">{clientStats.ok}</span>
                             <span className="kpi-subtext">Parc à jour</span>
                         </div>
-                        <div className="kpi-card warning-accent">
+                        <div className="kpi-card">
                             <span className="kpi-label">À Prévoir (60j)</span>
-                            <span className="kpi-value text-warning">{clientStats.warning}</span>
+                            <span className={`kpi-value ${clientStats.warning > 0 ? "text-warning" : ""}`}>{clientStats.warning}</span>
                             <span className="kpi-subtext">Visites de maintenance</span>
                         </div>
-                        <div className="kpi-card destructive-accent">
+                        <div className="kpi-card">
                             <span className="kpi-label">Urgents / En retard</span>
-                            <span className="kpi-value text-danger">{clientStats.urgent}</span>
+                            <span className={`kpi-value ${clientStats.urgent > 0 ? "text-danger" : ""}`}>{clientStats.urgent}</span>
                             <span className="kpi-subtext">Entretien dépassé</span>
                         </div>
                         <div className="kpi-card">

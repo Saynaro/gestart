@@ -84,9 +84,9 @@ function QuotesWidget({ startDate, endDate }) {
                     <span className="kpi-value">{quotesStats.total}</span>
                     <span className="kpi-subtext">Total: {quotesStats.totalAmountTTC.toLocaleString("fr-FR")} €</span>
                 </div>
-                <div className="kpi-card success-accent">
+                <div className="kpi-card">
                     <span className="kpi-label">Taux de Signature</span>
-                    <span className="kpi-value text-primary">{conversionRate.toFixed(1)}%</span>
+                    <span className="kpi-value text-success">{conversionRate.toFixed(1)}%</span>
                     <span className="kpi-subtext">Objectif: 60%</span>
                 </div>
                 <div className="kpi-card">
@@ -94,9 +94,9 @@ function QuotesWidget({ startDate, endDate }) {
                     <span className="kpi-value text-success">{quotesStats.accepted}</span>
                     <span className="kpi-subtext">Volume: {quotesStats.acceptedAmountTTC.toLocaleString("fr-FR")} €</span>
                 </div>
-                <div className="kpi-card warning-accent">
+                <div className="kpi-card">
                     <span className="kpi-label">En Attente</span>
-                    <span className="kpi-value text-warning">{quotesStats.sent}</span>
+                    <span className={`kpi-value ${quotesStats.sent > 0 ? "text-warning" : ""}`}>{quotesStats.sent}</span>
                     <span className="kpi-subtext">Devis sans réponse</span>
                 </div>
             </div>

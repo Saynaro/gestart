@@ -16,7 +16,8 @@ import {
     AlertCircle,
     Info,
     ZoomIn,
-    AlertTriangle
+    AlertTriangle,
+    Trash2
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import "../ClientPage.css";
@@ -52,7 +53,7 @@ export const getInterventionStatusInfo = (item) => {
 
 };
 
-function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit }) {
+function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit, onDelete }) {
     const [previewPhoto, setPreviewPhoto] = useState(null);
     const [liveData, setLiveData] = useState(null);
     const [cachedIntervention, setCachedIntervention] = useState(intervention);
@@ -515,6 +516,32 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit
                             >
                                 <Wrench size={15} />
                                 <span>Modifier l'intervention</span>
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                type="button"
+                                className="idm-footer-delete-btn"
+                                onClick={() => {
+                                    onDelete(activeIntervention);
+                                }}
+                                style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    padding: "9px 18px",
+                                    background: "#fee2e2",
+                                    color: "#dc2626",
+                                    border: "1px solid rgba(220, 38, 38, 0.2)",
+                                    borderRadius: "10px",
+                                    fontSize: "0.88rem",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease"
+                                }}
+                            >
+                                <Trash2 size={15} />
+                                <span>Supprimer</span>
                             </button>
                         )}
                         <button

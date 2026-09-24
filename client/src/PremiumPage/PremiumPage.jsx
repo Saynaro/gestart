@@ -52,13 +52,14 @@ import AccountingIntegration from "../ComptabilityPage/components/AccountingInte
 import { apiFetch } from "../utils/api";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
+import { WhatsAppIcon } from "../components/ChannelIcons";
 
 const renderChannelBadge = (channel) => {
     switch (channel) {
         case "WHATSAPP":
             return (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                    <MessageCircle size={14} color="#22c55e" /> WhatsApp
+                    <WhatsAppIcon size={14} color="#22c55e" /> WhatsApp
                 </span>
             );
         case "SMS":
@@ -1423,7 +1424,7 @@ function PremiumPage() {
                                                 onClick={() => setPreviewChannel("WHATSAPP")}
                                             >
                                                 <span className="channel-icon-circle whatsapp">
-                                                    <MessageCircle size={14} />
+                                                    <WhatsAppIcon size={14} color="currentColor" />
                                                 </span>
                                                 <span className="channel-btn-text">WhatsApp</span>
                                             </button>

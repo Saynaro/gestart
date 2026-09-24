@@ -43,6 +43,7 @@ export class EmailProvider extends MessageProvider {
     constructor() {
         super("EMAIL");
         this.activeSyncs = new Set();
+        this.deletedEmailIds = new Set();
     }
 
     /**
@@ -825,6 +826,11 @@ ${bodyContent}
                 const messagesList = listData.messages || [];
 
                 for (const item of messagesList) {
+                    // Ignorer les messages explicitement supprimés par l'utilisateur
+                    if (this.deletedEmailIds && this.deletedEmailIds.has(String(item.id))) {
+                        continue;
+                    }
+
                     // Vérifier si le message Gmail a déjà été importé
                     const existing = await prisma.smsLog.findFirst({
                         where: {
@@ -1103,10 +1109,72 @@ ${bodyContent}
             };
         }
 
+        const companyId = typeof company === "object" ? company?.id : company;
+        if (companyId) {
+            const connection = await prisma.emailConnection.findFirst({
+                where: { companyId, status: "CONNECTED" }
+            });
+            const hasGlobalSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER);
+
+            if (!connection && !hasGlobalSmtp) {
+                return {
+                    available: false,
+                    notConnected: true,
+                    reason: "Aucun compte Email n'est connecté pour votre entreprise"
+                };
+            }
+        }
+
         return {
             available: true,
             email: client.email
         };
+    }
+
+    /**
+     * Déplace des messages Gmail dans la corbeille Google et les enregistre comme supprimés
+     * pour éviter qu'ils ne soient ré-importés lors du prochain sync.
+     */
+    async trashGoogleMessages({ companyId, externalMessageIds = [] }) {
+        if (!companyId || !Array.isArray(externalMessageIds) || externalMessageIds.length === 0) return;
+
+        // 1. Ajouter immédiatement à la liste noire en mémoire pour bloquer tout re-sync concurrent
+        for (const id of externalMessageIds) {
+            if (id) this.deletedEmailIds.add(String(id));
+        }
+
+        try {
+            const connection = await prisma.emailConnection.findFirst({
+                where: { companyId, provider: "GOOGLE", status: "CONNECTED" }
+            });
+            if (!connection) return;
+
+            let accessToken = "";
+            if (connection.encryptedAccessToken) {
+                try {
+                    accessToken = decryptCredential(connection.encryptedAccessToken);
+                } catch (e) {
+                    console.warn("[GMAIL_TRASH] Erreur déchiffrement access token:", e.message);
+                }
+            }
+
+            if (!accessToken) return;
+
+            // 2. Déplacer vers la corbeille Gmail pour chaque message
+            for (const msgId of externalMessageIds) {
+                if (!msgId) continue;
+                try {
+                    await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/trash`, {
+                        method: "POST",
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    });
+                } catch (err) {
+                    console.warn(`[GMAIL_TRASH] Impossible de mettre en corbeille le message ${msgId}:`, err.message);
+                }
+            }
+        } catch (e) {
+            console.warn("[GMAIL_TRASH] Erreur générale lors de la suppression Gmail:", e.message);
+        }
     }
 }
 

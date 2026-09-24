@@ -861,6 +861,55 @@
         grid-template-columns: 1fr;
     }
 
+    .content-title {
+        font-size: 1.25rem !important;
+    }
+
+    .content-subtitle {
+        font-size: 0.875rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .catalogue-search-input {
+        font-size: 0.9375rem !important;
+        padding: 11px 38px 11px 42px !important;
+    }
+
+    .category-tab-btn {
+        font-size: 0.875rem !important;
+        padding: 8px 15px !important;
+    }
+
+    .article-name {
+        font-size: 1.05rem !important;
+    }
+
+    .article-ref-badge {
+        font-size: 0.75rem !important;
+        padding: 2.5px 7px !important;
+    }
+
+    .article-description {
+        font-size: 0.875rem !important;
+    }
+
+    .article-cat-badge {
+        font-size: 0.78rem !important;
+        padding: 5px 9px !important;
+    }
+
+    .price-ht-value {
+        font-size: 1.15rem !important;
+    }
+
+    .price-unit-label {
+        font-size: 0.75rem !important;
+    }
+
+    .tva-badge {
+        font-size: 0.75rem !important;
+    }
+
     /* Mobile Floating FAB Action Button (collapses smoothly into circle on scroll down) */
     .catalogue-mobile-fab-btn {
         display: inline-flex;

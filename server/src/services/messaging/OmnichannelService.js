@@ -442,6 +442,34 @@ export const OmnichannelService = {
         }
         if (conditions.length === 0) return { count: 0 };
 
+        try {
+            const existingMessages = await prisma.smsLog.findMany({
+                where: {
+                    companyId,
+                    OR: conditions
+                },
+                select: {
+                    id: true,
+                    channel: true,
+                    externalMessageId: true,
+                    emailMessageId: true
+                }
+            });
+
+            const externalIds = existingMessages
+                .filter(m => m.channel === "EMAIL" || m.externalMessageId || m.emailMessageId)
+                .map(m => m.externalMessageId || m.emailMessageId)
+                .filter(Boolean);
+
+            if (externalIds.length > 0) {
+                emailProvider.trashGoogleMessages({ companyId, externalMessageIds: externalIds }).catch(err => {
+                    console.warn("[OmnichannelService] trashGoogleMessages error:", err.message);
+                });
+            }
+        } catch (findErr) {
+            console.warn("[OmnichannelService] Erreur recherche messages avant suppression:", findErr.message);
+        }
+
         const result = await prisma.smsLog.deleteMany({
             where: {
                 companyId,

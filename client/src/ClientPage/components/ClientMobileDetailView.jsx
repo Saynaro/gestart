@@ -115,23 +115,23 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                         <div className="mobile-profile-contact-info">
                             {selectedClient.phone ? (
                                 <a href={`tel:${selectedClient.phone.replace(/\s+/g, '')}`} className="mobile-contact-row clickable">
-                                    <Phone size={16} className="contact-icon-icon" />
+                                    <Phone size={17} className="contact-icon-icon" />
                                     <span>{selectedClient.phone}</span>
                                 </a>
                             ) : (
                                 <div className="mobile-contact-row">
-                                    <Phone size={16} className="contact-icon-icon" />
+                                    <Phone size={17} className="contact-icon-icon" />
                                     <span>Non renseigné</span>
                                 </div>
                             )}
                             {selectedClient.email ? (
                                 <a href={`mailto:${selectedClient.email}`} className="mobile-contact-row clickable">
-                                    <Mail size={16} className="contact-icon-icon" />
+                                    <Mail size={17} className="contact-icon-icon" />
                                     <span>{selectedClient.email}</span>
                                 </a>
                             ) : (
                                 <div className="mobile-contact-row">
-                                    <Mail size={16} className="contact-icon-icon" />
+                                    <Mail size={17} className="contact-icon-icon" />
                                     <span>Non renseigné</span>
                                 </div>
                             )}
@@ -142,12 +142,12 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                     rel="noopener noreferrer" 
                                     className="mobile-contact-row clickable"
                                 >
-                                    <MapPin size={16} className="contact-icon-icon" />
+                                    <MapPin size={17} className="contact-icon-icon" />
                                     <span>{fullAddress}</span>
                                 </a>
                             ) : (
                                 <div className="mobile-contact-row">
-                                    <MapPin size={16} className="contact-icon-icon" />
+                                    <MapPin size={17} className="contact-icon-icon" />
                                     <span>Non renseigné</span>
                                 </div>
                             )}
@@ -168,16 +168,16 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             boxSizing: 'border-box'
                         }}>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Modèle</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.model || "Non renseigné"}</span>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '14.5px', fontWeight: 500, textAlign: 'left' }}>Modèle</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '14.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.model || "Non renseigné"}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>Installé le</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.installDate || "Non renseigné"}</span>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '14.5px', fontWeight: 500, textAlign: 'left' }}>Installé le</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '14.5px', fontWeight: 600, textAlign: 'right' }}>{details.equipment?.installDate || "Non renseigné"}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                <span style={{ color: 'var(--muted-foreground)', fontSize: '13.5px', fontWeight: 500, textAlign: 'left' }}>N° de série</span>
-                                <span style={{ color: 'var(--foreground)', fontSize: '13.5px', fontWeight: 600, fontFamily: 'monospace', textAlign: 'right' }}>{details.equipment?.serialNumber || "N/A"}</span>
+                                <span style={{ color: 'var(--muted-foreground)', fontSize: '14.5px', fontWeight: 500, textAlign: 'left' }}>N° de série</span>
+                                <span style={{ color: 'var(--foreground)', fontSize: '14.5px', fontWeight: 600, fontFamily: 'monospace', textAlign: 'right' }}>{details.equipment?.serialNumber || "N/A"}</span>
                             </div>
                         </div>
 
@@ -288,7 +288,10 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                     <button
                                         key={tab}
                                         className={`mobile-tab-btn ${currentTab === tab ? "active" : ""}`}
-                                        onClick={() => setDetailTab(tab)}
+                                        onClick={(e) => {
+                                            setDetailTab(tab);
+                                            e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                        }}
                                     >
                                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                     </button>
@@ -367,14 +370,14 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                             
                             {detailTab === "auto-rappel" && (
                                 <div className="mobile-tab-panel">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Sparkles size={15} color="#556B2F" />
-                                            <h4 style={{ margin: 0, fontSize: '0.9rem' }}>Rappels Automatiques</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Sparkles size={17} color="#556B2F" />
+                                            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Rappels Automatiques</h4>
                                         </div>
                                         <button
                                             className="mobile-action-btn"
-                                            style={{ padding: '4px 8px', fontSize: '0.72rem', height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '6px' }}
+                                            style={{ padding: '6px 14px', fontSize: '0.85rem', fontWeight: 600, height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '8px' }}
                                             onClick={() => navigate('/premium')}
                                         >
                                             Gérer
@@ -398,101 +401,101 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                         key={auto.id || idx} 
                                                         className="mobile-history-card" 
                                                         style={{ 
-                                                            padding: '14px',
-                                                            borderRadius: '12px',
+                                                            padding: '16px',
+                                                            borderRadius: '14px',
                                                             border: '1px solid var(--border)',
                                                             backgroundColor: 'var(--card)',
-                                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
+                                                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
                                                         }}
                                                     >
-                                                        <div className="history-card-header" style={{ marginBottom: '8px' }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                                <Wrench size={14} color="var(--muted-foreground)" />
-                                                                <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--foreground)' }}>{serviceName}</h4>
+                                                        <div className="history-card-header" style={{ marginBottom: '10px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                <Wrench size={16} color="var(--muted-foreground)" />
+                                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--foreground)' }}>{serviceName}</h4>
                                                             </div>
                                                             <div>
                                                                 {isExpired ? (
                                                                     <span style={{
-                                                                        fontSize: '11px',
+                                                                        fontSize: '12px',
                                                                         fontWeight: 600,
-                                                                        padding: '2px 7px',
-                                                                        borderRadius: '6px',
+                                                                        padding: '3px 9px',
+                                                                        borderRadius: '8px',
                                                                         backgroundColor: 'rgba(217, 119, 6, 0.08)',
                                                                         color: '#b45309',
                                                                         border: '1px solid rgba(217, 119, 6, 0.2)',
                                                                         display: 'inline-flex',
                                                                         alignItems: 'center',
-                                                                        gap: '3px'
+                                                                        gap: '4px'
                                                                     }}>
-                                                                        <Lock size={10} />
+                                                                        <Lock size={11} />
                                                                         Suspendu
                                                                     </span>
                                                                 ) : auto.enabled ? (
                                                                     <span style={{
-                                                                        fontSize: '11px',
+                                                                        fontSize: '12px',
                                                                         fontWeight: 600,
-                                                                        padding: '2px 7px',
-                                                                        borderRadius: '6px',
+                                                                        padding: '3px 9px',
+                                                                        borderRadius: '8px',
                                                                         backgroundColor: 'rgba(22, 163, 74, 0.08)',
                                                                         color: '#15803d',
                                                                         border: '1px solid rgba(22, 163, 74, 0.2)',
                                                                         display: 'inline-flex',
                                                                         alignItems: 'center',
-                                                                        gap: '4px'
+                                                                        gap: '5px'
                                                                     }}>
-                                                                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
+                                                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
                                                                         Actif
                                                                     </span>
                                                                 ) : (
                                                                     <span style={{
-                                                                        fontSize: '11px',
+                                                                        fontSize: '12px',
                                                                         fontWeight: 600,
-                                                                        padding: '2px 7px',
-                                                                        borderRadius: '6px',
+                                                                        padding: '3px 9px',
+                                                                        borderRadius: '8px',
                                                                         backgroundColor: 'rgba(100, 116, 139, 0.08)',
                                                                         color: '#475569',
                                                                         border: '1px solid rgba(100, 116, 139, 0.2)',
                                                                         display: 'inline-flex',
                                                                         alignItems: 'center',
-                                                                        gap: '4px'
+                                                                        gap: '5px'
                                                                     }}>
-                                                                        <Pause size={9} />
+                                                                        <Pause size={10} />
                                                                         En pause
                                                                     </span>
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px', fontSize: '12px', color: 'var(--muted-foreground)', marginBottom: '10px' }}>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 14px', fontSize: '13.5px', color: 'var(--muted-foreground)', marginBottom: '12px' }}>
                                                             <div>
-                                                                <span>Dernière : </span>
-                                                                <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{lastDateStr}</span>
+                                                                <span style={{ fontSize: '13px' }}>Dernière : </span>
+                                                                <span style={{ color: 'var(--foreground)', fontWeight: 600, fontSize: '13.5px' }}>{lastDateStr}</span>
                                                             </div>
                                                             <div>
-                                                                <span>Prochain : </span>
-                                                                <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{nextDateStr}</span>
+                                                                <span style={{ fontSize: '13px' }}>Prochain : </span>
+                                                                <span style={{ color: 'var(--foreground)', fontWeight: 600, fontSize: '13.5px' }}>{nextDateStr}</span>
                                                             </div>
                                                             <div>
-                                                                <span>Fréquence : </span>
-                                                                <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{auto.frequencyValue} {auto.frequencyUnit === 'MONTHS' ? 'mois' : 'jours'}</span>
+                                                                <span style={{ fontSize: '13px' }}>Fréquence : </span>
+                                                                <span style={{ color: 'var(--foreground)', fontWeight: 600, fontSize: '13.5px' }}>{auto.frequencyValue} {auto.frequencyUnit === 'MONTHS' ? 'mois' : 'jours'}</span>
                                                             </div>
                                                             <div>
-                                                                <span>Canal : </span>
-                                                                <span style={{ color: 'var(--foreground)', fontWeight: 500 }}>{auto.channel === 'WHATSAPP' ? 'WhatsApp' : auto.channel === 'SMS' ? 'SMS' : auto.channel === 'EMAIL' ? 'Email' : 'Dernier'}</span>
+                                                                <span style={{ fontSize: '13px' }}>Canal : </span>
+                                                                <span style={{ color: 'var(--foreground)', fontWeight: 600, fontSize: '13.5px' }}>{auto.channel === 'WHATSAPP' ? 'WhatsApp' : auto.channel === 'SMS' ? 'SMS' : auto.channel === 'EMAIL' ? 'Email' : 'Dernier'}</span>
                                                             </div>
                                                         </div>
-                                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
                                                             {isExpired ? (
                                                                 <button
                                                                     type="button"
                                                                     className="mobile-action-btn"
                                                                     style={{ 
-                                                                        padding: '5px 12px', 
-                                                                        fontSize: '12px',
-                                                                        fontWeight: 500,
-                                                                        borderRadius: '7px',
+                                                                        padding: '7px 14px', 
+                                                                        fontSize: '13px',
+                                                                        fontWeight: 600,
+                                                                        borderRadius: '8px',
                                                                         display: 'inline-flex',
                                                                         alignItems: 'center',
-                                                                        gap: '5px',
+                                                                        gap: '6px',
                                                                         border: '1px solid var(--border)',
                                                                         backgroundColor: 'var(--background)',
                                                                         color: 'var(--foreground)',
@@ -504,7 +507,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                                         }));
                                                                     }}
                                                                 >
-                                                                    <Lock size={11} style={{ color: 'var(--muted-foreground)' }} />
+                                                                    <Lock size={12} style={{ color: 'var(--muted-foreground)' }} />
                                                                     <span>Déclencher</span>
                                                                 </button>
                                                             ) : (
@@ -513,28 +516,28 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                                         type="button"
                                                                         className="mobile-action-btn"
                                                                         style={{ 
-                                                                            padding: '5px 10px', 
-                                                                            fontSize: '12px',
-                                                                            fontWeight: 500,
-                                                                            borderRadius: '7px',
+                                                                            padding: '7px 14px', 
+                                                                            fontSize: '13px',
+                                                                            fontWeight: 600,
+                                                                            borderRadius: '8px',
                                                                             border: '1px solid var(--border)',
                                                                             backgroundColor: 'var(--background)',
                                                                             color: 'var(--foreground)',
                                                                             display: 'inline-flex',
                                                                             alignItems: 'center',
-                                                                            gap: '4px'
+                                                                            gap: '6px'
                                                                         }}
                                                                         onClick={() => handleTogglePause(auto.id)}
                                                                         disabled={actionLoading === `toggle-${auto.id}`}
                                                                     >
                                                                         {auto.enabled ? (
                                                                             <>
-                                                                                <Pause size={11} style={{ color: 'var(--muted-foreground)' }} />
+                                                                                <Pause size={12} style={{ color: 'var(--muted-foreground)' }} />
                                                                                 <span>{actionLoading === `toggle-${auto.id}` ? "..." : "Pause"}</span>
                                                                             </>
                                                                         ) : (
                                                                             <>
-                                                                                <Play size={11} style={{ color: 'var(--muted-foreground)' }} />
+                                                                                <Play size={12} style={{ color: 'var(--muted-foreground)' }} />
                                                                                 <span>{actionLoading === `toggle-${auto.id}` ? "..." : "Reprendre"}</span>
                                                                             </>
                                                                         )}
@@ -543,16 +546,16 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                                         type="button"
                                                                         className="mobile-action-btn"
                                                                         style={{ 
-                                                                            padding: '5px 10px', 
-                                                                            fontSize: '12px',
-                                                                            fontWeight: 500,
-                                                                            borderRadius: '7px',
+                                                                            padding: '7px 14px', 
+                                                                            fontSize: '13px',
+                                                                            fontWeight: 600,
+                                                                            borderRadius: '8px',
                                                                             border: '1px solid var(--border)',
                                                                             backgroundColor: 'var(--background)',
                                                                             color: 'var(--foreground)',
                                                                             display: 'inline-flex',
                                                                             alignItems: 'center',
-                                                                            gap: '4px',
+                                                                            gap: '6px',
                                                                             opacity: !auto.enabled ? 0.6 : 1
                                                                         }}
                                                                         onClick={() => {
@@ -564,7 +567,7 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                                                         }}
                                                                         disabled={actionLoading === auto.id}
                                                                     >
-                                                                        <Play size={11} style={{ color: 'var(--muted-foreground)' }} />
+                                                                        <Play size={12} style={{ color: 'var(--muted-foreground)' }} />
                                                                         <span>{actionLoading === auto.id ? "Envoi..." : "Déclencher"}</span>
                                                                     </button>
                                                                 </>

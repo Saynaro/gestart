@@ -264,15 +264,7 @@
 .dark .payments-modal-search-box input,
 .dark .payments-modal-search-box input:focus,
 .dark .client-picker-search-input,
-.dark .client-picker-search-input:focus,
-.dark .search-input-field,
-.dark .search-input-field:focus,
-.dark .mobile-search-input-field,
-.dark .mobile-search-input-field:focus,
-.dark .search-input-wrapper input,
-.dark .search-input-wrapper input:focus,
-.dark .client-search-filter-card input,
-.dark .client-search-filter-card input:focus {
+.dark .client-picker-search-input:focus {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;

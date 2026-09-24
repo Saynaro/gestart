@@ -274,7 +274,10 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                 <button
                                     key={tab}
                                     className={`mobile-tab-btn ${currentTab === tab ? "active" : ""}`}
-                                    onClick={() => setDetailTab(tab)}
+                                    onClick={(e) => {
+                                        setDetailTab(tab);
+                                        e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                    }}
                                 >
                                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                 </button>

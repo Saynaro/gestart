@@ -524,6 +524,7 @@ export class WhatsAppProvider extends MessageProvider {
         if (!connection && !hasGlobalConfig) {
             return {
                 available: false,
+                notConnected: true,
                 reason: "Aucun compte WhatsApp Business n'est connecté pour votre entreprise"
             };
         }

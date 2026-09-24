@@ -2,12 +2,23 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp, DollarSign, PieChart, FileText, Calendar } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
-function RevenueWidget({ startDate, endDate }) {
+function RevenueWidget({ startDate, endDate, reportsData }) {
     const [viewMode, setViewMode] = useState("chart"); // 'chart' or 'table'
-    const [monthlyData, setMonthlyData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [monthlyData, setMonthlyData] = useState(() => {
+        if (reportsData?.monthly && Array.isArray(reportsData.monthly)) {
+            return reportsData.monthly;
+        }
+        return [];
+    });
+    const [loading, setLoading] = useState(() => !reportsData);
 
     useEffect(() => {
+        if (reportsData?.monthly && Array.isArray(reportsData.monthly)) {
+            setMonthlyData(reportsData.monthly);
+            setLoading(false);
+            return;
+        }
+
         const fetchRevenue = async () => {
             setLoading(true);
             try {
@@ -25,7 +36,7 @@ function RevenueWidget({ startDate, endDate }) {
             }
         };
         fetchRevenue();
-    }, [startDate, endDate]);
+    }, [startDate, endDate, reportsData]);
 
     // Compute totals
     const totalHT = monthlyData.reduce((acc, curr) => acc + (curr.caHT || 0), 0);

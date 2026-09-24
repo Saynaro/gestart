@@ -24,7 +24,13 @@ export function UserProvider({ children }) {
         } catch (e) {}
         return null;
     });
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => {
+        try {
+            return !localStorage.getItem('currentUser');
+        } catch (e) {
+            return true;
+        }
+    });
 
     const refreshUser = useCallback(async () => {
         if (!isAuthenticated()) {

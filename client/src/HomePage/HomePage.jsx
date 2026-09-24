@@ -38,12 +38,25 @@ function HomePage() {
     const { isExpired } = useSubscription();
     const [activeTab, setActiveTab] = useState("comptabilite");
     const [showOnboarding, setShowOnboarding] = useState(false);
-    const [dashboardData, setDashboardData] = useState(null);
+    const [dashboardData, setDashboardData] = useState(() => {
+        try {
+            const cached = sessionStorage.getItem('dashboardDataCache') || localStorage.getItem('dashboardDataCache');
+            if (cached) return JSON.parse(cached);
+        } catch (e) {}
+        return null;
+    });
 
     const fetchDashboard = async () => {
         try {
             const data = await apiFetch('/v1/dashboard');
-            setDashboardData(data.data || data);
+            const d = data.data || data;
+            if (d) {
+                setDashboardData(d);
+                try {
+                    sessionStorage.setItem('dashboardDataCache', JSON.stringify(d));
+                    localStorage.setItem('dashboardDataCache', JSON.stringify(d));
+                } catch (e) {}
+            }
         } catch (err) {
             console.warn("API dashboard non disponible:", err.message);
         }
@@ -55,21 +68,9 @@ function HomePage() {
             return;
         }
 
-        const checkRoleAndOnboarding = async () => {
-            if (location.state?.openOnboardingModal) {
-                setShowOnboarding(true);
-            }
-
-            try {
-                const meRes = await apiFetch("/v1/auth/me");
-                const userData = meRes.data?.user || meRes.user;
-                if (userData?.role === "TECHNICIAN") {
-                    navigate("/interventions/today", { replace: true });
-                }
-            } catch (e) {}
-        };
-
-        checkRoleAndOnboarding();
+        if (location.state?.openOnboardingModal) {
+            setShowOnboarding(true);
+        }
     }, [user, userLoading, location, navigate]);
 
     useEffect(() => {

@@ -74,26 +74,25 @@ export default function TechniciensPage() {
         triggerUpgrade
     } = useSubscription();
 
-    // Fetch Technicians & Invitations from API
-    const loadData = async () => {
-        setLoading(true);
+    // Fetch Technicians & Invitations from API in parallel
+    const loadData = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
         try {
-            // Fetch users
-            const usersData = await apiFetch("/v1/users");
+            const [usersData, invData] = await Promise.all([
+                apiFetch("/v1/users"),
+                apiFetch("/v1/invitations")
+            ]);
+
             const userList = usersData.data?.users || usersData.users || (Array.isArray(usersData) ? usersData : []);
-            
-            // Filter technicians or active team members
             const techs = userList.filter(u => u.role === "TECHNICIAN" || u.role === "MANAGER" || u.role === "OWNER");
             setTechnicians(techs);
 
-            // Fetch invitations
-            const invData = await apiFetch("/v1/invitations");
             const invList = invData.data?.invitations || invData.invitations || [];
             setInvitations(invList);
         } catch (err) {
             console.warn("Erreur chargement techniciens:", err.message);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 

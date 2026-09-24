@@ -71,18 +71,25 @@ import { apiFetch } from "../utils/api";
 import { useUser } from "../utils/useUser";
 import { useSubscription } from "../utils/useSubscription";
 
+// Fast in-memory / session cache for instantaneous 0ms page loads
+let cachedArticlesData = null;
+try {
+    const saved = sessionStorage.getItem('cachedCatalogArticles');
+    if (saved) cachedArticlesData = JSON.parse(saved);
+} catch (e) {}
+
 function CataloguePage() {
     const { role } = useUser();
     const { isExpired } = useSubscription();
     const isTechnician = role === "TECHNICIAN";
 
-    // Articles state
-    const [articles, setArticles] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // Articles state initialized from cache
+    const [articles, setArticles] = useState(() => cachedArticlesData || []);
+    const [loading, setLoading] = useState(() => !cachedArticlesData);
 
-    const fetchCatalog = async () => {
+    const fetchCatalog = async (isBackground = false) => {
         try {
-            setLoading(true);
+            if (!isBackground) setLoading(true);
             const data = await apiFetch('/v1/catalog');
             const rawItems = data.data || data.items || (Array.isArray(data) ? data : []);
             const mappedArticles = rawItems.map(item => ({
@@ -95,16 +102,21 @@ function CataloguePage() {
                 unit: item.unit || "À l'unité",
                 description: item.description || ""
             }));
+            cachedArticlesData = mappedArticles;
+            try {
+                sessionStorage.setItem('cachedCatalogArticles', JSON.stringify(mappedArticles));
+            } catch (e) {}
             setArticles(mappedArticles);
         } catch (err) {
             console.warn("API catalogue non disponible:", err.message);
+            if (!isBackground && !cachedArticlesData) setArticles([]);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchCatalog();
+        fetchCatalog(!!cachedArticlesData);
     }, []);
 
     // Search and Category Filter States

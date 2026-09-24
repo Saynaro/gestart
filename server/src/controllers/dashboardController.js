@@ -302,14 +302,16 @@ export const getDashboardData = async (req, res) => {
                 }
             }),
 
-            // 14. Lignes des factures payées pour top articles
+            // 14. Lignes des factures payées cette année pour top articles
             prisma.invoiceLine.findMany({
                 where: {
                     invoice: {
                         companyId,
-                        status: "PAID"
+                        status: "PAID",
+                        paidAt: { gte: startOfYear }
                     }
                 },
+                take: 200,
                 select: {
                     description: true,
                     quantity: true,

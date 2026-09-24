@@ -76,24 +76,27 @@ export default function TechnicianInterventionsPage() {
         setToast({ show: true, message, isError, id: Date.now() });
     };
 
-    // Load user & all assigned interventions (today + upcoming + history)
+    // Load user & all assigned interventions (today + upcoming + history) in parallel
     const loadData = async () => {
         setLoading(true);
         try {
-            const meRes = await apiFetch("/v1/auth/me");
-            const userData = meRes.data?.user || meRes.user;
-            setUser(userData);
-
-            if (userData?.role && userData.role !== "TECHNICIAN") {
-                navigate("/home", { replace: true });
-                return;
-            }
-
-            // Fetch today's interventions and all assigned interventions
-            const [todayRes, allRes] = await Promise.allSettled([
+            // Fetch auth/me and interventions in parallel
+            const [meRes, todayRes, allRes] = await Promise.allSettled([
+                apiFetch("/v1/auth/me"),
                 apiFetch("/v1/interventions/today"),
                 apiFetch("/v1/interventions?limit=150")
             ]);
+
+            if (meRes.status === "fulfilled") {
+                const userData = meRes.value?.data?.user || meRes.value?.user;
+                if (userData) {
+                    setUser(userData);
+                    if (userData?.role && userData.role !== "TECHNICIAN") {
+                        navigate("/home", { replace: true });
+                        return;
+                    }
+                }
+            }
 
             const todayList = todayRes.status === "fulfilled" 
                 ? (todayRes.value?.data?.interventions || todayRes.value?.interventions || [])

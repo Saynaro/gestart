@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Info, CheckCircle2, AlertCircle, Calendar } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
+const cachedTvaReports = {};
+
 function TvaSummary() {
     const now = new Date();
     const currentQ = now.getMonth() <= 2 ? "T1" : now.getMonth() <= 5 ? "T2" : now.getMonth() <= 8 ? "T3" : "T4";
@@ -10,19 +12,24 @@ function TvaSummary() {
     const [selectedQuarter, setSelectedQuarter] = useState(currentQ);
     const [selectedYear, setSelectedYear] = useState(currentY);
     const [tvaRegime, setTvaRegime] = useState("encaissements"); // 'encaissements' or 'debits'
-    const [tvaReport, setTvaReport] = useState(null);
+    const [tvaReport, setTvaReport] = useState(() => cachedTvaReports[currentY] || null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const fetchReport = async () => {
         try {
             const data = await apiFetch(`/v1/reports/revenue?year=${selectedYear}`);
-            setTvaReport(data.data || data);
+            const rep = data.data || data;
+            cachedTvaReports[selectedYear] = rep;
+            setTvaReport(rep);
         } catch (err) {
             console.warn("API report/revenue non disponible:", err.message);
         }
     };
 
     useEffect(() => {
+        if (cachedTvaReports[selectedYear]) {
+            setTvaReport(cachedTvaReports[selectedYear]);
+        }
         fetchReport();
     }, [selectedYear]);
 

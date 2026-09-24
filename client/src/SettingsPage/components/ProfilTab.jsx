@@ -22,13 +22,43 @@ const TRADE_CATEGORY_NAMES = {
 };
 
 export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, setActiveSubSheet }) {
-    const [firstName, setFirstName] = useState("Khalid");
-    const [lastName, setLastName] = useState("Sainaro");
-    const [email, setEmail] = useState("khalid.cizdoev777@gmail.com");
-    const [phone, setPhone] = useState("06 51 60 43 16");
-    const [avatarUrl, setAvatarUrl] = useState(null);
+    const [firstName, setFirstName] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.firstName || "Khalid";
+        } catch (e) { return "Khalid"; }
+    });
+    const [lastName, setLastName] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.lastName || "Sainaro";
+        } catch (e) { return "Sainaro"; }
+    });
+    const [email, setEmail] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.email || "khalid.cizdoev777@gmail.com";
+        } catch (e) { return "khalid.cizdoev777@gmail.com"; }
+    });
+    const [phone, setPhone] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.phone || "06 51 60 43 16";
+        } catch (e) { return "06 51 60 43 16"; }
+    });
+    const [avatarUrl, setAvatarUrl] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.avatarUrl || null;
+        } catch (e) { return null; }
+    });
     const [civility, setCivility] = useState(() => localStorage.getItem("userCivility") || "Monsieur");
-    const [role, setRole] = useState("OWNER");
+    const [role, setRole] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.role || "OWNER";
+        } catch (e) { return "OWNER"; }
+    });
     const [jobTitle, setJobTitle] = useState(() => localStorage.getItem("userJobTitle") || "Gérant & Artisan");
 
     const getRoleLabel = (r) => {
@@ -56,6 +86,7 @@ export default function ProfilTab({ isMobileView, triggerToast, activeSubSheet, 
                     if (user.phone) setPhone(user.phone);
                     if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
                     if (user.role) setRole(user.role);
+                    localStorage.setItem('currentUser', JSON.stringify(user));
 
                     // Métier / Activités choisies à l'inscription
                     const rawTrades = user.company?.tradeCategories || [];

@@ -3,6 +3,8 @@ import { Calculator, Calendar, Check, ExternalLink, Settings, Sparkles, Trending
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 
+const cachedUrssafReports = {};
+
 export default function UrssafSummary() {
     const navigate = useNavigate();
     const currentMonth = new Date().getMonth();
@@ -11,9 +13,9 @@ export default function UrssafSummary() {
 
     const [selectedQuarter, setSelectedQuarter] = useState(currentQ);
     const [selectedYear, setSelectedYear] = useState(currentY);
-    const [reportData, setReportData] = useState(null);
+    const [reportData, setReportData] = useState(() => cachedUrssafReports[currentY] || null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !cachedUrssafReports[currentY]);
 
     const quarters = ["T1", "T2", "T3", "T4"];
     const years = ["2026", "2025"];
@@ -21,7 +23,9 @@ export default function UrssafSummary() {
     const fetchReport = async () => {
         try {
             const data = await apiFetch(`/v1/reports/revenue?year=${selectedYear}`);
-            setReportData(data.data || data);
+            const rep = data.data || data;
+            cachedUrssafReports[selectedYear] = rep;
+            setReportData(rep);
         } catch (err) {
             console.warn("API report/revenue non disponible:", err.message);
         } finally {
@@ -30,6 +34,10 @@ export default function UrssafSummary() {
     };
 
     useEffect(() => {
+        if (cachedUrssafReports[selectedYear]) {
+            setReportData(cachedUrssafReports[selectedYear]);
+            setLoading(false);
+        }
         fetchReport();
     }, [selectedYear]);
 

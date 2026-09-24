@@ -40,6 +40,7 @@ export const getClients = async (req, res) => {
                     include: {
                         equipment: true,
                         interventions: {
+                            take: 20,
                             include: {
                                 technician: {
                                     select: { id: true, firstName: true, lastName: true, email: true }

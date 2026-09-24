@@ -56,7 +56,7 @@
     padding: 10px 12px;
     background: none;
     border: none;
-    font-size: 13.5px;
+    font-size: 14.5px;
     font-weight: 700;
     color: var(--foreground);
     text-align: left;
@@ -97,10 +97,10 @@
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 8px 12px;
+    padding: 9px 12px;
     background: none;
     border: none;
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 500;
     color: var(--muted-foreground);
     text-align: left;
@@ -127,7 +127,7 @@
 }
 
 .submenu-item-icon {
-    font-size: 13.5px;
+    font-size: 14.5px;
     display: flex;
     align-items: center;
 }
@@ -147,7 +147,7 @@
     padding: 10px 12px;
     background: none;
     border: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--destructive);
     text-align: left;
@@ -514,17 +514,17 @@
 }
 
 .placeholder-title {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--foreground);
     margin: 0;
 }
 
 .placeholder-desc {
-    font-size: 12.5px;
-    max-width: 300px;
+    font-size: 13.5px;
+    max-width: 320px;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 /* Toast Notification */
@@ -790,7 +790,7 @@
 }
 
 .mobile-group-header {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--muted-foreground, #64748b);
     text-transform: uppercase;
@@ -814,7 +814,7 @@
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 13px 16px;
+    padding: 13.5px 16px;
     background: none;
     border: none;
     text-align: left;
@@ -836,8 +836,8 @@
 }
 
 .mobile-row-icon-bg {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
     background-color: rgba(95, 75, 219, 0.06);
     color: var(--sidebar-primary);
@@ -852,18 +852,20 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 1px;
+    gap: 2px;
 }
 
 .mobile-row-label {
-    font-size: 15px;
+    font-size: 16.5px;
     font-weight: 600;
     color: var(--foreground);
+    line-height: 1.3;
 }
 
 .mobile-row-subtitle {
-    font-size: 12.5px;
+    font-size: 13.5px;
     color: var(--muted-foreground, #64748b);
+    line-height: 1.35;
 }
 
 .mobile-row-badge {
@@ -954,6 +956,85 @@
     color: #64748b;
 }
 
+/* Seamless AddressAutocomplete inside mobile input card */
+.mobile-input-card .address-autocomplete-container {
+    width: 100%;
+}
+
+.mobile-input-card .address-input-wrapper {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-input-card .address-autocomplete-input,
+.dark .mobile-input-card .address-autocomplete-input,
+:root.dark .mobile-input-card .address-autocomplete-input {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 28px 0 0 !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: var(--foreground, #0f172a) !important;
+    height: auto !important;
+    min-height: unset !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-input-card .address-input-status-icon {
+    right: 0 !important;
+}
+
+/* Seamless PhoneInput inside mobile input card */
+.mobile-input-card .phone-input-container,
+.dark .mobile-input-card .phone-input-container,
+:root.dark .mobile-input-card .phone-input-container {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+.mobile-input-card .phone-country-btn,
+.dark .mobile-input-card .phone-country-btn,
+:root.dark .mobile-input-card .phone-country-btn {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-right: 1px solid var(--border) !important;
+    padding: 0 10px 0 0 !important;
+    height: 24px !important;
+    border-radius: 0 !important;
+}
+
+.mobile-input-card .phone-number-input,
+.dark .mobile-input-card .phone-number-input,
+:root.dark .mobile-input-card .phone-number-input {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 0 0 10px !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: var(--foreground, #0f172a) !important;
+    line-height: normal !important;
+    height: auto !important;
+}
+
 /* Company details list on mobile (Image 1 style) */
 .mobile-entreprise-search-card {
     background-color: white;
@@ -984,20 +1065,20 @@
 }
 
 .mobile-search-label {
-    font-size: 15.5px;
+    font-size: 16.5px;
     font-weight: 700;
     color: #0f172a;
 }
 
 .mobile-search-sub {
-    font-size: 13.5px;
+    font-size: 14px;
     color: #64748b;
 }
 
 .mobile-search-badge {
     background-color: rgba(59, 130, 246, 0.08);
     color: #2563eb;
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 700;
     padding: 2px 6px;
     border-radius: 4px;
@@ -1005,7 +1086,7 @@
 }
 
 .mobile-detail-section-title {
-    font-size: 14.5px;
+    font-size: 15.5px;
     font-weight: 600;
     color: #64748b;
     margin: 16px 16px 8px 24px;
@@ -1667,14 +1748,14 @@ input:checked+.toggle-slider:before {
 
 .affichage-section-title {
     margin: 0 0 4px 0;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--foreground);
 }
 
 .affichage-section-subtitle {
     margin: 0;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--muted-foreground);
     line-height: 1.45;
 }
@@ -1965,13 +2046,13 @@ input:checked+.toggle-slider:before {
 }
 
 .language-title {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--foreground);
 }
 
 .language-default-tag {
-    font-size: 10px;
+    font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
     padding: 1px 6px;
@@ -1981,7 +2062,7 @@ input:checked+.toggle-slider:before {
 }
 
 .language-subtitle {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted-foreground);
 }
 

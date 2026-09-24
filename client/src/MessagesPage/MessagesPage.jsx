@@ -39,7 +39,8 @@ import {
   CheckSquare,
   Square,
   Image as ImageIcon,
-  Lock
+  Lock,
+  ExternalLink
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
@@ -243,6 +244,7 @@ function MessagesPage() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedMessageIds, setSelectedMessageIds] = useState(new Set());
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingEntireConversation, setIsDeletingEntireConversation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
@@ -879,38 +881,71 @@ function MessagesPage() {
   };
 
   const handleDeleteSelectedMessages = async () => {
-    if (selectedMessageIds.size === 0 || isDeleting) return;
+    if (isDeleting) return;
+    if (selectedMessageIds.size === 0 && !isDeletingEntireConversation) return;
     setIsDeleting(true);
 
     const idsArray = Array.from(selectedMessageIds);
     const idsSet = new Set(idsArray.map(id => String(id)));
+    const targetChatId = activeChatIdParam;
+    const isEntire = isDeletingEntireConversation || (messages.length > 0 && idsArray.length >= messages.length);
 
-    // Optimistic local state update immediately
-    setMessages(prev => prev.filter(m => !idsSet.has(String(m.id)) && !idsSet.has(String(m._id))));
-    setSelectedMessageIds(new Set());
-    setIsSelectMode(false);
-    setIsDeleteModalOpen(false);
-    setActiveDetailMessage(null);
+    if (isEntire) {
+      // Optimistically remove conversation from state and cache immediately
+      setChats(prev => prev.filter(c => c.id !== targetChatId && c.clientId !== targetChatId));
+      if (cachedMessagesChats) {
+        cachedMessagesChats = cachedMessagesChats.filter(c => c.id !== targetChatId && c.clientId !== targetChatId);
+      }
+      setMessages([]);
+      setSelectedMessageIds(new Set());
+      setIsSelectMode(false);
+      setIsDeleteModalOpen(false);
+      setIsDeletingEntireConversation(false);
+      setActiveDetailMessage(null);
+      setSearchParams({});
+      navigate("/messages", { replace: true, state: {} });
+    } else {
+      // Optimistic local state update immediately
+      setMessages(prev => prev.filter(m => !idsSet.has(String(m.id)) && !idsSet.has(String(m._id))));
+      setSelectedMessageIds(new Set());
+      setIsSelectMode(false);
+      setIsDeleteModalOpen(false);
+      setActiveDetailMessage(null);
+    }
 
     try {
-      const queryParam = encodeURIComponent(idsArray.join(","));
-      await apiFetch(`/v1/messages/batch?ids=${queryParam}`, {
+      const payload = {};
+      if (idsArray.length > 0) {
+        payload.messageIds = idsArray;
+        payload.ids = idsArray;
+      }
+      if (isEntire && targetChatId) {
+        payload.clientIds = [targetChatId];
+      }
+
+      const queryParam = idsArray.length > 0 
+        ? `?ids=${encodeURIComponent(idsArray.join(","))}` 
+        : (targetChatId ? `?clientIds=${encodeURIComponent(targetChatId)}` : "");
+
+      await apiFetch(`/v1/messages/batch${queryParam}`, {
         method: "DELETE",
-        body: { messageIds: idsArray, ids: idsArray }
+        body: payload
       });
 
-      // Mettre à jour la conversation dans la liste de gauche
-      setChats(prev => prev.map(c => {
-        if (c.clientId === activeChatIdParam || c.id === activeChatIdParam) {
-          if (c.lastMessage && (idsSet.has(String(c.lastMessage.id)) || idsSet.has(String(c.lastMessage._id)))) {
-            return {
-              ...c,
-              lastMessage: null
-            };
+      if (!isEntire) {
+        // Mettre à jour la conversation dans la liste de gauche
+        setChats(prev => prev.map(c => {
+          if (c.clientId === targetChatId || c.id === targetChatId) {
+            if (c.lastMessage && (idsSet.has(String(c.lastMessage.id)) || idsSet.has(String(c.lastMessage._id)))) {
+              return {
+                ...c,
+                lastMessage: null
+              };
+            }
           }
-        }
-        return c;
-      }));
+          return c;
+        }));
+      }
     } catch (err) {
       console.warn("[DELETE MESSAGES WARN]", err.message);
     } finally {
@@ -1582,7 +1617,7 @@ function MessagesPage() {
                 e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
               }}
             >
-              {IconComp && <IconComp size={13} color={isActive ? "#ffffff" : undefined} />}
+              {IconComp && <IconComp size={14} color={isActive ? "#ffffff" : undefined} />}
               <span>{filter.label}</span>
             </button>
           );
@@ -1758,10 +1793,9 @@ function MessagesPage() {
                     style={{ color: "#EF4444" }}
                     onClick={() => {
                       setIsActionsMenuOpen(false);
-                      if (messages.length > 0) {
-                        setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
-                        setIsDeleteModalOpen(true);
-                      }
+                      setIsDeletingEntireConversation(true);
+                      setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
+                      setIsDeleteModalOpen(true);
                     }}
                   >
                     <Trash2 size={14} className="dropdown-action-icon" />
@@ -1846,10 +1880,9 @@ function MessagesPage() {
                     style={{ color: "#EF4444" }}
                     onClick={() => {
                       setIsActionsMenuOpen(false);
-                      if (messages.length > 0) {
-                        setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
-                        setIsDeleteModalOpen(true);
-                      }
+                      setIsDeletingEntireConversation(true);
+                      setSelectedMessageIds(new Set(messages.map(m => m.id || m._id).filter(Boolean)));
+                      setIsDeleteModalOpen(true);
                     }}
                   >
                     <Trash2 size={14} className="dropdown-action-icon" />
@@ -1991,6 +2024,7 @@ function MessagesPage() {
                         title="Supprimer ce message"
                         onClick={(e) => {
                           e.stopPropagation();
+                          setIsDeletingEntireConversation(false);
                           setSelectedMessageIds(new Set([msgId]));
                           setIsDeleteModalOpen(true);
                         }}
@@ -2260,6 +2294,7 @@ function MessagesPage() {
                           className="delete-quick-detail-btn"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setIsDeletingEntireConversation(false);
                             setSelectedMessageIds(new Set([msgId]));
                             setIsDeleteModalOpen(true);
                           }}
@@ -2281,6 +2316,7 @@ function MessagesPage() {
                       title="Supprimer ce message"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setIsDeletingEntireConversation(false);
                         setSelectedMessageIds(new Set([msgId]));
                         setIsDeleteModalOpen(true);
                       }}
@@ -2380,7 +2416,10 @@ function MessagesPage() {
                 type="button"
                 className="bell-delete-selected-btn"
                 disabled={selectedMessageIds.size === 0 || isDeleting}
-                onClick={() => setIsDeleteModalOpen(true)}
+                onClick={() => {
+                  setIsDeletingEntireConversation(false);
+                  setIsDeleteModalOpen(true);
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -2488,85 +2527,139 @@ function MessagesPage() {
               </button>
             )}
 
-            {isChannelDropdownOpen && (
-              <div className="channel-dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                <div style={{ padding: "8px 12px", fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase" }}>
-                  Choisir le canal d'envoi
+            {isChannelDropdownOpen && (() => {
+              const isSmsNotConnected = channelAvailability.SMS?.notConnected || (channelAvailability.SMS?.available === false && channelAvailability.SMS?.reason?.toLowerCase().includes("connecté"));
+              const isWhatsAppNotConnected = channelAvailability.WHATSAPP?.notConnected || (channelAvailability.WHATSAPP?.available === false && channelAvailability.WHATSAPP?.reason?.toLowerCase().includes("connecté"));
+              const isEmailNotConnected = channelAvailability.EMAIL?.notConnected || (channelAvailability.EMAIL?.available === false && channelAvailability.EMAIL?.reason?.toLowerCase().includes("connecté"));
+
+              return (
+                <div className="channel-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                  <div style={{ padding: "8px 12px 6px", fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Choisir le canal d'envoi
+                  </div>
+
+                  {/* SMS */}
+                  <div
+                    className={`channel-option-item ${selectedChannel === "SMS" ? "active" : ""} ${channelAvailability.SMS?.available === false ? "disabled" : ""}`}
+                    onClick={() => {
+                      if (channelAvailability.SMS?.available !== false) {
+                        setSelectedChannel("SMS");
+                        setIsChannelDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                      <div className="channel-icon-avatar sms">
+                        <SmsIcon size={18} />
+                      </div>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>SMS Direct</div>
+                        <div style={{ fontSize: "11px", color: "var(--muted-foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {channelAvailability.SMS?.available === false ? (channelAvailability.SMS?.reason || "Non disponible") : "Sur le mobile du client"}
+                        </div>
+                      </div>
+                    </div>
+                    {isSmsNotConnected ? (
+                      <button
+                        type="button"
+                        className="channel-connect-btn"
+                        title="Configurer SMS dans les paramètres"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsChannelDropdownOpen(false);
+                          navigate("/settings?tab=communication");
+                        }}
+                      >
+                        <span>Connecter</span>
+                        <ExternalLink size={11} />
+                      </button>
+                    ) : (
+                      selectedChannel === "SMS" && <Check size={15} style={{ color: "var(--sidebar-primary)", flexShrink: 0 }} />
+                    )}
+                  </div>
+
+                  {/* WhatsApp */}
+                  <div
+                    className={`channel-option-item ${selectedChannel === "WHATSAPP" ? "active" : ""} ${channelAvailability.WHATSAPP?.available === false ? "disabled" : ""}`}
+                    onClick={() => {
+                      if (channelAvailability.WHATSAPP?.available !== false) {
+                        setSelectedChannel("WHATSAPP");
+                        setIsChannelDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                      <div className="channel-icon-avatar whatsapp">
+                        <WhatsAppIcon size={18} />
+                      </div>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>WhatsApp Business</div>
+                        <div style={{ fontSize: "11px", color: "var(--muted-foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {channelAvailability.WHATSAPP?.available === false ? (channelAvailability.WHATSAPP?.reason || "Non disponible") : "Meta Cloud API"}
+                        </div>
+                      </div>
+                    </div>
+                    {isWhatsAppNotConnected ? (
+                      <button
+                        type="button"
+                        className="channel-connect-btn"
+                        title="Configurer WhatsApp Business dans les paramètres"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsChannelDropdownOpen(false);
+                          navigate("/settings?tab=communication");
+                        }}
+                      >
+                        <span>Connecter</span>
+                        <ExternalLink size={11} />
+                      </button>
+                    ) : (
+                      selectedChannel === "WHATSAPP" && <Check size={15} style={{ color: "#22c55e", flexShrink: 0 }} />
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div
+                    className={`channel-option-item ${selectedChannel === "EMAIL" ? "active" : ""} ${channelAvailability.EMAIL?.available === false ? "disabled" : ""}`}
+                    onClick={() => {
+                      if (channelAvailability.EMAIL?.available !== false) {
+                        setSelectedChannel("EMAIL");
+                        setIsChannelDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                      <div className="channel-icon-avatar email">
+                        <EmailIcon size={18} />
+                      </div>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Email Professionnel</div>
+                        <div style={{ fontSize: "11px", color: "var(--muted-foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {channelAvailability.EMAIL?.available === false ? (channelAvailability.EMAIL?.reason || "Sans email") : (clientObj.email || "Email client")}
+                        </div>
+                      </div>
+                    </div>
+                    {isEmailNotConnected ? (
+                      <button
+                        type="button"
+                        className="channel-connect-btn"
+                        title="Connecter Google Gmail ou SMTP dans les paramètres"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsChannelDropdownOpen(false);
+                          navigate("/settings?tab=communication");
+                        }}
+                      >
+                        <span>Connecter</span>
+                        <ExternalLink size={11} />
+                      </button>
+                    ) : (
+                      selectedChannel === "EMAIL" && <Check size={15} style={{ color: "#3b82f6", flexShrink: 0 }} />
+                    )}
+                  </div>
                 </div>
-
-                {/* SMS */}
-                <button
-                  type="button"
-                  className={`channel-option-item ${selectedChannel === "SMS" ? "active" : ""}`}
-                  disabled={channelAvailability.SMS?.available === false}
-                  onClick={() => {
-                    setSelectedChannel("SMS");
-                    setIsChannelDropdownOpen(false);
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div className="channel-icon-avatar sms">
-                      <SmsIcon size={18} />
-                    </div>
-                    <div style={{ textAlign: "left" }}>
-                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>SMS Direct</div>
-                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
-                        {channelAvailability.SMS?.available === false ? (channelAvailability.SMS?.reason || "Non disponible") : "Sur le mobile du client"}
-                      </div>
-                    </div>
-                  </div>
-                  {selectedChannel === "SMS" && <Check size={15} style={{ color: "var(--sidebar-primary)" }} />}
-                </button>
-
-                {/* WhatsApp */}
-                <button
-                  type="button"
-                  className={`channel-option-item ${selectedChannel === "WHATSAPP" ? "active" : ""}`}
-                  disabled={channelAvailability.WHATSAPP?.available === false}
-                  onClick={() => {
-                    setSelectedChannel("WHATSAPP");
-                    setIsChannelDropdownOpen(false);
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div className="channel-icon-avatar whatsapp">
-                      <WhatsAppIcon size={18} />
-                    </div>
-                    <div style={{ textAlign: "left" }}>
-                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>WhatsApp Business</div>
-                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
-                        {channelAvailability.WHATSAPP?.available === false ? (channelAvailability.WHATSAPP?.reason || "Non disponible") : "Meta Cloud API"}
-                      </div>
-                    </div>
-                  </div>
-                  {selectedChannel === "WHATSAPP" && <Check size={15} style={{ color: "#22c55e" }} />}
-                </button>
-
-                {/* Email */}
-                <button
-                  type="button"
-                  className={`channel-option-item ${selectedChannel === "EMAIL" ? "active" : ""}`}
-                  disabled={channelAvailability.EMAIL?.available === false}
-                  onClick={() => {
-                    setSelectedChannel("EMAIL");
-                    setIsChannelDropdownOpen(false);
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div className="channel-icon-avatar email">
-                      <EmailIcon size={18} />
-                    </div>
-                    <div style={{ textAlign: "left" }}>
-                      <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Email Professionnel</div>
-                      <div style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
-                        {channelAvailability.EMAIL?.available === false ? (channelAvailability.EMAIL?.reason || "Sans email") : (clientObj.email || "Email client")}
-                      </div>
-                    </div>
-                  </div>
-                  {selectedChannel === "EMAIL" && <Check size={15} style={{ color: "#3b82f6" }} />}
-                </button>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Recommendation tooltip notice */}
@@ -3436,9 +3529,11 @@ function MessagesPage() {
                   <div className="delete-modal-titles">
                     <h3>Supprimer ?</h3>
                     <p>
-                      {selectedMessageIds.size > 1
-                        ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
-                        : "Voulez-vous supprimer ce message de votre historique CRM ?"}
+                      {isDeletingEntireConversation
+                        ? "Voulez-vous supprimer l'intégralité de cette conversation de votre historique CRM ?"
+                        : selectedMessageIds.size > 1
+                          ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
+                          : "Voulez-vous supprimer ce message de votre historique CRM ?"}
                     </p>
                   </div>
                 </div>

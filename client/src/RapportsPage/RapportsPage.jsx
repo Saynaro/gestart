@@ -99,7 +99,7 @@ function RapportsPage() {
                         {/* Dashboard Layout Grid */}
                         <div className="rapports-dashboard-grid" key={refreshKey}>
                             <div className="grid-full-width">
-                                <RevenueWidget startDate={startDate} endDate={endDate} />
+                                <RevenueWidget startDate={startDate} endDate={endDate} reportsData={reportsData} />
                             </div>
                             <div className="grid-two-columns">
                                 <QuotesWidget startDate={startDate} endDate={endDate} />

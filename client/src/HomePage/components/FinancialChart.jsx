@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 
 const MONTH_NAMES_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const MONTH_NAMES_CAP = ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
 
 function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.212 }) {
     const [viewType, setViewType] = useState("mixed"); // 'mixed' (bar + line), 'table', 'line'
@@ -8,10 +9,32 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
     const [resolution, setResolution] = useState("Mois"); // "Mois", "Semaine", "Trimestre"
     const [sources, setSources] = useState("Toutes"); // "Toutes", "Factures"
     
-    // Dropdowns open state
-    const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
-    const [resDropdownOpen, setResDropdownOpen] = useState(false);
-    const [srcDropdownOpen, setSrcDropdownOpen] = useState(false);
+    // Single active dropdown state ('date' | 'res' | 'src' | null)
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const chartRef = useRef(null);
+
+    // Auto-close on click outside or on page/container scroll
+    useEffect(() => {
+        if (!openDropdown) return;
+        const handleOutsideClick = (e) => {
+            if (chartRef.current && !chartRef.current.contains(e.target)) {
+                setOpenDropdown(null);
+            }
+        };
+        const handleScroll = () => {
+            setOpenDropdown(null);
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        document.addEventListener("touchstart", handleOutsideClick, { passive: true });
+        window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+            document.removeEventListener("touchstart", handleOutsideClick);
+            window.removeEventListener("scroll", handleScroll, { capture: true });
+        };
+    }, [openDropdown]);
 
     // Compute Date Boundaries and Range Label dynamically
     const { startDate, endDate, dateRangeLabel } = useMemo(() => {
@@ -65,6 +88,7 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
                 const mIdx = bucketDate.getMonth();
                 const yrShort = String(bucketDate.getFullYear()).slice(-2);
                 const label = `${MONTH_NAMES_SHORT[mIdx]} ${yrShort}`;
+                const shortLabel = MONTH_NAMES_CAP[mIdx];
 
                 // Filter transactions in this month
                 const monthTxs = txs.filter(tx => {
@@ -77,7 +101,7 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
 
                 // Fallback to data prop if rawTransactions is empty and it matches 6M default
                 if (raw.length === 0 && data && data.length > 0) {
-                    const found = data.find(d => d.month === label);
+                    const found = data.find(d => d.month === label || d.month?.startsWith(MONTH_NAMES_SHORT[mIdx]));
                     if (found) {
                         entrees = found.entrees || 0;
                     }
@@ -88,6 +112,7 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
 
                 buckets.push({
                     month: label,
+                    shortLabel,
                     entrees: Math.round(entrees * 100) / 100,
                     sorties,
                     resultat
@@ -204,11 +229,11 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
 
     // SVG Layout Config
     const chartWidth = 500;
-    const chartHeight = 200;
-    const paddingLeft = 68;
-    const paddingRight = 35;
-    const paddingTop = 15;
-    const paddingBottom = 30;
+    const chartHeight = 210;
+    const paddingLeft = 64;
+    const paddingRight = 24;
+    const paddingTop = 16;
+    const paddingBottom = 26;
 
     const graphWidth = chartWidth - paddingLeft - paddingRight;
     const graphHeight = chartHeight - paddingTop - paddingBottom;
@@ -230,7 +255,7 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
     });
 
     return (
-        <div className="financial-chart-card">
+        <div className="financial-chart-card" ref={chartRef}>
             {/* Header row: Legend and chart type selector */}
             <div className="chart-header">
                 <div className="chart-legend">
@@ -292,49 +317,49 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
             {/* Filter controls row */}
             <div className="chart-filters">
                 <div className="filter-dropdown-container">
-                    <button className="filter-dropdown-trigger" onClick={() => setDateDropdownOpen(!dateDropdownOpen)}>
+                    <button className="filter-dropdown-trigger" onClick={() => setOpenDropdown(prev => prev === "date" ? null : "date")}>
                         <span>{dateRangeLabel}</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
-                    {dateDropdownOpen && (
+                    {openDropdown === "date" && (
                         <div className="filter-dropdown-menu">
-                            <div className="dropdown-item" onClick={() => { setRangeKey("3M"); setDateDropdownOpen(false); }}>3 derniers mois</div>
-                            <div className="dropdown-item" onClick={() => { setRangeKey("6M"); setDateDropdownOpen(false); }}>6 derniers mois</div>
-                            <div className="dropdown-item" onClick={() => { setRangeKey("YTD"); setDateDropdownOpen(false); }}>Année en cours ({new Date().getFullYear()})</div>
-                            <div className="dropdown-item" onClick={() => { setRangeKey("12M"); setDateDropdownOpen(false); }}>12 derniers mois</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("3M"); setOpenDropdown(null); }}>3 derniers mois</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("6M"); setOpenDropdown(null); }}>6 derniers mois</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("YTD"); setOpenDropdown(null); }}>Année en cours ({new Date().getFullYear()})</div>
+                            <div className="dropdown-item" onClick={() => { setRangeKey("12M"); setOpenDropdown(null); }}>12 derniers mois</div>
                         </div>
                     )}
                 </div>
 
                 <div className="filter-dropdown-container">
-                    <button className="filter-dropdown-trigger" onClick={() => setResDropdownOpen(!resDropdownOpen)}>
+                    <button className="filter-dropdown-trigger" onClick={() => setOpenDropdown(prev => prev === "res" ? null : "res")}>
                         <span>{resolution}</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
-                    {resDropdownOpen && (
+                    {openDropdown === "res" && (
                         <div className="filter-dropdown-menu">
-                            <div className="dropdown-item" onClick={() => { setResolution("Mois"); setResDropdownOpen(false); }}>Mois</div>
-                            <div className="dropdown-item" onClick={() => { setResolution("Semaine"); setResDropdownOpen(false); }}>Semaine</div>
-                            <div className="dropdown-item" onClick={() => { setResolution("Trimestre"); setResDropdownOpen(false); }}>Trimestre</div>
+                            <div className="dropdown-item" onClick={() => { setResolution("Mois"); setOpenDropdown(null); }}>Mois</div>
+                            <div className="dropdown-item" onClick={() => { setResolution("Semaine"); setOpenDropdown(null); }}>Semaine</div>
+                            <div className="dropdown-item" onClick={() => { setResolution("Trimestre"); setOpenDropdown(null); }}>Trimestre</div>
                         </div>
                     )}
                 </div>
 
                 <div className="filter-dropdown-container">
-                    <button className="filter-dropdown-trigger" onClick={() => setSrcDropdownOpen(!srcDropdownOpen)}>
+                    <button className="filter-dropdown-trigger" onClick={() => setOpenDropdown(prev => prev === "src" ? null : "src")}>
                         <span>{sources === "Toutes" ? "Toutes les sources" : "Factures encaissées"}</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
-                    {srcDropdownOpen && (
+                    {openDropdown === "src" && (
                         <div className="filter-dropdown-menu">
-                            <div className="dropdown-item" onClick={() => { setSources("Toutes"); setSrcDropdownOpen(false); }}>Toutes les sources</div>
-                            <div className="dropdown-item" onClick={() => { setSources("Factures"); setSrcDropdownOpen(false); }}>Factures encaissées</div>
+                            <div className="dropdown-item" onClick={() => { setSources("Toutes"); setOpenDropdown(null); }}>Toutes les sources</div>
+                            <div className="dropdown-item" onClick={() => { setSources("Factures"); setOpenDropdown(null); }}>Factures encaissées</div>
                         </div>
                     )}
                 </div>
@@ -398,18 +423,15 @@ function FinancialChart({ data = [], rawTransactions = [], cotisationsRate = 0.2
 
                             {/* X-axis labels */}
                             {chartData.map((d, idx) => {
-                                const isFirst = idx === 0;
-                                const isLast = idx === chartData.length - 1;
-                                const anchor = isFirst ? "start" : (isLast ? "end" : "middle");
                                 return (
                                     <text 
                                         key={idx} 
                                         x={getX(idx)} 
-                                        y={chartHeight - 8} 
-                                        textAnchor={anchor} 
+                                        y={chartHeight - 6} 
+                                        textAnchor="middle" 
                                         className="chart-axis-label"
                                     >
-                                        {d.month}
+                                        {d.shortLabel || d.month}
                                     </text>
                                 );
                             })}

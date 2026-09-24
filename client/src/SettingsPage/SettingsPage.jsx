@@ -87,12 +87,37 @@ function SettingsPage() {
     // Ref to scrollable container for desktop
     const layoutContainerRef = useRef(null);
 
-    // Form and user state
-    const [firstName, setFirstName] = useState("Khalid");
-    const [lastName, setLastName] = useState("Sainaro");
-    const [email, setEmail] = useState("khalid.cizdoev777@gmail.com");
-    const [phone, setPhone] = useState("0651604316");
-    const [avatarUrl, setAvatarUrl] = useState(null);
+    // Form and user state initialized instantly from localStorage cache
+    const [firstName, setFirstName] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.firstName || "Khalid";
+        } catch (e) { return "Khalid"; }
+    });
+    const [lastName, setLastName] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.lastName || "Sainaro";
+        } catch (e) { return "Sainaro"; }
+    });
+    const [email, setEmail] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.email || "khalid.cizdoev777@gmail.com";
+        } catch (e) { return "khalid.cizdoev777@gmail.com"; }
+    });
+    const [phone, setPhone] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.phone || "0651604316";
+        } catch (e) { return "0651604316"; }
+    });
+    const [avatarUrl, setAvatarUrl] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return saved.avatarUrl || null;
+        } catch (e) { return null; }
+    });
     const [civility, setCivility] = useState("");
     const [dob, setDob] = useState("");
     const [tabRefreshKey, setTabRefreshKey] = useState(0);
@@ -109,6 +134,7 @@ function SettingsPage() {
                 if (user.email) setEmail(user.email);
                 if (user.phone) setPhone(user.phone);
                 if (user.avatarUrl) setAvatarUrl(user.avatarUrl);
+                localStorage.setItem('currentUser', JSON.stringify(user));
             }
         } catch (err) {
             console.warn("API me non disponible:", err.message);

@@ -1074,6 +1074,25 @@
         padding: 16px;
     }
 
+    .channel-filter-bar {
+        gap: 8px !important;
+        padding: 0 16px 14px 16px !important;
+    }
+
+    .channel-filter-chip {
+        height: 34px !important;
+        padding: 0 14px !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        gap: 6px !important;
+        border-radius: 20px !important;
+    }
+
+    .channel-filter-chip svg {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
     .chat-list {
         padding: 0 0 calc(76px + env(safe-area-inset-bottom, 0px)) 0 !important;
     }
@@ -2063,7 +2082,8 @@
     position: absolute;
     bottom: calc(100% + 8px);
     left: 0;
-    width: 270px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
     background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -2079,6 +2099,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
     padding: 8px 10px;
     border-radius: 8px;
     border: none;
@@ -2087,19 +2108,44 @@
     width: 100%;
     color: var(--foreground);
     transition: background-color 0.15s;
+    user-select: none;
 }
 
-.channel-option-item:hover:not(:disabled) {
+.channel-option-item:hover:not(.disabled):not(:disabled) {
     background-color: var(--accent);
 }
 
-.channel-option-item:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.channel-option-item:disabled,
+.channel-option-item.disabled {
+    opacity: 0.65;
+    cursor: default;
 }
 
 .channel-option-item.active {
     background-color: rgba(85, 107, 47, 0.08);
+}
+
+.channel-connect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 9px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #556B2F;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.channel-connect-btn:hover {
+    filter: brightness(1.15);
+    transform: translateY(-0.5px);
 }
 
 .channel-icon-avatar {
@@ -2292,37 +2338,38 @@
     border-radius: 8px;
     font-size: 0.78rem;
     font-weight: 600;
-    background: #C0C0C0 !important;
-    border: 1px solid #a6a6a6 !important;
-    color: #1e293b !important;
+    background: #F5F3E8 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #262626 !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .email-attached-pill:hover,
 .dark .email-attached-pill:hover {
-    background: #b5b5b5 !important;
-    border-color: #949494 !important;
+    background: #ece8d8 !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 .email-attached-icon {
-    color: var(--muted-foreground, #64748b);
+    color: #262626 !important;
     flex-shrink: 0;
 }
 
 .email-attached-name {
     cursor: pointer;
-    color: inherit;
+    color: #262626 !important;
     transition: color 0.15s ease;
     max-width: 180px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 600;
 }
 
 .email-attached-name:hover {
-    color: var(--foreground, #0f172a);
+    color: #000000 !important;
 }
 
 .email-attached-preview-btn {
@@ -2331,7 +2378,7 @@
     justify-content: center;
     background: transparent;
     border: none;
-    color: var(--muted-foreground, #64748b);
+    color: #525252 !important;
     cursor: pointer;
     padding: 2px;
     width: 20px;
@@ -2340,19 +2387,15 @@
     transition: all 0.15s ease;
 }
 
-.email-attached-preview-btn:hover {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--foreground, #0f172a);
+.email-attached-preview-btn:hover,
+.dark .email-attached-preview-btn:hover {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #000000 !important;
     transform: scale(1.1);
 }
 
 .dark .email-attached-preview-btn {
-    color: #94a3b8;
-}
-
-.dark .email-attached-preview-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    color: #525252 !important;
 }
 
 .email-attached-remove-btn {
@@ -2361,7 +2404,7 @@
     justify-content: center;
     background: transparent;
     border: none;
-    color: var(--muted-foreground, #64748b);
+    color: #737373 !important;
     cursor: pointer;
     padding: 2px;
     width: 20px;
@@ -2370,19 +2413,15 @@
     transition: all 0.15s ease;
 }
 
-.email-attached-remove-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+.email-attached-remove-btn:hover,
+.dark .email-attached-remove-btn:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
     transform: scale(1.1);
 }
 
 .dark .email-attached-remove-btn {
-    color: #94a3b8;
-}
-
-.dark .email-attached-remove-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
+    color: #737373 !important;
 }
 
 .email-body-textarea.drag-active {
@@ -2985,9 +3024,9 @@
     align-items: center;
     gap: 6px;
     padding: 4px 8px;
-    background: #C0C0C0 !important;
-    border: 1px solid #a6a6a6 !important;
-    color: #1e293b !important;
+    background: #F5F3E8 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #262626 !important;
     border-radius: 7px;
     font-size: 0.76rem;
     font-weight: 600;
@@ -2999,8 +3038,8 @@
 
 .attachment-chip:hover,
 .dark .attachment-chip:hover {
-    background: #b5b5b5 !important;
-    border-color: #949494 !important;
+    background: #ece8d8 !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -3010,8 +3049,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #1e293b !important;
+    color: #262626 !important;
     font-weight: 600;
+}
+
+.attachment-chip-icon {
+    color: #262626 !important;
+    flex-shrink: 0;
 }
 
 .attachment-pick-item {
@@ -3702,8 +3746,8 @@
     width: 24px;
     height: 24px;
     border-radius: 6px;
-    background: rgba(0, 0, 0, 0.08) !important;
-    color: #1e293b !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #262626 !important;
     border: none;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
@@ -3712,14 +3756,14 @@
 
 .att-chip-action-btn:hover,
 .dark .att-chip-action-btn:hover {
-    background: rgba(0, 0, 0, 0.16) !important;
+    background: rgba(0, 0, 0, 0.12) !important;
     color: #000000 !important;
     transform: scale(1.08);
 }
 
 .dark .att-chip-action-btn {
-    background: rgba(0, 0, 0, 0.08) !important;
-    color: #1e293b !important;
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #262626 !important;
 }
 
 /* Lightbox Modal */

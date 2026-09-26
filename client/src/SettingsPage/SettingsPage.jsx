@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
@@ -8,6 +8,7 @@ import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
 import PhoneInput from "../components/PhoneInput";
 import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
+import { getSocket } from "../utils/socket";
 import { useUser } from "../utils/useUser";
 import { useSubscription } from "../utils/useSubscription";
 import { handleLogout } from "../utils/auth";
@@ -68,6 +69,7 @@ import FacturationTab from "./components/FacturationTab";
 import CommunicationTab from "./components/CommunicationTab";
 import NotificationsTab from "./components/NotificationsTab";
 import SupportTab from "./components/SupportTab";
+import FaqTab from "./components/FaqTab";
 import AvisTab from "./components/AvisTab";
 import ParrainageTab from "./components/ParrainageTab";
 import AboutTab from "./components/AboutTab";
@@ -81,6 +83,8 @@ const monthsList = [
 
 function SettingsPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const [unreadSupportCount, setUnreadSupportCount] = useState(0);
 
     // Ref to store scroll position for mobile back navigation
     const scrollYRef = useRef(0);
@@ -178,6 +182,14 @@ function SettingsPage() {
     const [toastIsError, setToastIsError] = useState(false);
     const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     // Header Auto-Save status indicator for mobile
     const [headerSaveStatus, setHeaderSaveStatus] = useState("saved"); // "saving", "saved", "error"
 
@@ -220,20 +232,69 @@ function SettingsPage() {
 
     // Sync tab from URL query params
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search || window.location.search);
         const tabParam = params.get("tab");
         if (params.get("id_connection") || params.get("banking")) {
             setActiveTab("paiements");
-            if (typeof window !== "undefined" && window.innerWidth <= 768) {
-                setMobileScreenState("detail");
-            }
+            setMobileScreenState("detail");
+            setOpenCategories(prev => ({ ...prev, "Config": true }));
         } else if (tabParam) {
             setActiveTab(tabParam);
-            if (typeof window !== "undefined" && window.innerWidth <= 768) {
-                setMobileScreenState("detail");
+            setMobileScreenState("detail");
+            if (tabParam === "cotisations" || tabParam === "chiffre-affaires" || tabParam === "tva-config" || tabParam === "banques" || tabParam === "e-invoicing") {
+                setOpenCategories(prev => ({ ...prev, "Comptabilité": true }));
+            } else if (tabParam === "communication" || tabParam === "paiements" || tabParam === "facturation" || tabParam === "notifications") {
+                setOpenCategories(prev => ({ ...prev, "Config": true }));
+            } else if (tabParam === "support" || tabParam === "faq" || tabParam === "avis" || tabParam === "parrainage") {
+                setOpenCategories(prev => ({ ...prev, "Communauté": true }));
+            } else {
+                setOpenCategories(prev => ({ ...prev, "Mon compte": true }));
             }
         }
-    }, []);
+    }, [location.search]);
+
+    // Track unread support messages count
+    useEffect(() => {
+        const fetchSupportUnread = async () => {
+            try {
+                const res = await apiFetch("/v1/support/unread-count");
+                if (res.success && typeof res.count === "number") {
+                    setUnreadSupportCount(res.count);
+                }
+            } catch (e) {}
+        };
+        fetchSupportUnread();
+
+        const socket = getSocket();
+        if (socket) {
+            const handleNewSupportMsg = (msg) => {
+                if (msg.senderRole === "SUPERADMIN") {
+                    if (activeTab === "support") {
+                        setUnreadSupportCount(0);
+                    } else {
+                        setUnreadSupportCount(prev => prev + 1);
+                    }
+                }
+            };
+            const handleSupportRead = () => setUnreadSupportCount(0);
+
+            socket.on("support:new_message", handleNewSupportMsg);
+            socket.on("support:messages_read", handleSupportRead);
+
+            return () => {
+                socket.off("support:new_message", handleNewSupportMsg);
+                socket.off("support:messages_read", handleSupportRead);
+            };
+        }
+    }, [activeTab]);
+
+    // When viewing support tab, clear badge and dispatch read event
+    useEffect(() => {
+        if (activeTab === "support") {
+            setUnreadSupportCount(0);
+            window.dispatchEvent(new CustomEvent("support-messages-read"));
+        }
+    }, [activeTab]);
 
     // Scroll tracking for iOS-style header title transition
     const [isScrolled, setIsScrolled] = useState(false);
@@ -258,16 +319,36 @@ function SettingsPage() {
     }, [activeProfileSubSheet, dob]);
 
     // mobileScreenState can be "list" (show categories menu) or "detail" (show selected settings tab)
-    const [mobileScreenState, setMobileScreenState] = useState("list");
+    const [mobileScreenState, setMobileScreenState] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("tab") || params.get("id_connection") || params.get("banking")) {
+            return "detail";
+        }
+        return "list";
+    });
     const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
 
-    // Desktop Accordion states (closed by default)
-    const [openCategories, setOpenCategories] = useState({
-        "Mon compte": false,
-        "Comptabilité": false,
-        "Config": false,
-        "Communauté": false,
-        "À propos": false
+    // Desktop Accordion states (closed by default, open relevant category if tab specified)
+    const [openCategories, setOpenCategories] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get("tab");
+        const defaultOpen = {
+            "Mon compte": false,
+            "Comptabilité": false,
+            "Config": false,
+            "Communauté": false,
+            "À propos": false
+        };
+        if (tabParam === "cotisations" || tabParam === "chiffre-affaires" || tabParam === "tva-config" || tabParam === "banques" || tabParam === "e-invoicing") {
+            defaultOpen["Comptabilité"] = true;
+        } else if (tabParam === "communication" || tabParam === "paiements" || tabParam === "facturation" || tabParam === "notifications" || params.get("id_connection") || params.get("banking")) {
+            defaultOpen["Config"] = true;
+        } else if (tabParam === "support" || tabParam === "faq" || tabParam === "avis" || tabParam === "parrainage") {
+            defaultOpen["Communauté"] = true;
+        } else if (tabParam) {
+            defaultOpen["Mon compte"] = true;
+        }
+        return defaultOpen;
     });
 
     const [isMobileHeaderTitleVisible, setIsMobileHeaderTitleVisible] = useState(false);
@@ -324,14 +405,43 @@ function SettingsPage() {
 
 
     const toggleCategory = (title) => {
-        setOpenCategories((prev) => ({
-            ...prev,
-            [title]: !prev[title]
-        }));
+        setOpenCategories((prev) => {
+            const willOpen = !prev[title];
+            if (willOpen && title === "Communauté") {
+                handleTabSelect("support");
+            }
+            return {
+                ...prev,
+                [title]: willOpen
+            };
+        });
+        if (title === "Communauté" && openCategories[title] && activeTab !== "support") {
+            handleTabSelect("support");
+        }
     };
 
     const [confirmConfig, setConfirmConfig] = useState(null);
     const toastTimeoutRef = useRef(null);
+    const [viewportHeight, setViewportHeight] = useState(null);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !window.visualViewport) return;
+
+        const updateViewport = () => {
+            if (window.visualViewport) {
+                setViewportHeight(window.visualViewport.height);
+            }
+        };
+
+        updateViewport();
+        window.visualViewport.addEventListener("resize", updateViewport);
+        window.visualViewport.addEventListener("scroll", updateViewport);
+
+        return () => {
+            window.visualViewport?.removeEventListener("resize", updateViewport);
+            window.visualViewport?.removeEventListener("scroll", updateViewport);
+        };
+    }, []);
 
     const triggerToast = useCallback((message, isError = false) => {
         if (toastTimeoutRef.current) {
@@ -401,7 +511,7 @@ function SettingsPage() {
                 {
                     title: "Communauté",
                     items: [
-                        { id: "support", label: "Support", icon: HelpCircle, subtitle: "Aide et assistance" },
+                        { id: "faq", label: "FAQ & Centre d'aide", icon: HelpCircle, subtitle: "Guides et fiches pratiques" },
                         { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis sur GestArt" }
                     ]
                 },
@@ -425,7 +535,7 @@ function SettingsPage() {
                     { id: "ma-societe", label: "Entreprise", icon: Building, subtitle: "Coordonnées et statut juridique" },
                     { id: "securite", label: "Sécurité", icon: Lock, subtitle: "Email, mot de passe et connexion" },
                     { id: "rgpd-legal", label: "Légal & RGPD", icon: Scale, subtitle: "Exportation de données et droits" },
-                    { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre ClimPro" }
+                    { id: "abonnement", label: "Abonnement", icon: CreditCard, subtitle: "Gérez votre offre GestArt" }
                 ]
             },
             {
@@ -450,7 +560,8 @@ function SettingsPage() {
             {
                 title: "Communauté",
                 items: [
-                    { id: "support", label: "Support", icon: HelpCircle, subtitle: "Aide et contact" },
+                    { id: "support", label: "Support direct", icon: MessageSquare, subtitle: "Discussion en direct avec GestArt", badge: unreadSupportCount > 0 ? unreadSupportCount : undefined },
+                    { id: "faq", label: "FAQ & Centre d'aide", icon: HelpCircle, subtitle: "Guides et fiches pratiques" },
                     { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis" },
                     { id: "parrainage", label: "Parrainage", icon: Gift, subtitle: "Gagnez des cadeaux" }
                 ]
@@ -633,6 +744,7 @@ function SettingsPage() {
         };
 
         const handleFocusIn = (e) => {
+            if (activeTab === "support") return;
             const target = e.target;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
                 // Immediate scroll
@@ -645,6 +757,7 @@ function SettingsPage() {
         };
 
         const handleCardClick = (e) => {
+            if (activeTab === "support") return;
             const card = e.target.closest('.mobile-input-card');
             if (card && !card.classList.contains('select') && !card.classList.contains('no-autofocus')) {
                 // If not clicking directly on an input, button or link, focus the first text input inside
@@ -661,6 +774,7 @@ function SettingsPage() {
 
         // Also handle mobile visualViewport resize when virtual keyboard opens
         const handleViewportResize = () => {
+            if (activeTab === "support") return;
             const activeEl = document.activeElement;
             if (activeEl && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName)) {
                 scrollToElementCenter(activeEl);
@@ -784,6 +898,8 @@ function SettingsPage() {
                             return <NotificationsTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "support":
                             return <SupportTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
+                        case "faq":
+                            return <FaqTab isMobileView={isMobileView} triggerToast={triggerToast} onOpenSupport={() => handleTabSelect("support")} />;
                         case "avis":
                             return <AvisTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "parrainage":
@@ -807,7 +923,13 @@ function SettingsPage() {
         return (
             <motion.div
                 className="mobile-settings-view"
-                style={{ backgroundColor: 'var(--background)' }}
+                style={{ 
+                    backgroundColor: 'var(--background)',
+                    ...(viewportHeight ? { 
+                        height: `${viewportHeight}px`,
+                        maxHeight: `${viewportHeight}px`
+                    } : {})
+                }}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -816,7 +938,7 @@ function SettingsPage() {
             >
                 {/* Stable Fixed Sticky Header */}
                 <div className="mobile-nav-header" style={{ position: 'relative' }}>
-                    <div style={{ width: '40px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '40px', display: 'flex', alignItems: 'center', zIndex: 2 }}>
                         {isDetail && (
                             <button
                                 className="mobile-back-circle"
@@ -830,22 +952,25 @@ function SettingsPage() {
                     </div>
 
                     <span
-                        className={`mobile-nav-header-title ${(!isDetail || isMobileHeaderTitleVisible) ? 'visible' : ''}`}
+                        className="mobile-nav-header-title visible"
                         style={{
                             position: 'absolute',
                             left: '50%',
                             top: 'calc(env(safe-area-inset-top, 0px) + 28px)',
-                            transform: (!isDetail || isMobileHeaderTitleVisible) ? 'translate(-50%, -50%)' : 'translate(-50%, calc(-50% + 4px))',
-                            opacity: (!isDetail || isMobileHeaderTitleVisible) ? 1 : 0,
-                            transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                            maxWidth: 'calc(100% - 180px)',
+                            transform: 'translate(-50%, -50%)',
+                            opacity: 1,
+                            fontSize: '18px',
+                            fontWeight: 800,
+                            color: 'var(--foreground)',
+                            maxWidth: 'calc(100% - 120px)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            textAlign: 'center'
                         }}
                     >
-                        {isDetail ? currentItem.label : "Paramètres"}
+                        {isDetail ? (activeTab === "support" ? "Support direct" : currentItem.label) : "Paramètres"}
                     </span>
 
                     <div style={{ marginLeft: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 2 }}>
@@ -883,111 +1008,133 @@ function SettingsPage() {
                     </div>
                 </div>
 
-                <div className="mobile-settings-scroll-container" ref={mobileScrollRef}>
-                    <PullToRefresh onRefresh={handleSettingsRefresh}>
-                        {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
-                        <div style={{ display: !isDetail ? 'block' : 'none' }}>
-                            {/* Centered User Profile info */}
-                            <div className="mobile-settings-profile-header">
-                                <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
-                                    {avatarUrl ? (
-                                        <img src={avatarUrl} alt="Avatar" />
-                                    ) : (
-                                        <span>{firstName[0]}{lastName[0]}</span>
+                {isDetail && activeTab === "support" ? (
+                    <div style={{
+                        flex: 1,
+                        minHeight: 0,
+                        height: '100%',
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        backgroundColor: 'var(--background)'
+                    }}>
+                        <SupportTab isMobileView={true} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />
+                    </div>
+                ) : (
+                    <div className="mobile-settings-scroll-container" ref={mobileScrollRef}>
+                        <PullToRefresh onRefresh={handleSettingsRefresh}>
+                            {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
+                            <div style={{ display: !isDetail ? 'block' : 'none' }}>
+                                {/* Centered User Profile info */}
+                                <div className="mobile-settings-profile-header">
+                                    <div className="mobile-profile-avatar-circle" style={{ width: '92px', height: '92px', fontSize: '32px', margin: '0 auto 16px auto', position: 'relative' }}>
+                                        {avatarUrl ? (
+                                            <img src={avatarUrl} alt="Avatar" />
+                                        ) : (
+                                            <span>{firstName[0]}{lastName[0]}</span>
+                                        )}
+                                    </div>
+                                    <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
+                                    <p className="mobile-settings-profile-email">{email}</p>
+
+                                    {/* Clean & compact subscription badge */}
+                                    {!isTechnician && (
+                                        <button
+                                            type="button"
+                                            className="mobile-plan-pill-badge"
+                                            onClick={() => handleTabSelect("abonnement")}
+                                            title={isExpired ? "Abonnement expiré — Cliquez pour renouveler" : "Gérer votre abonnement"}
+                                        >
+                                            {isExpired && (
+                                                <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#ef4444", flexShrink: 0 }} />
+                                            )}
+                                            <span className="pill-badge-title">
+                                                {isExpired ? "Abonnement expiré" : `Plan ${displayName || "Pro"}`}
+                                            </span>
+                                            <span className="pill-badge-dot">·</span>
+                                            <span className="pill-badge-action">
+                                                {isExpired ? "Renouveler" : "Gérer"}
+                                            </span>
+                                            <ChevronRight size={13} className="pill-badge-arrow" />
+                                        </button>
                                     )}
                                 </div>
-                                <h2 className="mobile-settings-profile-name">{firstName} {lastName}</h2>
-                                <p className="mobile-settings-profile-email">{email}</p>
 
-                                {/* Clean & compact subscription badge */}
-                                {!isTechnician && (
-                                    <button
-                                        type="button"
-                                        className="mobile-plan-pill-badge"
-                                        onClick={() => handleTabSelect("abonnement")}
-                                        title={isExpired ? "Abonnement expiré — Cliquez pour renouveler" : "Gérer votre abonnement"}
-                                    >
-                                        {isExpired && (
-                                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#ef4444", flexShrink: 0 }} />
-                                        )}
-                                        <span className="pill-badge-title">
-                                            {isExpired ? "Abonnement expiré" : `Plan ${displayName || "Pro"}`}
-                                        </span>
-                                        <span className="pill-badge-dot">·</span>
-                                        <span className="pill-badge-action">
-                                            {isExpired ? "Renouveler" : "Gérer"}
-                                        </span>
-                                        <ChevronRight size={13} className="pill-badge-arrow" />
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Categories and Rows */}
-                            <div className="mobile-group-container">
-                                {menuCategories.map((category) => (
-                                    <div key={category.title} className="mobile-group-section">
-                                        <h4 className="mobile-group-header">{category.title}</h4>
-                                        <div className="mobile-items-card">
-                                            {category.items.map((item) => {
-                                                const RowIcon = item.icon;
-                                                return (
-                                                    <button
-                                                        key={item.id}
-                                                        className="mobile-settings-row-btn"
-                                                        type="button"
-                                                        onClick={() => handleTabSelect(item.id)}
-                                                    >
-                                                        <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
-                                                        <span className="mobile-row-text-col">
-                                                            <span className="mobile-row-label">{item.label}</span>
-                                                            <span className="mobile-row-subtitle">{item.subtitle}</span>
-                                                        </span>
-                                                        {item.badge && (
-                                                            <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
-                                                        )}
-                                                        <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                                    </button>
-                                                );
-                                            })}
+                                {/* Categories and Rows */}
+                                <div className="mobile-group-container">
+                                    {menuCategories.map((category) => (
+                                        <div key={category.title} className="mobile-group-section">
+                                            <h4 className="mobile-group-header" style={{ display: 'flex', alignItems: 'center' }}>
+                                                <span>{category.title}</span>
+                                            </h4>
+                                            <div className="mobile-items-card">
+                                                {category.items.map((item) => {
+                                                    const RowIcon = item.icon;
+                                                    return (
+                                                        <button
+                                                            key={item.id}
+                                                            className="mobile-settings-row-btn"
+                                                            type="button"
+                                                            onClick={() => handleTabSelect(item.id)}
+                                                        >
+                                                            <span className="mobile-row-icon-bg"><RowIcon size={16} /></span>
+                                                            <span className="mobile-row-text-col">
+                                                                <span className="mobile-row-label">{item.label}</span>
+                                                                <span className="mobile-row-subtitle">{item.subtitle}</span>
+                                                            </span>
+                                                            {item.id === "support" && unreadSupportCount > 0 && (
+                                                                <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '11px', fontWeight: 800, padding: '2px 7px', borderRadius: '50px', marginLeft: 'auto', marginRight: '6px' }}>
+                                                                    {unreadSupportCount}
+                                                                </span>
+                                                            )}
+                                                            {item.badge && (
+                                                                <span className="mobile-row-badge" style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff' }}>{item.badge}</span>
+                                                            )}
+                                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
 
-                                {/* Logout Row */}
-                                <div className="mobile-group-section" style={{ marginBottom: '24px' }}>
-                                    <div className="mobile-items-card">
-                                        <button className="mobile-settings-row-btn" type="button" onClick={() => {
-                                            triggerConfirm({
-                                                title: "Déconnexion de GestArt",
-                                                message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
-                                                confirmText: "Oui, me déconnecter",
-                                                cancelText: "Annuler",
-                                                onConfirm: () => handleLogout(navigate)
-                                            });
-                                        }}>
-                                            <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
-                                            <span className="mobile-row-text-col">
-                                                <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
-                                                <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
-                                            </span>
-                                            <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
-                                        </button>
+                                    {/* Logout Row */}
+                                    <div className="mobile-group-section" style={{ marginBottom: '24px' }}>
+                                        <div className="mobile-items-card">
+                                            <button className="mobile-settings-row-btn" type="button" onClick={() => {
+                                                triggerConfirm({
+                                                    title: "Déconnexion de GestArt",
+                                                    message: "Êtes-vous sûr(e) de vouloir vous déconnecter de votre compte ?",
+                                                    confirmText: "Oui, me déconnecter",
+                                                    cancelText: "Annuler",
+                                                    onConfirm: () => handleLogout(navigate)
+                                                });
+                                            }}>
+                                                <span className="mobile-row-icon-bg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444' }}><LogOut size={16} /></span>
+                                                <span className="mobile-row-text-col">
+                                                    <span className="mobile-row-label" style={{ color: '#ef4444' }}>Déconnexion</span>
+                                                    <span className="mobile-row-subtitle">Se déconnecter de votre compte</span>
+                                                </span>
+                                                <span className="mobile-row-arrow"><ChevronRight size={16} /></span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Detail View Container - Kept mounted with CSS display toggle */}
-                        <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
-                            <h1 className="mobile-header-title">{currentItem.label}</h1>
+                            {/* Detail View Container - Kept mounted with CSS display toggle */}
+                            <div className="mobile-tab-content-wrapper" style={{ display: isDetail ? 'block' : 'none' }}>
+                                <h1 className="mobile-header-title">{currentItem.label}</h1>
 
-                            {/* Render active form detail */}
-                            {renderTabContent(true)}
-                        </div>
-                    </PullToRefresh>
-                </div>
+                                {/* Render active form detail */}
+                                {renderTabContent(true)}
+                            </div>
+                        </PullToRefresh>
+                    </div>
+                )}
 
-                <SideBar />
+                <SideBar hideNavOnMobile={isMobile && isDetail && activeTab === "support"} />
 
                 {/* Profile Sub-Sheets (z-index 2200) */}
                 {createPortal(
@@ -1081,7 +1228,14 @@ function SettingsPage() {
                                             className="settings-category-header"
                                             onClick={() => toggleCategory(category.title)}
                                         >
-                                            <span>{category.title}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span>{category.title}</span>
+                                                {category.title === "Communauté" && !isOpen && unreadSupportCount > 0 && (
+                                                    <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '1px 6px', borderRadius: '50px' }}>
+                                                        {unreadSupportCount}
+                                                    </span>
+                                                )}
+                                            </span>
                                             <span className={`category-chevron ${isOpen ? 'open' : ''}`}>
                                                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -1112,8 +1266,13 @@ function SettingsPage() {
                                                                             <ItemIcon size={15} />
                                                                         </span>
                                                                         <span>{item.label}</span>
+                                                                        {item.id === "support" && unreadSupportCount > 0 && (
+                                                                            <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '1px 6px', borderRadius: '50px', marginLeft: 'auto' }}>
+                                                                                {unreadSupportCount}
+                                                                            </span>
+                                                                        )}
                                                                         {item.badge && (
-                                                                            <span style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '50px', marginLeft: 'auto' }}>
+                                                                            <span style={{ backgroundColor: 'var(--sidebar-primary)', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '50px', marginLeft: item.id === "support" && unreadSupportCount > 0 ? '4px' : 'auto' }}>
                                                                                 {item.badge}
                                                                             </span>
                                                                         )}

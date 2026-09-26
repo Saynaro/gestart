@@ -83,13 +83,21 @@ export const initSocket = (httpServer) => {
     });
 
     io.on("connection", (socket) => {
-        const { id: userId, companyId } = socket.user;
+        const { id: userId, companyId, role } = socket.user;
 
         // Rejoindre les rooms isolées pour le multi-tenant
-        socket.join(`company:${companyId}`);
+        if (companyId) {
+            socket.join(`company:${companyId}`);
+        }
         socket.join(`user:${userId}`);
 
-        console.log(`[SOCKET CONNECTED] User ${userId} joined company:${companyId}`);
+        // Si l'utilisateur est SuperAdmin, il rejoint le canal global superadmin
+        if (role === "SUPERADMIN") {
+            socket.join("superadmin");
+            console.log(`[SOCKET CONNECTED] SuperAdmin ${userId} joined room superadmin`);
+        } else {
+            console.log(`[SOCKET CONNECTED] User ${userId} joined company:${companyId}`);
+        }
 
         socket.on("disconnect", (reason) => {
             console.log(`[SOCKET DISCONNECTED] User ${userId} (${reason})`);
@@ -119,6 +127,17 @@ export const emitToCompany = (companyId, event, data) => {
 };
 
 /**
+ * Émet un événement à tous les SuperAdmins connectés
+ * @param {string} event 
+ * @param {any} data 
+ */
+export const emitToSuperadmin = (event, data) => {
+    if (ioInstance) {
+        ioInstance.to("superadmin").emit(event, data);
+    }
+};
+
+/**
  * Émet un événement à un utilisateur spécifique
  * @param {string} userId 
  * @param {string} event 
@@ -129,3 +148,4 @@ export const emitToUser = (userId, event, data) => {
         ioInstance.to(`user:${userId}`).emit(event, data);
     }
 };
+

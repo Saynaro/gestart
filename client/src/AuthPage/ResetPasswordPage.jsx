@@ -127,8 +127,9 @@ export default function ResetPasswordPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        <Link to="/" className="auth-brand-link">
+                            <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                            <span className="auth-brand-text">GestArt</span>
                         </Link>
                     </div>
 
@@ -171,8 +172,9 @@ export default function ResetPasswordPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            <Link to="/" className="auth-brand-link">
+                                <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                                <span className="auth-brand-text">GestArt</span>
                             </Link>
                         </div>
                     </div>
@@ -292,19 +294,19 @@ export default function ResetPasswordPage() {
                                     {(isPasswordFocused || newPassword.length > 0) && (
                                         <div className="password-rules-box">
                                             <div className={`rule-item ${rules.length ? 'valid' : ''}`} style={{ color: rules.length ? '#22C55E' : '#94A3B8' }}>
-                                                {rules.length ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                                <span>Au moins 8 caractères</span>
+                                                {rules.length ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                                <span>8 caractères min.</span>
                                             </div>
                                             <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`} style={{ color: rules.uppercase ? '#22C55E' : '#94A3B8' }}>
-                                                {rules.uppercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                                <span>1 lettre majuscule (A-Z)</span>
+                                                {rules.uppercase ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                                <span>1 majuscule (A-Z)</span>
                                             </div>
                                             <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`} style={{ color: rules.lowercase ? '#22C55E' : '#94A3B8' }}>
-                                                {rules.lowercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                                <span>1 lettre minuscule (a-z)</span>
+                                                {rules.lowercase ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                                <span>1 minuscule (a-z)</span>
                                             </div>
                                             <div className={`rule-item ${rules.number ? 'valid' : ''}`} style={{ color: rules.number ? '#22C55E' : '#94A3B8' }}>
-                                                {rules.number ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
+                                                {rules.number ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
                                                 <span>1 chiffre (0-9)</span>
                                             </div>
                                         </div>

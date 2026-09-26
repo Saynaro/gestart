@@ -1093,6 +1093,21 @@ exports.Prisma.ReminderExecutionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SupportMessageScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  senderId: 'senderId',
+  senderRole: 'senderRole',
+  senderName: 'senderName',
+  senderEmail: 'senderEmail',
+  content: 'content',
+  attachments: 'attachments',
+  readByAdmin: 'readByAdmin',
+  readByOwner: 'readByOwner',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1442,7 +1457,8 @@ exports.Prisma.ModelName = {
   InterventionService: 'InterventionService',
   ReminderAutomation: 'ReminderAutomation',
   ReminderAutomationService: 'ReminderAutomationService',
-  ReminderExecution: 'ReminderExecution'
+  ReminderExecution: 'ReminderExecution',
+  SupportMessage: 'SupportMessage'
 };
 
 /**

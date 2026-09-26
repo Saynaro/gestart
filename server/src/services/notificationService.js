@@ -70,9 +70,6 @@ const DEFAULT_CHANNELS_BY_TYPE = {
     REMINDER_ONE_HOUR: { inapp: true, email: false, push: true }
 };
 
-/**
- * Template HTML premium pour les emails de notification système
- */
 function buildNotificationEmailHtml({ title, body, companyName, actionUrl, actionText }) {
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const targetUrl = actionUrl ? (actionUrl.startsWith("http") ? actionUrl : `${frontendUrl}${actionUrl}`) : frontendUrl;
@@ -82,36 +79,34 @@ function buildNotificationEmailHtml({ title, body, companyName, actionUrl, actio
     <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; }
-            .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-            .header { background: #556B2F; padding: 24px; text-align: center; color: #ffffff; }
-            .header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-            .header p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.9; }
-            .content { padding: 32px 24px; }
-            .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; background: #f0fdf4; color: #166534; font-size: 12px; font-weight: 600; margin-bottom: 16px; border: 1px solid #bbf7d0; }
-            .title { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 12px; }
-            .body-text { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
-            .btn { display: inline-block; background: #556B2F; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; }
-            .footer { padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>${companyName || "GestArt CRM"}</h1>
-                <p>Notification en temps réel</p>
+    <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+        <div style="max-width: 520px; margin: 0 auto; padding: 40px 20px;">
+            <!-- Header Logo -->
+            <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                <tr>
+                    <td style="vertical-align: middle; padding-right: 10px;">
+                        <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="32" height="32" style="display: block; width: 32px; height: 32px; border: 0;" />
+                    </td>
+                    <td style="vertical-align: middle; font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                        ${companyName || "GestArt"}
+                    </td>
+                </tr>
+            </table>
+
+            <h2 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0 0 14px 0; letter-spacing: -0.01em;">${title}</h2>
+            <div style="font-size: 15px; line-height: 1.6; color: #334155; margin-bottom: 24px;">${body}</div>
+
+            <div style="margin: 28px 0 24px 0;">
+                <a href="${targetUrl}" style="background-color: #556B2F; color: #FFFFFF !important; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; display: inline-block;">
+                    ${actionText || "Ouvrir dans GestArt CRM"}
+                </a>
             </div>
-            <div class="content">
-                <span class="badge">Alerte GestArt</span>
-                <h2 class="title">${title}</h2>
-                <div class="body-text">${body}</div>
-                <div style="text-align: center; margin-top: 24px;">
-                    <a href="${targetUrl}" class="btn">${actionText || "Ouvrir dans GestArt CRM"}</a>
-                </div>
-            </div>
-            <div class="footer">
-                Vous recevez cette alerte conformément aux préférences de notifications configurées dans votre espace GestArt CRM.
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                Vous recevez cette notification conformément aux préférences de votre espace GestArt CRM.
+                <p style="margin: 6px 0 0 0;">© ${new Date().getFullYear()} ${companyName || "GestArt CRM"}</p>
             </div>
         </div>
     </body>

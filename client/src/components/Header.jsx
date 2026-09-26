@@ -267,11 +267,22 @@ function Header({ title }) {
             fetchNotifications();
         };
 
+        const handleNewSupportMessage = (msg) => {
+            if (msg.senderRole === "SUPERADMIN") {
+                window.dispatchEvent(new CustomEvent("support-new-message", { detail: msg }));
+                if (!window.location.search.includes("tab=support")) {
+                    setSmsSuccessMsg(`💬 Nouveau message du Support GestArt: "${msg.content.slice(0, 45)}..."`);
+                    setTimeout(() => setSmsSuccessMsg(""), 6000);
+                }
+            }
+        };
+
         socket.on("message:new", handleNewMessage);
         socket.on("message:received", handleNewMessage);
         socket.on("message:read", handleMessageRead);
         socket.on("notification:new", handleNewNotification);
         socket.on("notification:read", handleNewNotification);
+        socket.on("support:new_message", handleNewSupportMessage);
 
         window.addEventListener("messages-read", fetchReceivedMessages);
 
@@ -281,6 +292,7 @@ function Header({ title }) {
             socket.off("message:read", handleMessageRead);
             socket.off("notification:new", handleNewNotification);
             socket.off("notification:read", handleNewNotification);
+            socket.off("support:new_message", handleNewSupportMessage);
             window.removeEventListener("messages-read", fetchReceivedMessages);
         };
     }, [fetchReceivedMessages, fetchNotifications]);
@@ -1168,17 +1180,23 @@ function Header({ title }) {
             </div>
 
             {/* Logout Confirmation Modal */}
-            {showLogoutModal && (
-                <div style={{
-                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', padding: '20px'
-                }}>
-                    <div style={{
-                        backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
-                        borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
-                    }}>
+            {showLogoutModal && typeof document !== "undefined" && createPortal(
+                <div 
+                    onClick={() => setShowLogoutModal(false)}
+                    style={{
+                        position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999999, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }}
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
+                            borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                        }}
+                    >
                         <div style={{
                             width: '52px', height: '52px', borderRadius: '16px',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
@@ -1210,7 +1228,8 @@ function Header({ title }) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

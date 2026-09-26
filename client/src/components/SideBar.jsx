@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./SideBar.css";
@@ -11,7 +12,7 @@ import { Lock } from "lucide-react";
 import { apiFetch } from "../utils/api";
 import { getSocket } from "../utils/socket";
 
-function SideBar({ onFabClick, hideFab = false }) {
+function SideBar({ onFabClick, hideFab = false, hideNavOnMobile = false }) {
     const navigate = useNavigate();
     const location = useLocation();
     const activePath = location.pathname || "/home";
@@ -19,19 +20,28 @@ function SideBar({ onFabClick, hideFab = false }) {
     const { isStarter, displayName, isExpired } = useSubscription();
     const { fullName, initials, email, avatarUrl, role } = useUser();
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+    const [unreadSupportCount, setUnreadSupportCount] = useState(0);
 
     const isTechnician = role === "TECHNICIAN";
     const menuSections = getMenuSections(role);
     const mobileTabBarItems = getMobileTabBarItems(role);
 
-    // Track dynamic unread messages count
+    // Track dynamic unread messages count & unread support messages count
     useEffect(() => {
         if (isTechnician) return;
+
         const fetchUnread = async () => {
             try {
-                const res = await apiFetch("/v1/messages/unread-count");
-                if (res.success && typeof res.data?.total === "number") {
-                    setUnreadMessagesCount(res.data.total);
+                const [msgRes, supRes] = await Promise.all([
+                    apiFetch("/v1/messages/unread-count").catch(() => null),
+                    apiFetch("/v1/support/unread-count").catch(() => null)
+                ]);
+
+                if (msgRes?.success && typeof msgRes.data?.total === "number") {
+                    setUnreadMessagesCount(msgRes.data.total);
+                }
+                if (supRes?.success && typeof supRes.count === "number") {
+                    setUnreadSupportCount(supRes.count);
                 }
             } catch (e) {
                 // Endpoint might not be available or network error
@@ -39,35 +49,62 @@ function SideBar({ onFabClick, hideFab = false }) {
         };
         fetchUnread();
 
-        // Listen for internal app event when user reads messages
+        // Listen for internal app events when user reads messages
         const handleCustomReadEvent = () => fetchUnread();
+        const handleSupportReadEvent = () => setUnreadSupportCount(0);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                fetchUnread();
+            }
+        };
+
         window.addEventListener("messages-read", handleCustomReadEvent);
+        window.addEventListener("support-messages-read", handleSupportReadEvent);
+        window.addEventListener("support-new-message", fetchUnread);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Fallback polling every 20s to ensure mobile and desktop never miss an update
+        const pollInterval = setInterval(fetchUnread, 20000);
 
         const socket = getSocket();
         if (socket) {
-            const handleNewMessage = () => {
-                fetchUnread();
-            };
-            const handleMessageRead = () => {
-                fetchUnread();
-            };
+            const handleNewMessage = () => fetchUnread();
+            const handleMessageRead = () => fetchUnread();
+            const handleNewSupportMessage = () => fetchUnread();
+            const handleSupportMessagesRead = () => setUnreadSupportCount(0);
 
+            socket.on("connect", fetchUnread);
+            socket.on("notification:new", fetchUnread);
             socket.on("message:new", handleNewMessage);
             socket.on("message:received", handleNewMessage);
             socket.on("message:read", handleMessageRead);
+            socket.on("support:new_message", handleNewSupportMessage);
+            socket.on("support:messages_read", handleSupportMessagesRead);
 
             return () => {
+                clearInterval(pollInterval);
                 window.removeEventListener("messages-read", handleCustomReadEvent);
+                window.removeEventListener("support-messages-read", handleSupportReadEvent);
+                window.removeEventListener("support-new-message", fetchUnread);
+                document.removeEventListener("visibilitychange", handleVisibilityChange);
+                socket.off("connect", fetchUnread);
+                socket.off("notification:new", fetchUnread);
                 socket.off("message:new", handleNewMessage);
                 socket.off("message:received", handleNewMessage);
                 socket.off("message:read", handleMessageRead);
+                socket.off("support:new_message", handleNewSupportMessage);
+                socket.off("support:messages_read", handleSupportMessagesRead);
             };
         }
 
         return () => {
+            clearInterval(pollInterval);
             window.removeEventListener("messages-read", handleCustomReadEvent);
+            window.removeEventListener("support-messages-read", handleSupportReadEvent);
+            window.removeEventListener("support-new-message", fetchUnread);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
-    }, []);
+    }, [isTechnician]);
 
     // Close bottom sheet on route changes (including back navigation)
     useEffect(() => {
@@ -151,6 +188,9 @@ function SideBar({ onFabClick, hideFab = false }) {
         if (path.includes("catalogue") || path.includes("article")) {
             return { label: "Nouvel article", icon: Icons.plus };
         }
+        if (path.includes("technicien")) {
+            return isTechnician ? null : { label: "Inviter un technicien", icon: Icons.plus };
+        }
         return null;
     };
 
@@ -215,6 +255,9 @@ function SideBar({ onFabClick, hideFab = false }) {
                                     let badge = (item.proOnly && isStarter) ? "PRO" : item.badge;
                                     if (item.path === "/messages") {
                                         badge = unreadMessagesCount > 0 ? unreadMessagesCount : undefined;
+                                    }
+                                    if (item.path === "/settings") {
+                                        badge = unreadSupportCount > 0 ? unreadSupportCount : undefined;
                                     }
                                     const showLock = isExpired && (item.path === "/premium" || (item.proOnly && isStarter));
                                     return (
@@ -365,17 +408,23 @@ function SideBar({ onFabClick, hideFab = false }) {
             </div>
 
             {/* Logout Confirmation Modal */}
-            {showLogoutModal && (
-                <div style={{
-                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', padding: '20px'
-                }}>
-                    <div style={{
-                        backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
-                        borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
-                    }}>
+            {showLogoutModal && typeof document !== "undefined" && createPortal(
+                <div 
+                    onClick={() => setShowLogoutModal(false)}
+                    style={{
+                        position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999999, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }}
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
+                            borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                        }}
+                    >
                         <div style={{
                             width: '52px', height: '52px', borderRadius: '16px',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
@@ -411,12 +460,13 @@ function SideBar({ onFabClick, hideFab = false }) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {fabConfig && !hideFab && (
                 <button
-                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : activePath.toLowerCase().includes("catalogue") ? "catalogue" : "factures"}`}
+                    className={`mobile-fab ${isFabCollapsed ? "collapsed" : ""} type-${activePath.toLowerCase().includes("client") ? "clients" : activePath.toLowerCase().includes("planning") ? "planning" : activePath.toLowerCase().includes("catalogue") ? "catalogue" : activePath.toLowerCase().includes("technicien") ? "techniciens" : "factures"}`}
                     onClick={(e) => {
                         if (isExpired) {
                             window.dispatchEvent(new CustomEvent('subscription_expired', {
@@ -433,6 +483,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                             else if (path.includes("factures")) navigate("/factures", { state: { openNewModal: true } });
                             else if (path.includes("devis")) navigate("/devis", { state: { openNewModal: true } });
                             else if (path.includes("catalogue")) navigate("/catalogue", { state: { openNewModal: true } });
+                            else if (path.includes("technicien")) navigate("/techniciens");
                         }
                     }}
                 >
@@ -442,76 +493,100 @@ function SideBar({ onFabClick, hideFab = false }) {
             )}
 
             {/* Mobile Bottom Tab Bar */}
-            <nav className="mobile-bottom-nav">
-                {mobileTabBarItems.map((item, index) => {
-                    const isTabActive = item.isPlus
-                        ? bottomSheetOpen
-                        : (item.path === activePath ||
-                           (item.path === "/home" && (activePath === "/" || activePath === "/home" || activePath === "/dashboard")) ||
-                           (item.path === "/client" && (activePath.startsWith("/client"))) ||
-                           (item.path === "/planning" && activePath.startsWith("/planning")) ||
-                           (item.path === "/messages" && activePath.startsWith("/messages")));
-                    const isMessages = item.path === "/messages";
+            {!hideNavOnMobile && (
+                <nav className="mobile-bottom-nav">
+                    {mobileTabBarItems.map((item, index) => {
+                        const isTabActive = item.isPlus
+                            ? bottomSheetOpen
+                            : (item.path === activePath ||
+                               (item.path === "/home" && (activePath === "/" || activePath === "/home" || activePath === "/dashboard")) ||
+                               (item.path === "/client" && (activePath.startsWith("/client"))) ||
+                               (item.path === "/planning" && activePath.startsWith("/planning")) ||
+                               (item.path === "/messages" && activePath.startsWith("/messages")));
+                        const isMessages = item.path === "/messages";
 
-                    return (
-                        <motion.a
-                            key={item.title || index}
-                            href={item.path}
-                            onClick={(e) => {
-                                if (item.isPlus) {
-                                    e.preventDefault();
-                                    setBottomSheetOpen(true);
-                                } else {
-                                    navigateTo(e, item.path);
-                                }
-                            }}
-                            whileTap={{ scale: 0.88 }}
-                            transition={{ type: "spring", stiffness: 450, damping: 20 }}
-                            className={`mobile-nav-item ${isTabActive ? "active" : ""}`}
-                        >
-                            <div className="mobile-nav-icon-wrapper">
-                                {isTabActive && (
-                                    <motion.div
-                                        layoutId="mobileActiveTabIndicator"
-                                        className="mobile-nav-active-pill"
-                                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
-                                    />
-                                )}
-                                <motion.span
-                                    className="mobile-nav-icon"
-                                    animate={isTabActive ? { scale: [1, 1.22, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
-                                    transition={{ duration: 0.3, ease: "easeOut" }}
-                                >
-                                    {Icons[item.iconKey]}
-                                </motion.span>
-                                {isMessages && unreadMessagesCount > 0 && (
-                                    <span style={{
-                                        position: 'absolute',
-                                        top: '-4px',
-                                        right: '-6px',
-                                        backgroundColor: '#EF4444',
-                                        color: '#ffffff',
-                                        fontSize: '10px',
-                                        fontWeight: 800,
-                                        minWidth: '16px',
-                                        height: '16px',
-                                        borderRadius: '999px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '0 4px',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                        zIndex: 3
-                                    }}>
-                                        {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
-                                    </span>
-                                )}
-                            </div>
-                            <span className="mobile-nav-title">{item.title}</span>
-                        </motion.a>
-                    );
-                })}
-            </nav>
+                        return (
+                            <motion.a
+                                key={item.title || index}
+                                href={item.path}
+                                onClick={(e) => {
+                                    if (item.isPlus) {
+                                        e.preventDefault();
+                                        setBottomSheetOpen(true);
+                                    } else {
+                                        navigateTo(e, item.path);
+                                    }
+                                }}
+                                whileTap={{ scale: 0.88 }}
+                                transition={{ type: "spring", stiffness: 450, damping: 20 }}
+                                className={`mobile-nav-item ${isTabActive ? "active" : ""}`}
+                            >
+                                <div className="mobile-nav-icon-wrapper">
+                                    {isTabActive && (
+                                        <motion.div
+                                            layoutId="mobileActiveTabIndicator"
+                                            className="mobile-nav-active-pill"
+                                            transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                                        />
+                                    )}
+                                    <motion.span
+                                        className="mobile-nav-icon"
+                                        animate={isTabActive ? { scale: [1, 1.22, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                    >
+                                        {Icons[item.iconKey]}
+                                    </motion.span>
+                                    {isMessages && unreadMessagesCount > 0 && (
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '-4px',
+                                            right: '-6px',
+                                            backgroundColor: '#EF4444',
+                                            color: '#ffffff',
+                                            fontSize: '10px',
+                                            fontWeight: 800,
+                                            minWidth: '16px',
+                                            height: '16px',
+                                            borderRadius: '999px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            padding: '0 4px',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                            zIndex: 3
+                                        }}>
+                                            {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                                        </span>
+                                    )}
+                                    {item.isPlus && unreadSupportCount > 0 && (
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '-4px',
+                                            right: '-6px',
+                                            backgroundColor: '#EF4444',
+                                            color: '#ffffff',
+                                            fontSize: '10px',
+                                            fontWeight: 800,
+                                            minWidth: '16px',
+                                            height: '16px',
+                                            borderRadius: '999px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            padding: '0 4px',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                            zIndex: 3
+                                        }}>
+                                            {unreadSupportCount > 99 ? '99+' : unreadSupportCount}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="mobile-nav-title">{item.title}</span>
+                            </motion.a>
+                        );
+                    })}
+                </nav>
+            )}
 
             {/* Mobile Bottom Sheet (Framer Motion + Tailwind CSS) */}
             <BottomSheet
@@ -520,6 +595,7 @@ function SideBar({ onFabClick, hideFab = false }) {
                 activePath={activePath}
                 navigateTo={navigateTo}
                 unreadMessagesCount={unreadMessagesCount}
+                unreadSupportCount={unreadSupportCount}
             />
         </>
     );

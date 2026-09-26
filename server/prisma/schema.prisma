@@ -471,6 +471,7 @@ model Company {
   receivedInvoices      ReceivedInvoice[]
   einvoicingEvents      EInvoicingEvent[]
   einvoicingJobs        EInvoicingJob[]
+  supportMessages       SupportMessage[]
 }
 
 // ============================================================
@@ -2460,4 +2461,28 @@ model ReminderExecution {
   @@index([companyId, status])
 }
 
+// ============================================================
+// SUPPORT MESSAGE (DIRECT SUPPORT OWNER <-> SUPERADMIN)
+// ============================================================
+model SupportMessage {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  senderId    String
+  senderRole  UserRole // OWNER, SUPERADMIN, etc.
+  senderName  String
+  senderEmail String?
+  content     String
+  attachments Json?    // Array of files/images if any
+  readByAdmin Boolean  @default(false)
+  readByOwner Boolean  @default(false)
 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([companyId, readByAdmin])
+  @@index([companyId, readByOwner])
+}

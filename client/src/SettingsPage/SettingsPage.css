@@ -341,13 +341,17 @@
 
 /* Clear crisp input border separation in dark mode */
 .dark .form-input,
-:root.dark .form-input {
+:root.dark .form-input,
+.dark .form-field .phone-input-container,
+:root.dark .form-field .phone-input-container {
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
     background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 .dark .form-input:focus,
-:root.dark .form-input:focus {
+:root.dark .form-input:focus,
+.dark .form-field .phone-input-container:focus-within,
+:root.dark .form-field .phone-input-container:focus-within {
     border-color: var(--sidebar-primary) !important;
     box-shadow: 0 0 0 3px rgba(95, 75, 219, 0.25) !important;
 }
@@ -603,10 +607,16 @@
     flex-direction: column;
     height: 100vh;
     height: 100dvh;
+    width: 100vw;
+    max-width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     overflow: hidden;
     background-color: var(--background) !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    position: relative;
 }
 
 /* Scrollable container underneath the fixed header */
@@ -618,6 +628,14 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     padding-bottom: calc(95px + env(safe-area-inset-bottom, 16px));
+}
+
+.mobile-settings-scroll-container.mobile-support-mode {
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100dvh - 56px - env(safe-area-inset-top, 0px)) !important;
 }
 
 /* Mobile header styling - locked firmly at top, never moves on overscroll */
@@ -1652,6 +1670,19 @@ input:checked+.toggle-slider:before {
         padding: 0 16px calc(95px + env(safe-area-inset-bottom, 16px)) 16px !important;
         box-sizing: border-box !important;
         width: 100% !important;
+    }
+
+    .mobile-tab-content-wrapper.mobile-support-fullscreen {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        flex: 1 1 0 !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
     }
 
     .mobile-fields-stack,

@@ -64,7 +64,7 @@ export function SubscriptionSuccessPage() {
                     Félicitations ! 🎉
                 </h1>
                 <p style={{ color: '#94A3B8', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '32px' }}>
-                    Votre abonnement ClimPro CRM a été activé avec succès. Toutes vos fonctionnalités Premium sont débloquées.
+                    Votre abonnement GestArt CRM a été activé avec succès. Toutes vos fonctionnalités Premium sont débloquées.
                 </p>
 
                 <button

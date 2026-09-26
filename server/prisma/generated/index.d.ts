@@ -263,6 +263,11 @@ export type ReminderAutomationService = $Result.DefaultSelection<Prisma.$Reminde
  * 
  */
 export type ReminderExecution = $Result.DefaultSelection<Prisma.$ReminderExecutionPayload>
+/**
+ * Model SupportMessage
+ * 
+ */
+export type SupportMessage = $Result.DefaultSelection<Prisma.$SupportMessagePayload>
 
 /**
  * Enums
@@ -1418,6 +1423,16 @@ export class PrismaClient<
     * ```
     */
   get reminderExecution(): Prisma.ReminderExecutionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supportMessage`: Exposes CRUD operations for the **SupportMessage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportMessages
+    * const supportMessages = await prisma.supportMessage.findMany()
+    * ```
+    */
+  get supportMessage(): Prisma.SupportMessageDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1901,7 +1916,8 @@ export namespace Prisma {
     InterventionService: 'InterventionService',
     ReminderAutomation: 'ReminderAutomation',
     ReminderAutomationService: 'ReminderAutomationService',
-    ReminderExecution: 'ReminderExecution'
+    ReminderExecution: 'ReminderExecution',
+    SupportMessage: 'SupportMessage'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1917,7 +1933,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "whatsAppConnection" | "emailConnection" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction" | "serviceType" | "interventionService" | "reminderAutomation" | "reminderAutomationService" | "reminderExecution"
+      modelProps: "plan" | "company" | "companyTradeCategory" | "tradeCategory" | "subscription" | "payment" | "companySettings" | "user" | "userSession" | "loginHistory" | "pushToken" | "invitation" | "catalogItem" | "interventionTypeItem" | "client" | "equipment" | "intervention" | "interventionPhoto" | "quote" | "quoteLine" | "invoice" | "invoiceLine" | "smsLog" | "whatsAppConnection" | "emailConnection" | "smsUsage" | "notification" | "quoteRequest" | "accountingExport" | "tvaSummary" | "accountingIntegration" | "invoicePaymentEvent" | "auditLog" | "adminUser" | "adminSession" | "adminAuditLog" | "eInvoicingConnection" | "receivedInvoice" | "eInvoicingEvent" | "eInvoicingJob" | "invoiceTransaction" | "stripeFeeConfig" | "bankConnection" | "bankAccount" | "bankTransaction" | "serviceType" | "interventionService" | "reminderAutomation" | "reminderAutomationService" | "reminderExecution" | "supportMessage"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5621,6 +5637,80 @@ export namespace Prisma {
           }
         }
       }
+      SupportMessage: {
+        payload: Prisma.$SupportMessagePayload<ExtArgs>
+        fields: Prisma.SupportMessageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportMessageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportMessageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          findFirst: {
+            args: Prisma.SupportMessageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportMessageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          findMany: {
+            args: Prisma.SupportMessageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>[]
+          }
+          create: {
+            args: Prisma.SupportMessageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          createMany: {
+            args: Prisma.SupportMessageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SupportMessageCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>[]
+          }
+          delete: {
+            args: Prisma.SupportMessageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          update: {
+            args: Prisma.SupportMessageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportMessageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportMessageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SupportMessageUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>[]
+          }
+          upsert: {
+            args: Prisma.SupportMessageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportMessagePayload>
+          }
+          aggregate: {
+            args: Prisma.SupportMessageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportMessage>
+          }
+          groupBy: {
+            args: Prisma.SupportMessageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportMessageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SupportMessageCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportMessageCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5779,6 +5869,7 @@ export namespace Prisma {
     reminderAutomation?: ReminderAutomationOmit
     reminderAutomationService?: ReminderAutomationServiceOmit
     reminderExecution?: ReminderExecutionOmit
+    supportMessage?: SupportMessageOmit
   }
 
   /* Types for Logging */
@@ -5917,6 +6008,7 @@ export namespace Prisma {
     receivedInvoices: number
     einvoicingEvents: number
     einvoicingJobs: number
+    supportMessages: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5947,6 +6039,7 @@ export namespace Prisma {
     receivedInvoices?: boolean | CompanyCountOutputTypeCountReceivedInvoicesArgs
     einvoicingEvents?: boolean | CompanyCountOutputTypeCountEinvoicingEventsArgs
     einvoicingJobs?: boolean | CompanyCountOutputTypeCountEinvoicingJobsArgs
+    supportMessages?: boolean | CompanyCountOutputTypeCountSupportMessagesArgs
   }
 
   // Custom InputTypes
@@ -6147,6 +6240,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountEinvoicingJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EInvoicingJobWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountSupportMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportMessageWhereInput
   }
 
 
@@ -8718,6 +8818,7 @@ export namespace Prisma {
     receivedInvoices?: boolean | Company$receivedInvoicesArgs<ExtArgs>
     einvoicingEvents?: boolean | Company$einvoicingEventsArgs<ExtArgs>
     einvoicingJobs?: boolean | Company$einvoicingJobsArgs<ExtArgs>
+    supportMessages?: boolean | Company$supportMessagesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -8857,6 +8958,7 @@ export namespace Prisma {
     receivedInvoices?: boolean | Company$receivedInvoicesArgs<ExtArgs>
     einvoicingEvents?: boolean | Company$einvoicingEventsArgs<ExtArgs>
     einvoicingJobs?: boolean | Company$einvoicingJobsArgs<ExtArgs>
+    supportMessages?: boolean | Company$supportMessagesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -8897,6 +8999,7 @@ export namespace Prisma {
       receivedInvoices: Prisma.$ReceivedInvoicePayload<ExtArgs>[]
       einvoicingEvents: Prisma.$EInvoicingEventPayload<ExtArgs>[]
       einvoicingJobs: Prisma.$EInvoicingJobPayload<ExtArgs>[]
+      supportMessages: Prisma.$SupportMessagePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9356,6 +9459,7 @@ export namespace Prisma {
     receivedInvoices<T extends Company$receivedInvoicesArgs<ExtArgs> = {}>(args?: Subset<T, Company$receivedInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReceivedInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     einvoicingEvents<T extends Company$einvoicingEventsArgs<ExtArgs> = {}>(args?: Subset<T, Company$einvoicingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     einvoicingJobs<T extends Company$einvoicingJobsArgs<ExtArgs> = {}>(args?: Subset<T, Company$einvoicingJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EInvoicingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    supportMessages<T extends Company$supportMessagesArgs<ExtArgs> = {}>(args?: Subset<T, Company$supportMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10549,6 +10653,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: EInvoicingJobScalarFieldEnum | EInvoicingJobScalarFieldEnum[]
+  }
+
+  /**
+   * Company.supportMessages
+   */
+  export type Company$supportMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    where?: SupportMessageWhereInput
+    orderBy?: SupportMessageOrderByWithRelationInput | SupportMessageOrderByWithRelationInput[]
+    cursor?: SupportMessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportMessageScalarFieldEnum | SupportMessageScalarFieldEnum[]
   }
 
   /**
@@ -71486,6 +71614,1156 @@ export namespace Prisma {
 
 
   /**
+   * Model SupportMessage
+   */
+
+  export type AggregateSupportMessage = {
+    _count: SupportMessageCountAggregateOutputType | null
+    _min: SupportMessageMinAggregateOutputType | null
+    _max: SupportMessageMaxAggregateOutputType | null
+  }
+
+  export type SupportMessageMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    senderId: string | null
+    senderRole: $Enums.UserRole | null
+    senderName: string | null
+    senderEmail: string | null
+    content: string | null
+    readByAdmin: boolean | null
+    readByOwner: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupportMessageMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    senderId: string | null
+    senderRole: $Enums.UserRole | null
+    senderName: string | null
+    senderEmail: string | null
+    content: string | null
+    readByAdmin: boolean | null
+    readByOwner: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SupportMessageCountAggregateOutputType = {
+    id: number
+    companyId: number
+    senderId: number
+    senderRole: number
+    senderName: number
+    senderEmail: number
+    content: number
+    attachments: number
+    readByAdmin: number
+    readByOwner: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SupportMessageMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    senderId?: true
+    senderRole?: true
+    senderName?: true
+    senderEmail?: true
+    content?: true
+    readByAdmin?: true
+    readByOwner?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupportMessageMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    senderId?: true
+    senderRole?: true
+    senderName?: true
+    senderEmail?: true
+    content?: true
+    readByAdmin?: true
+    readByOwner?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SupportMessageCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    senderId?: true
+    senderRole?: true
+    senderName?: true
+    senderEmail?: true
+    content?: true
+    attachments?: true
+    readByAdmin?: true
+    readByOwner?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SupportMessageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportMessage to aggregate.
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportMessages to fetch.
+     */
+    orderBy?: SupportMessageOrderByWithRelationInput | SupportMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportMessages
+    **/
+    _count?: true | SupportMessageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportMessageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportMessageMaxAggregateInputType
+  }
+
+  export type GetSupportMessageAggregateType<T extends SupportMessageAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportMessage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportMessage[P]>
+      : GetScalarType<T[P], AggregateSupportMessage[P]>
+  }
+
+
+
+
+  export type SupportMessageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportMessageWhereInput
+    orderBy?: SupportMessageOrderByWithAggregationInput | SupportMessageOrderByWithAggregationInput[]
+    by: SupportMessageScalarFieldEnum[] | SupportMessageScalarFieldEnum
+    having?: SupportMessageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportMessageCountAggregateInputType | true
+    _min?: SupportMessageMinAggregateInputType
+    _max?: SupportMessageMaxAggregateInputType
+  }
+
+  export type SupportMessageGroupByOutputType = {
+    id: string
+    companyId: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail: string | null
+    content: string
+    attachments: JsonValue | null
+    readByAdmin: boolean
+    readByOwner: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: SupportMessageCountAggregateOutputType | null
+    _min: SupportMessageMinAggregateOutputType | null
+    _max: SupportMessageMaxAggregateOutputType | null
+  }
+
+  type GetSupportMessageGroupByPayload<T extends SupportMessageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportMessageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportMessageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportMessageGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportMessageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportMessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    senderId?: boolean
+    senderRole?: boolean
+    senderName?: boolean
+    senderEmail?: boolean
+    content?: boolean
+    attachments?: boolean
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportMessage"]>
+
+  export type SupportMessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    senderId?: boolean
+    senderRole?: boolean
+    senderName?: boolean
+    senderEmail?: boolean
+    content?: boolean
+    attachments?: boolean
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportMessage"]>
+
+  export type SupportMessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    senderId?: boolean
+    senderRole?: boolean
+    senderName?: boolean
+    senderEmail?: boolean
+    content?: boolean
+    attachments?: boolean
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportMessage"]>
+
+  export type SupportMessageSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    senderId?: boolean
+    senderRole?: boolean
+    senderName?: boolean
+    senderEmail?: boolean
+    content?: boolean
+    attachments?: boolean
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SupportMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "senderId" | "senderRole" | "senderName" | "senderEmail" | "content" | "attachments" | "readByAdmin" | "readByOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["supportMessage"]>
+  export type SupportMessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type SupportMessageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type SupportMessageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $SupportMessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportMessage"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      senderId: string
+      senderRole: $Enums.UserRole
+      senderName: string
+      senderEmail: string | null
+      content: string
+      attachments: Prisma.JsonValue | null
+      readByAdmin: boolean
+      readByOwner: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["supportMessage"]>
+    composites: {}
+  }
+
+  type SupportMessageGetPayload<S extends boolean | null | undefined | SupportMessageDefaultArgs> = $Result.GetResult<Prisma.$SupportMessagePayload, S>
+
+  type SupportMessageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportMessageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportMessageCountAggregateInputType | true
+    }
+
+  export interface SupportMessageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportMessage'], meta: { name: 'SupportMessage' } }
+    /**
+     * Find zero or one SupportMessage that matches the filter.
+     * @param {SupportMessageFindUniqueArgs} args - Arguments to find a SupportMessage
+     * @example
+     * // Get one SupportMessage
+     * const supportMessage = await prisma.supportMessage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportMessageFindUniqueArgs>(args: SelectSubset<T, SupportMessageFindUniqueArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportMessage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportMessageFindUniqueOrThrowArgs} args - Arguments to find a SupportMessage
+     * @example
+     * // Get one SupportMessage
+     * const supportMessage = await prisma.supportMessage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportMessageFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportMessageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportMessage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageFindFirstArgs} args - Arguments to find a SupportMessage
+     * @example
+     * // Get one SupportMessage
+     * const supportMessage = await prisma.supportMessage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportMessageFindFirstArgs>(args?: SelectSubset<T, SupportMessageFindFirstArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportMessage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageFindFirstOrThrowArgs} args - Arguments to find a SupportMessage
+     * @example
+     * // Get one SupportMessage
+     * const supportMessage = await prisma.supportMessage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportMessageFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportMessageFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportMessages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportMessages
+     * const supportMessages = await prisma.supportMessage.findMany()
+     * 
+     * // Get first 10 SupportMessages
+     * const supportMessages = await prisma.supportMessage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportMessageWithIdOnly = await prisma.supportMessage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportMessageFindManyArgs>(args?: SelectSubset<T, SupportMessageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportMessage.
+     * @param {SupportMessageCreateArgs} args - Arguments to create a SupportMessage.
+     * @example
+     * // Create one SupportMessage
+     * const SupportMessage = await prisma.supportMessage.create({
+     *   data: {
+     *     // ... data to create a SupportMessage
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportMessageCreateArgs>(args: SelectSubset<T, SupportMessageCreateArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportMessages.
+     * @param {SupportMessageCreateManyArgs} args - Arguments to create many SupportMessages.
+     * @example
+     * // Create many SupportMessages
+     * const supportMessage = await prisma.supportMessage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportMessageCreateManyArgs>(args?: SelectSubset<T, SupportMessageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SupportMessages and returns the data saved in the database.
+     * @param {SupportMessageCreateManyAndReturnArgs} args - Arguments to create many SupportMessages.
+     * @example
+     * // Create many SupportMessages
+     * const supportMessage = await prisma.supportMessage.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SupportMessages and only return the `id`
+     * const supportMessageWithIdOnly = await prisma.supportMessage.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SupportMessageCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportMessageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SupportMessage.
+     * @param {SupportMessageDeleteArgs} args - Arguments to delete one SupportMessage.
+     * @example
+     * // Delete one SupportMessage
+     * const SupportMessage = await prisma.supportMessage.delete({
+     *   where: {
+     *     // ... filter to delete one SupportMessage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportMessageDeleteArgs>(args: SelectSubset<T, SupportMessageDeleteArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportMessage.
+     * @param {SupportMessageUpdateArgs} args - Arguments to update one SupportMessage.
+     * @example
+     * // Update one SupportMessage
+     * const supportMessage = await prisma.supportMessage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportMessageUpdateArgs>(args: SelectSubset<T, SupportMessageUpdateArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportMessages.
+     * @param {SupportMessageDeleteManyArgs} args - Arguments to filter SupportMessages to delete.
+     * @example
+     * // Delete a few SupportMessages
+     * const { count } = await prisma.supportMessage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportMessageDeleteManyArgs>(args?: SelectSubset<T, SupportMessageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportMessages
+     * const supportMessage = await prisma.supportMessage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportMessageUpdateManyArgs>(args: SelectSubset<T, SupportMessageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportMessages and returns the data updated in the database.
+     * @param {SupportMessageUpdateManyAndReturnArgs} args - Arguments to update many SupportMessages.
+     * @example
+     * // Update many SupportMessages
+     * const supportMessage = await prisma.supportMessage.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SupportMessages and only return the `id`
+     * const supportMessageWithIdOnly = await prisma.supportMessage.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SupportMessageUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportMessageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SupportMessage.
+     * @param {SupportMessageUpsertArgs} args - Arguments to update or create a SupportMessage.
+     * @example
+     * // Update or create a SupportMessage
+     * const supportMessage = await prisma.supportMessage.upsert({
+     *   create: {
+     *     // ... data to create a SupportMessage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportMessage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportMessageUpsertArgs>(args: SelectSubset<T, SupportMessageUpsertArgs<ExtArgs>>): Prisma__SupportMessageClient<$Result.GetResult<Prisma.$SupportMessagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SupportMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageCountArgs} args - Arguments to filter SupportMessages to count.
+     * @example
+     * // Count the number of SupportMessages
+     * const count = await prisma.supportMessage.count({
+     *   where: {
+     *     // ... the filter for the SupportMessages we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportMessageCountArgs>(
+      args?: Subset<T, SupportMessageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportMessageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportMessageAggregateArgs>(args: Subset<T, SupportMessageAggregateArgs>): Prisma.PrismaPromise<GetSupportMessageAggregateType<T>>
+
+    /**
+     * Group by SupportMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportMessageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportMessageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportMessageGroupByArgs['orderBy'] }
+        : { orderBy?: SupportMessageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportMessageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportMessageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportMessage model
+   */
+  readonly fields: SupportMessageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportMessage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportMessageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportMessage model
+   */
+  interface SupportMessageFieldRefs {
+    readonly id: FieldRef<"SupportMessage", 'String'>
+    readonly companyId: FieldRef<"SupportMessage", 'String'>
+    readonly senderId: FieldRef<"SupportMessage", 'String'>
+    readonly senderRole: FieldRef<"SupportMessage", 'UserRole'>
+    readonly senderName: FieldRef<"SupportMessage", 'String'>
+    readonly senderEmail: FieldRef<"SupportMessage", 'String'>
+    readonly content: FieldRef<"SupportMessage", 'String'>
+    readonly attachments: FieldRef<"SupportMessage", 'Json'>
+    readonly readByAdmin: FieldRef<"SupportMessage", 'Boolean'>
+    readonly readByOwner: FieldRef<"SupportMessage", 'Boolean'>
+    readonly createdAt: FieldRef<"SupportMessage", 'DateTime'>
+    readonly updatedAt: FieldRef<"SupportMessage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportMessage findUnique
+   */
+  export type SupportMessageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportMessage to fetch.
+     */
+    where: SupportMessageWhereUniqueInput
+  }
+
+  /**
+   * SupportMessage findUniqueOrThrow
+   */
+  export type SupportMessageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportMessage to fetch.
+     */
+    where: SupportMessageWhereUniqueInput
+  }
+
+  /**
+   * SupportMessage findFirst
+   */
+  export type SupportMessageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportMessage to fetch.
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportMessages to fetch.
+     */
+    orderBy?: SupportMessageOrderByWithRelationInput | SupportMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportMessages.
+     */
+    cursor?: SupportMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportMessages.
+     */
+    distinct?: SupportMessageScalarFieldEnum | SupportMessageScalarFieldEnum[]
+  }
+
+  /**
+   * SupportMessage findFirstOrThrow
+   */
+  export type SupportMessageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportMessage to fetch.
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportMessages to fetch.
+     */
+    orderBy?: SupportMessageOrderByWithRelationInput | SupportMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportMessages.
+     */
+    cursor?: SupportMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportMessages.
+     */
+    distinct?: SupportMessageScalarFieldEnum | SupportMessageScalarFieldEnum[]
+  }
+
+  /**
+   * SupportMessage findMany
+   */
+  export type SupportMessageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportMessages to fetch.
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportMessages to fetch.
+     */
+    orderBy?: SupportMessageOrderByWithRelationInput | SupportMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportMessages.
+     */
+    cursor?: SupportMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportMessages.
+     */
+    distinct?: SupportMessageScalarFieldEnum | SupportMessageScalarFieldEnum[]
+  }
+
+  /**
+   * SupportMessage create
+   */
+  export type SupportMessageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportMessage.
+     */
+    data: XOR<SupportMessageCreateInput, SupportMessageUncheckedCreateInput>
+  }
+
+  /**
+   * SupportMessage createMany
+   */
+  export type SupportMessageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportMessages.
+     */
+    data: SupportMessageCreateManyInput | SupportMessageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SupportMessage createManyAndReturn
+   */
+  export type SupportMessageCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * The data used to create many SupportMessages.
+     */
+    data: SupportMessageCreateManyInput | SupportMessageCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportMessage update
+   */
+  export type SupportMessageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportMessage.
+     */
+    data: XOR<SupportMessageUpdateInput, SupportMessageUncheckedUpdateInput>
+    /**
+     * Choose, which SupportMessage to update.
+     */
+    where: SupportMessageWhereUniqueInput
+  }
+
+  /**
+   * SupportMessage updateMany
+   */
+  export type SupportMessageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportMessages.
+     */
+    data: XOR<SupportMessageUpdateManyMutationInput, SupportMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportMessages to update
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * Limit how many SupportMessages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportMessage updateManyAndReturn
+   */
+  export type SupportMessageUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * The data used to update SupportMessages.
+     */
+    data: XOR<SupportMessageUpdateManyMutationInput, SupportMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportMessages to update
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * Limit how many SupportMessages to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportMessage upsert
+   */
+  export type SupportMessageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportMessage to update in case it exists.
+     */
+    where: SupportMessageWhereUniqueInput
+    /**
+     * In case the SupportMessage found by the `where` argument doesn't exist, create a new SupportMessage with this data.
+     */
+    create: XOR<SupportMessageCreateInput, SupportMessageUncheckedCreateInput>
+    /**
+     * In case the SupportMessage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportMessageUpdateInput, SupportMessageUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportMessage delete
+   */
+  export type SupportMessageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+    /**
+     * Filter which SupportMessage to delete.
+     */
+    where: SupportMessageWhereUniqueInput
+  }
+
+  /**
+   * SupportMessage deleteMany
+   */
+  export type SupportMessageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportMessages to delete
+     */
+    where?: SupportMessageWhereInput
+    /**
+     * Limit how many SupportMessages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportMessage without action
+   */
+  export type SupportMessageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportMessage
+     */
+    select?: SupportMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportMessage
+     */
+    omit?: SupportMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportMessageInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -72622,6 +73900,24 @@ export namespace Prisma {
   export type ReminderExecutionScalarFieldEnum = (typeof ReminderExecutionScalarFieldEnum)[keyof typeof ReminderExecutionScalarFieldEnum]
 
 
+  export const SupportMessageScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    senderId: 'senderId',
+    senderRole: 'senderRole',
+    senderName: 'senderName',
+    senderEmail: 'senderEmail',
+    content: 'content',
+    attachments: 'attachments',
+    readByAdmin: 'readByAdmin',
+    readByOwner: 'readByOwner',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SupportMessageScalarFieldEnum = (typeof SupportMessageScalarFieldEnum)[keyof typeof SupportMessageScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -73449,6 +74745,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceListRelationFilter
     einvoicingEvents?: EInvoicingEventListRelationFilter
     einvoicingJobs?: EInvoicingJobListRelationFilter
+    supportMessages?: SupportMessageListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -73515,6 +74812,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceOrderByRelationAggregateInput
     einvoicingEvents?: EInvoicingEventOrderByRelationAggregateInput
     einvoicingJobs?: EInvoicingJobOrderByRelationAggregateInput
+    supportMessages?: SupportMessageOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -73584,6 +74882,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceListRelationFilter
     einvoicingEvents?: EInvoicingEventListRelationFilter
     einvoicingJobs?: EInvoicingJobListRelationFilter
+    supportMessages?: SupportMessageListRelationFilter
   }, "id" | "siret" | "siren" | "slug" | "stripeAccountId">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -79255,6 +80554,96 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ReminderExecution"> | Date | string
   }
 
+  export type SupportMessageWhereInput = {
+    AND?: SupportMessageWhereInput | SupportMessageWhereInput[]
+    OR?: SupportMessageWhereInput[]
+    NOT?: SupportMessageWhereInput | SupportMessageWhereInput[]
+    id?: StringFilter<"SupportMessage"> | string
+    companyId?: StringFilter<"SupportMessage"> | string
+    senderId?: StringFilter<"SupportMessage"> | string
+    senderRole?: EnumUserRoleFilter<"SupportMessage"> | $Enums.UserRole
+    senderName?: StringFilter<"SupportMessage"> | string
+    senderEmail?: StringNullableFilter<"SupportMessage"> | string | null
+    content?: StringFilter<"SupportMessage"> | string
+    attachments?: JsonNullableFilter<"SupportMessage">
+    readByAdmin?: BoolFilter<"SupportMessage"> | boolean
+    readByOwner?: BoolFilter<"SupportMessage"> | boolean
+    createdAt?: DateTimeFilter<"SupportMessage"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportMessage"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }
+
+  export type SupportMessageOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    senderId?: SortOrder
+    senderRole?: SortOrder
+    senderName?: SortOrder
+    senderEmail?: SortOrderInput | SortOrder
+    content?: SortOrder
+    attachments?: SortOrderInput | SortOrder
+    readByAdmin?: SortOrder
+    readByOwner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type SupportMessageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SupportMessageWhereInput | SupportMessageWhereInput[]
+    OR?: SupportMessageWhereInput[]
+    NOT?: SupportMessageWhereInput | SupportMessageWhereInput[]
+    companyId?: StringFilter<"SupportMessage"> | string
+    senderId?: StringFilter<"SupportMessage"> | string
+    senderRole?: EnumUserRoleFilter<"SupportMessage"> | $Enums.UserRole
+    senderName?: StringFilter<"SupportMessage"> | string
+    senderEmail?: StringNullableFilter<"SupportMessage"> | string | null
+    content?: StringFilter<"SupportMessage"> | string
+    attachments?: JsonNullableFilter<"SupportMessage">
+    readByAdmin?: BoolFilter<"SupportMessage"> | boolean
+    readByOwner?: BoolFilter<"SupportMessage"> | boolean
+    createdAt?: DateTimeFilter<"SupportMessage"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportMessage"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+  }, "id">
+
+  export type SupportMessageOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    senderId?: SortOrder
+    senderRole?: SortOrder
+    senderName?: SortOrder
+    senderEmail?: SortOrderInput | SortOrder
+    content?: SortOrder
+    attachments?: SortOrderInput | SortOrder
+    readByAdmin?: SortOrder
+    readByOwner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SupportMessageCountOrderByAggregateInput
+    _max?: SupportMessageMaxOrderByAggregateInput
+    _min?: SupportMessageMinOrderByAggregateInput
+  }
+
+  export type SupportMessageScalarWhereWithAggregatesInput = {
+    AND?: SupportMessageScalarWhereWithAggregatesInput | SupportMessageScalarWhereWithAggregatesInput[]
+    OR?: SupportMessageScalarWhereWithAggregatesInput[]
+    NOT?: SupportMessageScalarWhereWithAggregatesInput | SupportMessageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportMessage"> | string
+    companyId?: StringWithAggregatesFilter<"SupportMessage"> | string
+    senderId?: StringWithAggregatesFilter<"SupportMessage"> | string
+    senderRole?: EnumUserRoleWithAggregatesFilter<"SupportMessage"> | $Enums.UserRole
+    senderName?: StringWithAggregatesFilter<"SupportMessage"> | string
+    senderEmail?: StringNullableWithAggregatesFilter<"SupportMessage"> | string | null
+    content?: StringWithAggregatesFilter<"SupportMessage"> | string
+    attachments?: JsonNullableWithAggregatesFilter<"SupportMessage">
+    readByAdmin?: BoolWithAggregatesFilter<"SupportMessage"> | boolean
+    readByOwner?: BoolWithAggregatesFilter<"SupportMessage"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"SupportMessage"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SupportMessage"> | Date | string
+  }
+
   export type PlanCreateInput = {
     id?: string
     name: $Enums.PlanName
@@ -79491,6 +80880,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -79557,6 +80947,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -79623,6 +81014,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -79689,6 +81081,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -86306,6 +87699,110 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SupportMessageCreateInput = {
+    id?: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSupportMessagesInput
+  }
+
+  export type SupportMessageUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportMessageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSupportMessagesNestedInput
+  }
+
+  export type SupportMessageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportMessageCreateManyInput = {
+    id?: string
+    companyId: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportMessageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportMessageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -86791,6 +88288,12 @@ export namespace Prisma {
     none?: EInvoicingJobWhereInput
   }
 
+  export type SupportMessageListRelationFilter = {
+    every?: SupportMessageWhereInput
+    some?: SupportMessageWhereInput
+    none?: SupportMessageWhereInput
+  }
+
   export type UserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -86896,6 +88399,10 @@ export namespace Prisma {
   }
 
   export type EInvoicingJobOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SupportMessageOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -91212,6 +92719,49 @@ export namespace Prisma {
     _max?: NestedEnumReminderExecutionStatusFilter<$PrismaModel>
   }
 
+  export type SupportMessageCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    senderId?: SortOrder
+    senderRole?: SortOrder
+    senderName?: SortOrder
+    senderEmail?: SortOrder
+    content?: SortOrder
+    attachments?: SortOrder
+    readByAdmin?: SortOrder
+    readByOwner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupportMessageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    senderId?: SortOrder
+    senderRole?: SortOrder
+    senderName?: SortOrder
+    senderEmail?: SortOrder
+    content?: SortOrder
+    readByAdmin?: SortOrder
+    readByOwner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SupportMessageMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    senderId?: SortOrder
+    senderRole?: SortOrder
+    senderName?: SortOrder
+    senderEmail?: SortOrder
+    content?: SortOrder
+    readByAdmin?: SortOrder
+    readByOwner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
     create?: XOR<SubscriptionCreateWithoutPlanInput, SubscriptionUncheckedCreateWithoutPlanInput> | SubscriptionCreateWithoutPlanInput[] | SubscriptionUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: SubscriptionCreateOrConnectWithoutPlanInput | SubscriptionCreateOrConnectWithoutPlanInput[]
@@ -91509,6 +93059,13 @@ export namespace Prisma {
     connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
   }
 
+  export type SupportMessageCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput> | SupportMessageCreateWithoutCompanyInput[] | SupportMessageUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: SupportMessageCreateOrConnectWithoutCompanyInput | SupportMessageCreateOrConnectWithoutCompanyInput[]
+    createMany?: SupportMessageCreateManyCompanyInputEnvelope
+    connect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -91726,6 +93283,13 @@ export namespace Prisma {
     connectOrCreate?: EInvoicingJobCreateOrConnectWithoutCompanyInput | EInvoicingJobCreateOrConnectWithoutCompanyInput[]
     createMany?: EInvoicingJobCreateManyCompanyInputEnvelope
     connect?: EInvoicingJobWhereUniqueInput | EInvoicingJobWhereUniqueInput[]
+  }
+
+  export type SupportMessageUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput> | SupportMessageCreateWithoutCompanyInput[] | SupportMessageUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: SupportMessageCreateOrConnectWithoutCompanyInput | SupportMessageCreateOrConnectWithoutCompanyInput[]
+    createMany?: SupportMessageCreateManyCompanyInputEnvelope
+    connect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
   }
 
   export type EnumStripeOnboardingStatusFieldUpdateOperationsInput = {
@@ -92164,6 +93728,20 @@ export namespace Prisma {
     deleteMany?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
   }
 
+  export type SupportMessageUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput> | SupportMessageCreateWithoutCompanyInput[] | SupportMessageUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: SupportMessageCreateOrConnectWithoutCompanyInput | SupportMessageCreateOrConnectWithoutCompanyInput[]
+    upsert?: SupportMessageUpsertWithWhereUniqueWithoutCompanyInput | SupportMessageUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: SupportMessageCreateManyCompanyInputEnvelope
+    set?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    disconnect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    delete?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    connect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    update?: SupportMessageUpdateWithWhereUniqueWithoutCompanyInput | SupportMessageUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: SupportMessageUpdateManyWithWhereWithoutCompanyInput | SupportMessageUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: SupportMessageScalarWhereInput | SupportMessageScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -92590,6 +94168,20 @@ export namespace Prisma {
     update?: EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput | EInvoicingJobUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: EInvoicingJobUpdateManyWithWhereWithoutCompanyInput | EInvoicingJobUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: EInvoicingJobScalarWhereInput | EInvoicingJobScalarWhereInput[]
+  }
+
+  export type SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput> | SupportMessageCreateWithoutCompanyInput[] | SupportMessageUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: SupportMessageCreateOrConnectWithoutCompanyInput | SupportMessageCreateOrConnectWithoutCompanyInput[]
+    upsert?: SupportMessageUpsertWithWhereUniqueWithoutCompanyInput | SupportMessageUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: SupportMessageCreateManyCompanyInputEnvelope
+    set?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    disconnect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    delete?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    connect?: SupportMessageWhereUniqueInput | SupportMessageWhereUniqueInput[]
+    update?: SupportMessageUpdateWithWhereUniqueWithoutCompanyInput | SupportMessageUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: SupportMessageUpdateManyWithWhereWithoutCompanyInput | SupportMessageUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: SupportMessageScalarWhereInput | SupportMessageScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutTradeCategoriesInput = {
@@ -95907,6 +97499,20 @@ export namespace Prisma {
     update?: XOR<XOR<SmsLogUpdateToOneWithWhereWithoutReminderExecutionsInput, SmsLogUpdateWithoutReminderExecutionsInput>, SmsLogUncheckedUpdateWithoutReminderExecutionsInput>
   }
 
+  export type CompanyCreateNestedOneWithoutSupportMessagesInput = {
+    create?: XOR<CompanyCreateWithoutSupportMessagesInput, CompanyUncheckedCreateWithoutSupportMessagesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutSupportMessagesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type CompanyUpdateOneRequiredWithoutSupportMessagesNestedInput = {
+    create?: XOR<CompanyCreateWithoutSupportMessagesInput, CompanyUncheckedCreateWithoutSupportMessagesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutSupportMessagesInput
+    upsert?: CompanyUpsertWithoutSupportMessagesInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutSupportMessagesInput, CompanyUpdateWithoutSupportMessagesInput>, CompanyUncheckedUpdateWithoutSupportMessagesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -98733,6 +100339,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SupportMessageCreateWithoutCompanyInput = {
+    id?: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportMessageUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportMessageCreateOrConnectWithoutCompanyInput = {
+    where: SupportMessageWhereUniqueInput
+    create: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type SupportMessageCreateManyCompanyInputEnvelope = {
+    data: SupportMessageCreateManyCompanyInput | SupportMessageCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutCompanyInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutCompanyInput, UserUncheckedUpdateWithoutCompanyInput>
@@ -100149,6 +101793,40 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"EInvoicingJob"> | Date | string
   }
 
+  export type SupportMessageUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: SupportMessageWhereUniqueInput
+    update: XOR<SupportMessageUpdateWithoutCompanyInput, SupportMessageUncheckedUpdateWithoutCompanyInput>
+    create: XOR<SupportMessageCreateWithoutCompanyInput, SupportMessageUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type SupportMessageUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: SupportMessageWhereUniqueInput
+    data: XOR<SupportMessageUpdateWithoutCompanyInput, SupportMessageUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type SupportMessageUpdateManyWithWhereWithoutCompanyInput = {
+    where: SupportMessageScalarWhereInput
+    data: XOR<SupportMessageUpdateManyMutationInput, SupportMessageUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type SupportMessageScalarWhereInput = {
+    AND?: SupportMessageScalarWhereInput | SupportMessageScalarWhereInput[]
+    OR?: SupportMessageScalarWhereInput[]
+    NOT?: SupportMessageScalarWhereInput | SupportMessageScalarWhereInput[]
+    id?: StringFilter<"SupportMessage"> | string
+    companyId?: StringFilter<"SupportMessage"> | string
+    senderId?: StringFilter<"SupportMessage"> | string
+    senderRole?: EnumUserRoleFilter<"SupportMessage"> | $Enums.UserRole
+    senderName?: StringFilter<"SupportMessage"> | string
+    senderEmail?: StringNullableFilter<"SupportMessage"> | string | null
+    content?: StringFilter<"SupportMessage"> | string
+    attachments?: JsonNullableFilter<"SupportMessage">
+    readByAdmin?: BoolFilter<"SupportMessage"> | boolean
+    readByOwner?: BoolFilter<"SupportMessage"> | boolean
+    createdAt?: DateTimeFilter<"SupportMessage"> | Date | string
+    updatedAt?: DateTimeFilter<"SupportMessage"> | Date | string
+  }
+
   export type CompanyCreateWithoutTradeCategoriesInput = {
     id?: string
     name: string
@@ -100212,6 +101890,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTradeCategoriesInput = {
@@ -100277,6 +101956,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTradeCategoriesInput = {
@@ -100385,6 +102065,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTradeCategoriesInput = {
@@ -100450,6 +102131,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type TradeCategoryUpsertWithoutCompaniesInput = {
@@ -100586,6 +102268,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSubscriptionInput = {
@@ -100651,6 +102334,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSubscriptionInput = {
@@ -100819,6 +102503,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
@@ -100884,6 +102569,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type PlanUpsertWithoutSubscriptionsInput = {
@@ -101128,6 +102814,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSettingsInput = {
@@ -101193,6 +102880,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSettingsInput = {
@@ -101274,6 +102962,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSettingsInput = {
@@ -101339,6 +103028,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutUsersInput = {
@@ -101404,6 +103094,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -101469,6 +103160,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -101958,6 +103650,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -102023,6 +103716,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type PushTokenUpsertWithWhereUniqueWithoutUserInput = {
@@ -102702,6 +104396,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInvitationsInput = {
@@ -102767,6 +104462,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInvitationsInput = {
@@ -102848,6 +104544,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInvitationsInput = {
@@ -102913,6 +104610,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutCatalogItemsInput = {
@@ -102978,6 +104676,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutCatalogItemsInput = {
@@ -103043,6 +104742,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutCatalogItemsInput = {
@@ -103204,6 +104904,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutCatalogItemsInput = {
@@ -103269,6 +104970,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type QuoteLineUpsertWithWhereUniqueWithoutCatalogItemInput = {
@@ -103404,6 +105106,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInterventionTypesInput = {
@@ -103469,6 +105172,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInterventionTypesInput = {
@@ -103858,6 +105562,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInterventionTypesInput = {
@@ -103923,6 +105628,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InterventionUpsertWithWhereUniqueWithoutInterventionTypeInput = {
@@ -104036,6 +105742,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutClientsInput = {
@@ -104101,6 +105808,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutClientsInput = {
@@ -104805,6 +106513,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutClientsInput = {
@@ -104870,6 +106579,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutCreatedClientsInput = {
@@ -105409,6 +107119,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInterventionsInput = {
@@ -105474,6 +107185,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInterventionsInput = {
@@ -106244,6 +107956,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInterventionsInput = {
@@ -106309,6 +108022,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutInterventionsInput = {
@@ -107173,6 +108887,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutQuotesInput = {
@@ -107238,6 +108953,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutQuotesInput = {
@@ -107544,6 +109260,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutQuotesInput = {
@@ -107609,6 +109326,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutQuotesInput = {
@@ -108157,6 +109875,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInvoicesInput = {
@@ -108222,6 +109941,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInvoicesInput = {
@@ -108692,6 +110412,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInvoicesInput = {
@@ -108757,6 +110478,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutInvoicesInput = {
@@ -109492,6 +111214,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSmsLogsInput = {
@@ -109557,6 +111280,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSmsLogsInput = {
@@ -109855,6 +111579,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSmsLogsInput = {
@@ -109920,6 +111645,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutSmsLogsInput = {
@@ -110188,6 +111914,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutWhatsappConnectionsInput = {
@@ -110253,6 +111980,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutWhatsappConnectionsInput = {
@@ -110414,6 +112142,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutWhatsappConnectionsInput = {
@@ -110479,6 +112208,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type SmsLogUpsertWithWhereUniqueWithoutWhatsAppConnectionInput = {
@@ -110560,6 +112290,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutEmailConnectionsInput = {
@@ -110625,6 +112356,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutEmailConnectionsInput = {
@@ -110786,6 +112518,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutEmailConnectionsInput = {
@@ -110851,6 +112584,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type SmsLogUpsertWithWhereUniqueWithoutEmailConnectionInput = {
@@ -110932,6 +112666,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSmsUsageInput = {
@@ -110997,6 +112732,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSmsUsageInput = {
@@ -111078,6 +112814,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSmsUsageInput = {
@@ -111143,6 +112880,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutNotificationsInput = {
@@ -111208,6 +112946,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutNotificationsInput = {
@@ -111273,6 +113012,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutNotificationsInput = {
@@ -111425,6 +113165,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutNotificationsInput = {
@@ -111490,6 +113231,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -111632,6 +113374,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutQuoteRequestsInput = {
@@ -111697,6 +113440,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutQuoteRequestsInput = {
@@ -111778,6 +113522,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutQuoteRequestsInput = {
@@ -111843,6 +113588,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutAccountingExportsInput = {
@@ -111908,6 +113654,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAccountingExportsInput = {
@@ -111973,6 +113720,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAccountingExportsInput = {
@@ -112054,6 +113802,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAccountingExportsInput = {
@@ -112119,6 +113868,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutTvaSummariesInput = {
@@ -112184,6 +113934,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTvaSummariesInput = {
@@ -112249,6 +114000,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTvaSummariesInput = {
@@ -112330,6 +114082,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTvaSummariesInput = {
@@ -112395,6 +114148,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutAccountingIntegrationInput = {
@@ -112460,6 +114214,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAccountingIntegrationInput = {
@@ -112525,6 +114280,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAccountingIntegrationInput = {
@@ -112606,6 +114362,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAccountingIntegrationInput = {
@@ -112671,6 +114428,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InvoiceCreateWithoutPaymentEventsInput = {
@@ -113020,6 +114778,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAuditLogsInput = {
@@ -113085,6 +114844,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAuditLogsInput = {
@@ -113237,6 +114997,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAuditLogsInput = {
@@ -113302,6 +115063,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutAuditLogsInput = {
@@ -113716,6 +115478,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutEinvoicingConnectionInput = {
@@ -113781,6 +115544,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutEinvoicingConnectionInput = {
@@ -113862,6 +115626,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutEinvoicingConnectionInput = {
@@ -113927,6 +115692,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutReceivedInvoicesInput = {
@@ -113992,6 +115758,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutReceivedInvoicesInput = {
@@ -114057,6 +115824,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutReceivedInvoicesInput = {
@@ -114180,6 +115948,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutReceivedInvoicesInput = {
@@ -114245,6 +116014,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type EInvoicingEventUpsertWithWhereUniqueWithoutReceivedInvoiceInput = {
@@ -114326,6 +116096,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutEinvoicingEventsInput = {
@@ -114391,6 +116162,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutEinvoicingEventsInput = {
@@ -114676,6 +116448,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutEinvoicingEventsInput = {
@@ -114741,6 +116514,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InvoiceUpsertWithoutEinvoicingEventsInput = {
@@ -115022,6 +116796,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutEinvoicingJobsInput = {
@@ -115087,6 +116862,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutEinvoicingJobsInput = {
@@ -115168,6 +116944,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutEinvoicingJobsInput = {
@@ -115233,6 +117010,7 @@ export namespace Prisma {
     einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InvoiceCreateWithoutTransactionsInput = {
@@ -115437,6 +117215,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInvoiceTransactionsInput = {
@@ -115502,6 +117281,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInvoiceTransactionsInput = {
@@ -115728,6 +117508,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInvoiceTransactionsInput = {
@@ -115793,6 +117574,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateWithoutBankConnectionInput = {
@@ -115858,6 +117640,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutBankConnectionInput = {
@@ -115923,6 +117706,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutBankConnectionInput = {
@@ -116042,6 +117826,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutBankConnectionInput = {
@@ -116107,6 +117892,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type BankAccountUpsertWithWhereUniqueWithoutBankConnectionInput = {
@@ -116223,6 +118009,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutBankAccountsInput = {
@@ -116288,6 +118075,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutBankAccountsInput = {
@@ -116460,6 +118248,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutBankAccountsInput = {
@@ -116525,6 +118314,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type BankTransactionUpsertWithWhereUniqueWithoutBankAccountInput = {
@@ -116639,6 +118429,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutBankTransactionsInput = {
@@ -116704,6 +118495,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutBankTransactionsInput = {
@@ -116963,6 +118755,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutBankTransactionsInput = {
@@ -117028,6 +118821,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InvoiceUpsertWithoutBankTransactionsInput = {
@@ -117238,6 +119032,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutServiceTypesInput = {
@@ -117303,6 +119098,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutServiceTypesInput = {
@@ -117428,6 +119224,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutServiceTypesInput = {
@@ -117493,6 +119290,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type InterventionServiceUpsertWithWhereUniqueWithoutServiceTypeInput = {
@@ -117848,6 +119646,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutReminderAutomationsInput = {
@@ -117913,6 +119712,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutReminderAutomationsInput = {
@@ -118216,6 +120016,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutReminderAutomationsInput = {
@@ -118281,6 +120082,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ClientUpsertWithoutReminderAutomationsInput = {
@@ -118774,6 +120576,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutReminderExecutionsInput = {
@@ -118839,6 +120642,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
     einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+    supportMessages?: SupportMessageUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutReminderExecutionsInput = {
@@ -119208,6 +121012,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutReminderExecutionsInput = {
@@ -119273,6 +121078,7 @@ export namespace Prisma {
     receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
     einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
+    supportMessages?: SupportMessageUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ReminderAutomationUpsertWithoutExecutionsInput = {
@@ -119585,6 +121391,286 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyCreateWithoutSupportMessagesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    clients?: ClientCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutSupportMessagesInput = {
+    id?: string
+    name: string
+    siret?: string | null
+    siren?: string | null
+    tvaNumber?: string | null
+    legalForm?: string | null
+    rcsNumber?: string | null
+    shareCapital?: string | null
+    nafCode?: string | null
+    isTvaFranchise?: boolean
+    isSubcontractor?: boolean
+    phone?: string | null
+    email?: string | null
+    address?: string | null
+    city?: string | null
+    postalCode?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    website?: string | null
+    slug?: string | null
+    smsNumber?: string | null
+    stripeAccountId?: string | null
+    stripeAccountStatus?: string | null
+    onlinePaymentEnabled?: boolean
+    stripeOnboardingStatus?: $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: boolean
+    stripePayoutsEnabled?: boolean
+    stripeDetailsSubmitted?: boolean
+    stripeConnectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    clients?: ClientUncheckedCreateNestedManyWithoutCompanyInput
+    interventions?: InterventionUncheckedCreateNestedManyWithoutCompanyInput
+    invoices?: InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    quotes?: QuoteUncheckedCreateNestedManyWithoutCompanyInput
+    smsLogs?: SmsLogUncheckedCreateNestedManyWithoutCompanyInput
+    whatsappConnections?: WhatsAppConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    emailConnections?: EmailConnectionUncheckedCreateNestedManyWithoutCompanyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutCompanyInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutCompanyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    smsUsage?: SmsUsageUncheckedCreateNestedManyWithoutCompanyInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutCompanyInput
+    quoteRequests?: QuoteRequestUncheckedCreateNestedManyWithoutCompanyInput
+    catalogItems?: CatalogItemUncheckedCreateNestedManyWithoutCompanyInput
+    interventionTypes?: InterventionTypeItemUncheckedCreateNestedManyWithoutCompanyInput
+    tradeCategories?: CompanyTradeCategoryUncheckedCreateNestedManyWithoutCompanyInput
+    invoiceTransactions?: InvoiceTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    bankConnection?: BankConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    bankAccounts?: BankAccountUncheckedCreateNestedManyWithoutCompanyInput
+    bankTransactions?: BankTransactionUncheckedCreateNestedManyWithoutCompanyInput
+    serviceTypes?: ServiceTypeUncheckedCreateNestedManyWithoutCompanyInput
+    reminderAutomations?: ReminderAutomationUncheckedCreateNestedManyWithoutCompanyInput
+    reminderExecutions?: ReminderExecutionUncheckedCreateNestedManyWithoutCompanyInput
+    accountingExports?: AccountingExportUncheckedCreateNestedManyWithoutCompanyInput
+    tvaSummaries?: TvaSummaryUncheckedCreateNestedManyWithoutCompanyInput
+    accountingIntegration?: AccountingIntegrationUncheckedCreateNestedOneWithoutCompanyInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedCreateNestedOneWithoutCompanyInput
+    receivedInvoices?: ReceivedInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingEvents?: EInvoicingEventUncheckedCreateNestedManyWithoutCompanyInput
+    einvoicingJobs?: EInvoicingJobUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutSupportMessagesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutSupportMessagesInput, CompanyUncheckedCreateWithoutSupportMessagesInput>
+  }
+
+  export type CompanyUpsertWithoutSupportMessagesInput = {
+    update: XOR<CompanyUpdateWithoutSupportMessagesInput, CompanyUncheckedUpdateWithoutSupportMessagesInput>
+    create: XOR<CompanyCreateWithoutSupportMessagesInput, CompanyUncheckedCreateWithoutSupportMessagesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutSupportMessagesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutSupportMessagesInput, CompanyUncheckedUpdateWithoutSupportMessagesInput>
+  }
+
+  export type CompanyUpdateWithoutSupportMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutSupportMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    siret?: NullableStringFieldUpdateOperationsInput | string | null
+    siren?: NullableStringFieldUpdateOperationsInput | string | null
+    tvaNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    legalForm?: NullableStringFieldUpdateOperationsInput | string | null
+    rcsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    shareCapital?: NullableStringFieldUpdateOperationsInput | string | null
+    nafCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isTvaFranchise?: BoolFieldUpdateOperationsInput | boolean
+    isSubcontractor?: BoolFieldUpdateOperationsInput | boolean
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    smsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeAccountStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    onlinePaymentEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeOnboardingStatus?: EnumStripeOnboardingStatusFieldUpdateOperationsInput | $Enums.StripeOnboardingStatus
+    stripeChargesEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripePayoutsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    stripeDetailsSubmitted?: BoolFieldUpdateOperationsInput | boolean
+    stripeConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    clients?: ClientUncheckedUpdateManyWithoutCompanyNestedInput
+    interventions?: InterventionUncheckedUpdateManyWithoutCompanyNestedInput
+    invoices?: InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    quotes?: QuoteUncheckedUpdateManyWithoutCompanyNestedInput
+    smsLogs?: SmsLogUncheckedUpdateManyWithoutCompanyNestedInput
+    whatsappConnections?: WhatsAppConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    emailConnections?: EmailConnectionUncheckedUpdateManyWithoutCompanyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutCompanyNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutCompanyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    smsUsage?: SmsUsageUncheckedUpdateManyWithoutCompanyNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutCompanyNestedInput
+    quoteRequests?: QuoteRequestUncheckedUpdateManyWithoutCompanyNestedInput
+    catalogItems?: CatalogItemUncheckedUpdateManyWithoutCompanyNestedInput
+    interventionTypes?: InterventionTypeItemUncheckedUpdateManyWithoutCompanyNestedInput
+    tradeCategories?: CompanyTradeCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+    invoiceTransactions?: InvoiceTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    bankConnection?: BankConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    bankAccounts?: BankAccountUncheckedUpdateManyWithoutCompanyNestedInput
+    bankTransactions?: BankTransactionUncheckedUpdateManyWithoutCompanyNestedInput
+    serviceTypes?: ServiceTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderAutomations?: ReminderAutomationUncheckedUpdateManyWithoutCompanyNestedInput
+    reminderExecutions?: ReminderExecutionUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingExports?: AccountingExportUncheckedUpdateManyWithoutCompanyNestedInput
+    tvaSummaries?: TvaSummaryUncheckedUpdateManyWithoutCompanyNestedInput
+    accountingIntegration?: AccountingIntegrationUncheckedUpdateOneWithoutCompanyNestedInput
+    einvoicingConnection?: EInvoicingConnectionUncheckedUpdateOneWithoutCompanyNestedInput
+    receivedInvoices?: ReceivedInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingEvents?: EInvoicingEventUncheckedUpdateManyWithoutCompanyNestedInput
+    einvoicingJobs?: EInvoicingJobUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type SubscriptionCreateManyPlanInput = {
@@ -120222,6 +122308,20 @@ export namespace Prisma {
     lockedAt?: Date | string | null
     lockedBy?: string | null
     lastError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SupportMessageCreateManyCompanyInput = {
+    id?: string
+    senderId: string
+    senderRole: $Enums.UserRole
+    senderName: string
+    senderEmail?: string | null
+    content: string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: boolean
+    readByOwner?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -122011,6 +124111,48 @@ export namespace Prisma {
     lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lockedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportMessageUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportMessageUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportMessageUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    senderId?: StringFieldUpdateOperationsInput | string
+    senderRole?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    senderName?: StringFieldUpdateOperationsInput | string
+    senderEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
+    attachments?: NullableJsonNullValueInput | InputJsonValue
+    readByAdmin?: BoolFieldUpdateOperationsInput | boolean
+    readByOwner?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

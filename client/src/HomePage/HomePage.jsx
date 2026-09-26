@@ -83,7 +83,7 @@ function HomePage() {
     };
 
     const handleConfigureTaux = () => {
-        navigate("/settings");
+        navigate("/settings?tab=cotisations");
     };
 
     const handleCreateFacture = () => {
@@ -290,7 +290,7 @@ function HomePage() {
                             </button>
 
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '16px' }}>
-                                <Star size={16} fill="currentColor" /> Bienvenue sur ClimPro CRM
+                                <Star size={16} fill="currentColor" /> Bienvenue sur GestArt CRM
                             </div>
 
                             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>

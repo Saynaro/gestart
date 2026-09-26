@@ -292,7 +292,7 @@ ${bodyContent}
                     📎 Veuillez trouver la ou les pièce(s) jointe(s) à ce message.
                 </div>`}
                 <div style="text-align: center; margin-top: 20px; color: #64748B; font-size: 11.5px;">
-                    <p style="margin: 0;">Envoyé par ${companyDisplayName} via ClimPro CRM</p>
+                    <p style="margin: 0;">Envoyé par ${companyDisplayName} via GestArt CRM</p>
                     <p style="margin: 4px 0 0 0;">Pour toute question, vous pouvez répondre directement à cet email.</p>
                 </div>
             </div>

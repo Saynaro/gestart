@@ -844,6 +844,12 @@
         gap: 6px;
     }
 
+    .mobile-fab:not(.collapsed).type-techniciens {
+        width: 176px;
+        border-radius: 24px;
+        gap: 6px;
+    }
+
     .fab-icon {
         display: flex;
         align-items: center;
@@ -860,7 +866,7 @@
     .fab-text {
         display: inline-block;
         opacity: 1;
-        max-width: 150px;
+        max-width: 160px;
         transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
             max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;

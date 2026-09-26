@@ -13,7 +13,8 @@ import {
     EyeOff,
     Check,
     X,
-    Info
+    Info,
+    RefreshCw
 } from 'lucide-react';
 import './LoginPage.css';
 import { API_URL } from '../utils/config';
@@ -22,6 +23,7 @@ import { startProactiveTokenRefresh } from '../utils/api';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
 import OtpInput6 from '../components/OtpInput6';
+import ToastNotification from '../components/ToastNotification';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -33,31 +35,30 @@ export default function LoginPage() {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [toast, setToast] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [twoFactorEmail, setTwoFactorEmail] = useState('');
+    const [resendTimer, setResendTimer] = useState(0);
 
-    // Auto smooth-scroll to focused input (ideal for mobile virtual keyboard)
+    const showToast = (msg, type = "error") => {
+        setToast({ msg, type, id: Date.now() });
+    };
+
+    // 60-second cooldown timer for 2FA code resend
     useEffect(() => {
-        const handleFocusIn = (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
-                setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 250);
-            }
-        };
-
-        document.addEventListener('focusin', handleFocusIn);
-        return () => document.removeEventListener('focusin', handleFocusIn);
-    }, []);
-
+        if (resendTimer <= 0) return;
+        const interval = setInterval(() => {
+            setResendTimer(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [resendTimer]);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setError('');
     };
-
-    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
-    const [twoFactorCode, setTwoFactorCode] = useState('');
-    const [twoFactorEmail, setTwoFactorEmail] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -89,7 +90,9 @@ export default function LoginPage() {
             if (data.twoFactorRequired) {
                 setTwoFactorRequired(true);
                 setTwoFactorEmail(data.email || formData.email);
+                setResendTimer(60);
                 setLoading(false);
+                showToast(`Code de sécurité envoyé à ${data.email || formData.email}`, "info");
                 return;
             }
 
@@ -128,7 +131,9 @@ export default function LoginPage() {
                 navigate('/home', { replace: true });
             }
         } catch (err) {
-            setError(err.message || 'Impossible de se connecter au serveur.');
+            const errorMsg = err.message || 'Email ou mot de passe incorrect.';
+            setError(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setLoading(false);
         }
@@ -137,7 +142,9 @@ export default function LoginPage() {
     const handleVerify2FASubmit = async (e) => {
         e.preventDefault();
         if (!twoFactorCode || twoFactorCode.trim().length < 6) {
-            setError("Veuillez saisir le code à 6 chiffres");
+            const errorMsg = "Veuillez saisir le code à 6 chiffres";
+            setError(errorMsg);
+            showToast(errorMsg, "error");
             return;
         }
 
@@ -164,7 +171,7 @@ export default function LoginPage() {
             }
 
             if (!response.ok) {
-                throw new Error(data.message || 'Code de sécurité incorrect.');
+                throw new Error(data.message || 'Code de sécurité incorrect ou expiré.');
             }
 
             if (data.accessToken) {
@@ -202,7 +209,40 @@ export default function LoginPage() {
                 navigate('/home', { replace: true });
             }
         } catch (err) {
-            setError(err.message || 'Code de vérification invalide.');
+            const errorMsg = err.message || 'Code de vérification invalide ou expiré.';
+            setError(errorMsg);
+            showToast(errorMsg, "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResend2FA = async () => {
+        if (resendTimer > 0 || loading || !formData.email) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await fetch(`${API_URL}/v1/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Erreur lors du renvoi du code.');
+            }
+
+            setResendTimer(60);
+            setTwoFactorCode('');
+            showToast("Nouveau code de sécurité envoyé !", "info");
+        } catch (err) {
+            const errorMsg = err.message || 'Impossible de renvoyer le code 2FA.';
+            setError(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setLoading(false);
         }
@@ -229,13 +269,17 @@ export default function LoginPage() {
 
     return (
         <div className="login-container">
+            {/* Top Toast Notification */}
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
+
             {/* Left Decorative Banner (Desktop) */}
             <div className="login-banner">
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        <Link to="/" className="auth-brand-link">
+                            <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                            <span className="auth-brand-text">GestArt</span>
                         </Link>
                     </div>
 
@@ -278,8 +322,9 @@ export default function LoginPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            <Link to="/" className="auth-brand-link">
+                                <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                                <span className="auth-brand-text">GestArt</span>
                             </Link>
                         </div>
                     </div>
@@ -322,6 +367,28 @@ export default function LoginPage() {
                                     }}
                                     autoFocus
                                 />
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4px', marginBottom: '14px' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleResend2FA}
+                                    disabled={resendTimer > 0 || loading}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: resendTimer > 0 ? 'var(--muted-foreground, #94A3B8)' : 'var(--primary, #556B2F)',
+                                        fontWeight: 600,
+                                        fontSize: '0.86rem',
+                                        cursor: resendTimer > 0 ? 'not-allowed' : 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    <RefreshCw size={14} className={loading ? "spin-icon" : ""} />
+                                    {resendTimer > 0 ? `Renvoyer le code dans ${resendTimer}s` : "Renvoyer le code"}
+                                </button>
                             </div>
 
                             <button
@@ -443,7 +510,7 @@ export default function LoginPage() {
                         <p className="required-note">(*) Les champs sont obligatoires</p>
                         <div>
                             <span>Pas encore de compte ? </span>
-                            <Link to="/register" className="register-link" >
+                            <Link to="/register" className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Créer un compte
                             </Link>
                         </div>

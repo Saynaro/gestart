@@ -5,6 +5,7 @@ import { prisma } from "../config/db.js";
 import { generateAccessToken, generateRefreshToken, setRefreshCookie, setAuthCookies } from "../utils/generateToken.js";
 import { sendVerificationEmail, sendPasswordResetEmail, sendTwoFactorCodeEmail } from "../utils/emailService.js";
 import { ChannelConnectionService } from "../services/messaging/ChannelConnectionService.js";
+import { emitToSuperadmin } from "../config/socket.js";
 
 const parseDeviceInfo = (req) => {
     const ua = req.headers['user-agent'] || '';
@@ -192,6 +193,16 @@ export const register = async (req, res) => {
         const refreshToken = await generateRefreshToken(user.id);
 
         setRefreshCookie(res, refreshToken);
+
+        // Notifier le SuperAdmin en temps réel
+        emitToSuperadmin("admin:activity", {
+            id: `reg_${company.id}`,
+            type: "NEW_COMPANY",
+            title: "Nouvelle entreprise inscrite",
+            details: `${companyName} (${user.firstName} ${user.lastName} - ${user.email})`,
+            plan: selectedPlan?.displayName || "Starter",
+            timestamp: new Date().toISOString()
+        });
 
         // 8. Réponse réussie avec données nécessaires au frontend
         return res.status(201).json({

@@ -49,7 +49,7 @@ export default function SubscriptionExpiredModal() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: "rgba(15, 23, 42, 0.65)",
+                        backgroundColor: "rgba(0, 0, 0, 0.72)",
                         backdropFilter: "blur(6px)",
                         WebkitBackdropFilter: "blur(6px)",
                         zIndex: 99999,

@@ -57,7 +57,7 @@ export default function ReceivedInvoicesDrawer({ invoice, onClose, onRefresh }) 
             style={{
                 position: 'fixed',
                 inset: 0,
-                backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                backgroundColor: 'rgba(0, 0, 0, 0.72)',
                 backdropFilter: 'blur(6px)',
                 zIndex: 99999,
                 display: 'flex',

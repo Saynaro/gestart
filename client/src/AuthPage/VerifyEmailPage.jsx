@@ -31,6 +31,16 @@ export default function VerifyEmailPage() {
     const [success, setSuccess] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [resendMessage, setResendMessage] = useState('');
+    const [resendTimer, setResendTimer] = useState(0);
+
+    // 60-second cooldown timer for verification code resend
+    useEffect(() => {
+        if (resendTimer <= 0) return;
+        const interval = setInterval(() => {
+            setResendTimer(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [resendTimer]);
 
     // Auto verify if token is present in URL
     useEffect(() => {
@@ -171,6 +181,7 @@ export default function VerifyEmailPage() {
             }
 
             setResendMessage("Nouveau code envoyé par email !");
+            setResendTimer(60);
             if (data.data?.devCode) {
                 console.log("[DEV RESEND CODE]:", data.data.devCode);
             }
@@ -188,8 +199,9 @@ export default function VerifyEmailPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        <Link to="/" className="auth-brand-link">
+                            <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                            <span className="auth-brand-text">GestArt</span>
                         </Link>
                     </div>
 
@@ -232,8 +244,9 @@ export default function VerifyEmailPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            <Link to="/" className="auth-brand-link">
+                                <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                                <span className="auth-brand-text">GestArt</span>
                             </Link>
                         </div>
                     </div>
@@ -349,11 +362,15 @@ export default function VerifyEmailPage() {
                                 <button
                                     type="button"
                                     onClick={handleResendCode}
-                                    disabled={resendLoading}
+                                    disabled={resendLoading || resendTimer > 0}
                                     className="resend-btn"
+                                    style={{
+                                        opacity: resendTimer > 0 ? 0.6 : 1,
+                                        cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
+                                    }}
                                 >
                                     <RefreshCw size={14} className={resendLoading ? "spin-icon" : ""} />
-                                    {resendLoading ? 'Envoi...' : 'Renvoyer le code'}
+                                    {resendTimer > 0 ? `Renvoyer dans ${resendTimer}s` : (resendLoading ? 'Envoi...' : 'Renvoyer le code')}
                                 </button>
                             </div>
                         </>
@@ -362,7 +379,7 @@ export default function VerifyEmailPage() {
                     <div className="form-footer">
                         <div>
                             <span>Vous préférez vous connecter ? </span>
-                            <Link to="/login" className="register-link">
+                            <Link to="/login" className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Connexion
                             </Link>
                         </div>

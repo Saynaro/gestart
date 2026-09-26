@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, LogOut, Lock } from "lucide-react";
@@ -7,7 +8,7 @@ import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
 
-const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0 }) => {
+const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0, unreadSupportCount = 0 }) => {
     const navigate = useNavigate();
     const { isStarter, isExpired } = useSubscription();
     const { role } = useUser();
@@ -186,6 +187,11 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                                     >
                                         <Settings className={`w-[25px] h-[25px] stroke-[1.8] ${activePath === "/settings" ? "text-sidebar-primary" : "text-[#64748B]"}`} />
                                         <span className="text-[17px] font-medium">Paramètres</span>
+                                        {unreadSupportCount > 0 && (
+                                            <span className="ml-auto bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                                {unreadSupportCount}
+                                            </span>
+                                        )}
                                         {activePath === "/settings" && (
                                             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-sidebar-primary rounded-r-md" />
                                         )}
@@ -212,17 +218,23 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
             )}
 
             {/* Logout Confirmation Modal */}
-            {showLogoutModal && (
-                <div style={{
-                    position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                    backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', padding: '20px'
-                }}>
-                    <div style={{
-                        backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
-                        borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
-                    }}>
+            {showLogoutModal && typeof document !== "undefined" && createPortal(
+                <div 
+                    onClick={() => setShowLogoutModal(false)}
+                    style={{
+                        position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999999, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }}
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
+                            borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                        }}
+                    >
                         <div style={{
                             width: '52px', height: '52px', borderRadius: '16px',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
@@ -254,7 +266,8 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </AnimatePresence>
     );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -14,14 +14,30 @@ import {
 } from 'lucide-react';
 import './ForgotPasswordPage.css';
 import { API_URL } from '../utils/config';
+import ToastNotification from '../components/ToastNotification';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [toast, setToast] = useState(null);
     const [sentSuccess, setSentSuccess] = useState(false);
     const [devInfo, setDevInfo] = useState(null);
+    const [resendTimer, setResendTimer] = useState(0);
+
+    const showToast = (msg, type = "error") => {
+        setToast({ msg, type, id: Date.now() });
+    };
+
+    // 60-second cooldown timer for resend
+    useEffect(() => {
+        if (resendTimer <= 0) return;
+        const interval = setInterval(() => {
+            setResendTimer(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [resendTimer]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,11 +60,48 @@ export default function ForgotPasswordPage() {
             }
 
             setSentSuccess(true);
+            setResendTimer(60);
+            showToast("Email d'instructions envoyé avec succès !", "info");
             if (data.data?.devCode || data.data?.devToken) {
                 setDevInfo(data.data);
             }
         } catch (err) {
-            setError(err.message || 'Impossible de se connecter au serveur.');
+            const errorMsg = err.message || 'Impossible de se connecter au serveur.';
+            setError(errorMsg);
+            showToast(errorMsg, "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResend = async () => {
+        if (resendTimer > 0 || loading || !email) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await fetch(`${API_URL}/v1/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Erreur lors du renvoi de l'email.");
+            }
+
+            setResendTimer(60);
+            showToast("Nouvel email envoyé avec succès !", "info");
+            if (data.data?.devCode || data.data?.devToken) {
+                setDevInfo(data.data);
+            }
+        } catch (err) {
+            const errorMsg = err.message || 'Impossible de renvoyer le lien.';
+            setError(errorMsg);
+            showToast(errorMsg, "error");
         } finally {
             setLoading(false);
         }
@@ -56,13 +109,17 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="forgot-container">
+            {/* Top Toast Notification */}
+            <ToastNotification toast={toast} onClose={() => setToast(null)} />
+
             {/* Left Decorative Banner (Desktop) */}
             <div className="forgot-banner">
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        <Link to="/" className="auth-brand-link">
+                            <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                            <span className="auth-brand-text">GestArt</span>
                         </Link>
                     </div>
 
@@ -105,8 +162,9 @@ export default function ForgotPasswordPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            <Link to="/" className="auth-brand-link">
+                                <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                                <span className="auth-brand-text">GestArt</span>
                             </Link>
                         </div>
                     </div>
@@ -157,7 +215,7 @@ export default function ForgotPasswordPage() {
                                 >
                                     {loading ? 'Envoi en cours...' : (
                                         <>
-                                            Envoyer le lien de réinitialisation
+                                            Envoyer le lien
                                             <ArrowRight size={18} />
                                         </>
                                     )}
@@ -167,13 +225,13 @@ export default function ForgotPasswordPage() {
                     ) : (
                         <div className="success-state">
                             <div className="success-icon-wrapper">
-                                <CheckCircle2 size={48} className="success-icon" />
+                                <CheckCircle2 size={32} className="success-icon" />
                             </div>
 
                             <h2>Email envoyé !</h2>
 
                             <p className="success-text">
-                                Un email contenant un lien de réinitialisation vous a été envoyé à <strong>{email}</strong>. Veuillez consulter votre boîte de réception et cliquer sur le lien pour modifier votre mot de passe.
+                                Un lien de réinitialisation a été envoyé à <strong>{email}</strong>. Veuillez consulter votre boîte de réception pour modifier votre mot de passe.
                             </p>
 
                             <div className="auth-hint-box">
@@ -190,10 +248,15 @@ export default function ForgotPasswordPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setSentSuccess(false)}
+                                    onClick={handleResend}
+                                    disabled={resendTimer > 0 || loading}
                                     className="btn-secondary-link"
+                                    style={{
+                                        opacity: resendTimer > 0 ? 0.6 : 1,
+                                        cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
+                                    }}
                                 >
-                                    Renvoyer l'email
+                                    {resendTimer > 0 ? `Renvoyer dans ${resendTimer}s` : "Renvoyer l'email"}
                                 </button>
                             </div>
                         </div>
@@ -202,7 +265,7 @@ export default function ForgotPasswordPage() {
                     <div className="form-footer">
                         <div>
                             <span>Vous avez retrouvé votre mot de passe ? </span>
-                            <Link to="/login" className="register-link">
+                            <Link to="/login" className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Se connecter
                             </Link>
                         </div>

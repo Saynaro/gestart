@@ -27,12 +27,16 @@ import Header from "../components/Header";
 import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
 import { useSubscription } from "../utils/useSubscription";
+import { useUser } from "../utils/useUser";
 import FeatureLockBanner from "../components/FeatureLockBanner";
 import PlanLimitBanner from "../components/PlanLimitBanner";
 import StripeCheckoutModal from "../SettingsPage/components/StripeCheckoutModal";
+import TechnicianDetailModal from "./components/TechnicianDetailModal";
 import "./TechniciensPage.css";
 
 export default function TechniciensPage() {
+    const { role } = useUser();
+    const isTechnician = role === "TECHNICIAN";
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
 
     useEffect(() => {
@@ -45,6 +49,7 @@ export default function TechniciensPage() {
     const [technicians, setTechnicians] = useState([]);
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedTechnician, setSelectedTechnician] = useState(null);
 
     // Toast State
     const [toast, setToast] = useState({ show: false, message: "", isError: false });
@@ -229,12 +234,50 @@ export default function TechniciensPage() {
         return `mailto:${email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
 
+    const handleOpenInviteModal = () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Votre abonnement a expiré. Pour inviter de nouveaux techniciens, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
+        if (isStarter) {
+            triggerUpgrade({
+                reason: "technicians",
+                title: "Passez à l'offre Pro ou Unlimited",
+                description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
+                targetPlan: "PRO"
+            });
+            return;
+        }
+
+        const maxTechs = techsMax !== -1 ? techsMax : (subscription?.plan?.maxTechnicians ?? 5);
+        const currentTechsCount = techsCurrent || technicians.filter(t => t.role === "TECHNICIAN" || !t.role).length;
+        if (!isUnlimited && maxTechs !== -1 && (isTechLimitReached || currentTechsCount >= maxTechs)) {
+            triggerUpgrade({
+                reason: "technicians",
+                title: "Développez votre équipe sans limite",
+                description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxTechs} technicien(s). Passez à Unlimited pour ajouter une équipe illimitée et accélérer vos interventions.`,
+                targetPlan: "UNLIMITED"
+            });
+            return;
+        }
+
+        setCreatedInvite(null);
+        setInviteEmail("");
+        setShowInviteModal(true);
+    };
+
     return (
         <div className="home-page techniciens-page">
-            <SideBar activePath="/techniciens" />
+            <SideBar 
+                activePath="/techniciens" 
+                onFabClick={handleOpenInviteModal}
+                hideFab={isTechnician || showInviteModal || !!techToDelete || !!inviteToRevoke || showUpgradeModal || !!selectedTechnician}
+            />
             <div className="main-content">
                 <Header />
-                <PullToRefresh onRefresh={loadData} disabled={showInviteModal || !!techToDelete || !!inviteToRevoke || showUpgradeModal}>
+                <PullToRefresh onRefresh={loadData} disabled={showInviteModal || !!techToDelete || !!inviteToRevoke || showUpgradeModal || !!selectedTechnician}>
                     <motion.main 
                         className="page-content techniciens-content"
                         initial={{ opacity: 0, y: 15 }}
@@ -253,39 +296,7 @@ export default function TechniciensPage() {
                         </div>
                         <button
                             className="btn-invite-tech"
-                            onClick={() => {
-                                if (isExpired) {
-                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
-                                        detail: { message: "Votre abonnement a expiré. Pour inviter de nouveaux techniciens, veuillez renouveler votre abonnement." }
-                                    }));
-                                    return;
-                                }
-                                if (isStarter) {
-                                    triggerUpgrade({
-                                        reason: "technicians",
-                                        title: "Passez à l'offre Pro ou Unlimited",
-                                        description: "L'invitation de techniciens et de collaborateurs est disponible à partir du plan Pro.",
-                                        targetPlan: "PRO"
-                                    });
-                                    return;
-                                }
-
-                                const maxTechs = techsMax !== -1 ? techsMax : (subscription?.plan?.maxTechnicians ?? 5);
-                                const currentTechsCount = techsCurrent || technicians.filter(t => t.role === "TECHNICIAN" || !t.role).length;
-                                if (!isUnlimited && maxTechs !== -1 && (isTechLimitReached || currentTechsCount >= maxTechs)) {
-                                    triggerUpgrade({
-                                        reason: "technicians",
-                                        title: "Développez votre équipe sans limite",
-                                        description: `Votre plan ${displayName || "actuel"} permet de gérer jusqu'à ${maxTechs} technicien(s). Passez à Unlimited pour ajouter une équipe illimitée et accélérer vos interventions.`,
-                                        targetPlan: "UNLIMITED"
-                                    });
-                                    return;
-                                }
-
-                                setCreatedInvite(null);
-                                setInviteEmail("");
-                                setShowInviteModal(true);
-                            }}
+                            onClick={handleOpenInviteModal}
                             style={isExpired || isTechLimitReached ? { opacity: 0.9 } : {}}
                         >
                             {isExpired || isTechLimitReached ? <Lock size={18} /> : isStarter ? <Star size={18} fill="currentColor" /> : <UserPlus size={18} />}
@@ -403,7 +414,11 @@ export default function TechniciensPage() {
                                                 const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
                                                 const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
                                                 return (
-                                                    <tr key={t.id}>
+                                                    <tr 
+                                                        key={t.id} 
+                                                        onClick={() => setSelectedTechnician(t)}
+                                                        title="Cliquer pour voir les détails"
+                                                    >
                                                         <td>
                                                             <div className="tech-user-row">
                                                                 <div className="tech-avatar" style={{ overflow: 'hidden' }}>
@@ -442,7 +457,8 @@ export default function TechniciensPage() {
                                                                     type="button"
                                                                     className="btn-delete-tech-row"
                                                                     title="Supprimer ce technicien"
-                                                                    onClick={() => {
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
                                                                         if (isExpired) {
                                                                             window.dispatchEvent(new CustomEvent('subscription_expired', {
                                                                                 detail: { message: "Votre abonnement a expiré. Pour modifier l'équipe, veuillez renouveler votre abonnement." }
@@ -469,7 +485,11 @@ export default function TechniciensPage() {
                                         const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
                                         const initials = `${(t.firstName || 'T')[0]}${(t.lastName || 'E')[0]}`.toUpperCase();
                                         return (
-                                            <div key={t.id} className="tech-mobile-card">
+                                            <div 
+                                                key={t.id} 
+                                                className="tech-mobile-card"
+                                                onClick={() => setSelectedTechnician(t)}
+                                            >
                                                 <div className="tech-mobile-card-header">
                                                     <div className="tech-user-row">
                                                         <div className="tech-avatar" style={{ overflow: 'hidden' }}>
@@ -493,7 +513,13 @@ export default function TechniciensPage() {
                                                     {t.phone ? (
                                                         <div className="tech-mobile-info-item">
                                                             <Phone size={13} style={{ color: 'var(--muted-foreground)' }} />
-                                                            <a href={`tel:${t.phone}`} className="tech-mobile-link">{t.phone}</a>
+                                                            <a 
+                                                                href={`tel:${t.phone}`} 
+                                                                className="tech-mobile-link"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                {t.phone}
+                                                            </a>
                                                         </div>
                                                     ) : null}
                                                     <div className="tech-mobile-info-item">
@@ -509,7 +535,8 @@ export default function TechniciensPage() {
                                                         <button
                                                             type="button"
                                                             className="btn-delete-tech-mobile"
-                                                            onClick={() => {
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
                                                                 if (isExpired) {
                                                                     window.dispatchEvent(new CustomEvent('subscription_expired', {
                                                                         detail: { message: "Votre abonnement a expiré. Pour modifier l'équipe, veuillez renouveler votre abonnement." }
@@ -958,6 +985,19 @@ export default function TechniciensPage() {
                             </motion.div>
                         </div>
                     )}
+
+                    {/* Technician Detail Modal (Desktop) / Bottom Sheet (Mobile) */}
+                    <TechnicianDetailModal
+                        technician={selectedTechnician}
+                        isOpen={!!selectedTechnician}
+                        onClose={() => setSelectedTechnician(null)}
+                        onDelete={(t) => setTechToDelete(t)}
+                        isMobileView={isMobileView}
+                        isExpired={isExpired}
+                    />
+
+                    {/* Mobile bottom spacer so FAB/bottom bar doesn't obscure content */}
+                    <div className="mobile-only-spacer" />
 
                 </motion.main>
                 </PullToRefresh>

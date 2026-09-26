@@ -29,7 +29,8 @@ import {
     Wind,
     Sun,
     TreePine,
-    Info
+    Info,
+    RefreshCw
 } from 'lucide-react';
 import './RegisterPage.css';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
@@ -138,6 +139,16 @@ export default function RegisterPage() {
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0);
+
+    // 60-second cooldown timer for email verification code
+    useEffect(() => {
+        if (resendTimer <= 0) return;
+        const interval = setInterval(() => {
+            setResendTimer(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [resendTimer]);
 
     // Progression et pourcentages
     const totalSteps = mode === 'OWNER' ? 4 : 3;
@@ -281,10 +292,43 @@ export default function RegisterPage() {
             setDevCode('');
 
             showToastNotification(`Code de vérification envoyé à ${formData.email}`, 'success');
+            setResendTimer(60);
             setStep(2);
         } catch (err) {
             setError(err.message || 'Erreur lors de l’envoi du code');
             showToastNotification(err.message || 'Cet email est déjà utilisé', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendCode = async () => {
+        if (resendTimer > 0 || loading || !formData.email) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${API_URL}/v1/auth/send-verification-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email })
+            });
+
+            const text = await response.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (err) { }
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Erreur lors du renvoi du code.');
+            }
+
+            setResendTimer(60);
+            setDigitCode(['', '', '', '', '', '']);
+            showToastNotification(`Nouveau code envoyé à ${formData.email}`, 'success');
+        } catch (err) {
+            setError(err.message || 'Impossible de renvoyer le code.');
+            showToastNotification(err.message || 'Erreur lors du renvoi', 'error');
         } finally {
             setLoading(false);
         }
@@ -525,8 +569,9 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                        <Link to="/" className="auth-brand-link">
+                            <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                            <span className="auth-brand-text">GestArt</span>
                         </Link>
                     </div>
 
@@ -557,7 +602,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="banner-footer">
-                    <span>© 2026 GestArt. Fait avec pour les installateurs & artisans.</span>
+                    <span>© 2026 GestArt. Fait pour les installateurs & artisans.</span>
                 </div>
             </div>
 
@@ -566,8 +611,9 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                <img src="/LOGO.png" alt="GestArt" className="auth-brand-logo" />
+                            <Link to="/" className="auth-brand-link">
+                                <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
+                                <span className="auth-brand-text">GestArt</span>
                             </Link>
                         </div>
                     </div>
@@ -717,30 +763,21 @@ export default function RegisterPage() {
 
                             {/* Live Password Rules Indicator - 2 rows x 2 columns */}
                             {(isPasswordFocused || (formData.password && formData.password.length > 0)) && (
-                                <div
-                                    className="password-rules-box"
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                                        gap: '6px 12px',
-                                        marginTop: '8px',
-                                        marginBottom: '6px'
-                                    }}
-                                >
+                                <div className="password-rules-box">
                                     <div className={`rule-item ${rules.length ? 'valid' : ''}`} style={{ color: rules.length ? '#22C55E' : '#94A3B8' }}>
-                                        {rules.length ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                        <span>Au moins 8 caractères</span>
+                                        {rules.length ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                        <span>8 caractères min.</span>
                                     </div>
                                     <div className={`rule-item ${rules.uppercase ? 'valid' : ''}`} style={{ color: rules.uppercase ? '#22C55E' : '#94A3B8' }}>
-                                        {rules.uppercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                        <span>1 lettre majuscule (A-Z)</span>
+                                        {rules.uppercase ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                        <span>1 majuscule (A-Z)</span>
                                     </div>
                                     <div className={`rule-item ${rules.lowercase ? 'valid' : ''}`} style={{ color: rules.lowercase ? '#22C55E' : '#94A3B8' }}>
-                                        {rules.lowercase ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
-                                        <span>1 lettre minuscule (a-z)</span>
+                                        {rules.lowercase ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
+                                        <span>1 minuscule (a-z)</span>
                                     </div>
                                     <div className={`rule-item ${rules.number ? 'valid' : ''}`} style={{ color: rules.number ? '#22C55E' : '#94A3B8' }}>
-                                        {rules.number ? <Check size={14} strokeWidth={2.5} /> : <X size={14} strokeWidth={2} />}
+                                        {rules.number ? <Check size={13} strokeWidth={2.5} /> : <X size={13} strokeWidth={2} />}
                                         <span>1 chiffre (0-9)</span>
                                     </div>
                                 </div>
@@ -774,24 +811,24 @@ export default function RegisterPage() {
                                         </button>{' '}
                                         et les{' '}
                                         <button
-                                             type="button"
-                                             className="terms-link-btn"
-                                             onClick={(e) => {
-                                                 e.preventDefault();
-                                                 e.stopPropagation();
-                                                 setActiveLegalModal('rgpd');
-                                             }}
-                                         >
-                                             Politiques de Confidentialité
-                                         </button>
-                                     </span>
-                                 </label>
-                             </div>
+                                            type="button"
+                                            className="terms-link-btn"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setActiveLegalModal('rgpd');
+                                            }}
+                                        >
+                                            Politiques de Confidentialité
+                                        </button>
+                                    </span>
+                                </label>
+                            </div>
 
-                             <button type="submit" className="btn-submit pill-btn" disabled={loading}>
-                                 {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
-                             </button>
-                         </form>
+                            <button type="submit" className="btn-submit pill-btn" disabled={loading}>
+                                {loading ? 'Envoi du code...' : 'Continuer vers la vérification →'}
+                            </button>
+                        </form>
                     )}
 
                     {/* ÉTAPE 2: Vérification email (Code 6 chiffres) (15 sec) */}
@@ -824,6 +861,28 @@ export default function RegisterPage() {
                                 }}
                                 autoFocus
                             />
+
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px', marginBottom: '8px' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleResendCode}
+                                    disabled={resendTimer > 0 || loading}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: resendTimer > 0 ? 'var(--muted-foreground, #94A3B8)' : 'var(--primary, #556B2F)',
+                                        fontWeight: 600,
+                                        fontSize: '0.86rem',
+                                        cursor: resendTimer > 0 ? 'not-allowed' : 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    <RefreshCw size={14} className={loading ? "spin-icon" : ""} />
+                                    {resendTimer > 0 ? `Renvoyer le code dans ${resendTimer}s` : "Renvoyer le code"}
+                                </button>
+                            </div>
 
                             <div className="button-group">
                                 <button type="button" className="btn-back" onClick={() => setStep(1)}>
@@ -1037,7 +1096,7 @@ export default function RegisterPage() {
                         {step !== 2 && <p className="required-note">(*) Les champs sont obligatoires</p>}
                         <div>
                             <span>Vous avez déjà un compte ? </span>
-                            <Link to="/login" className="login-link">
+                            <Link to="/login" className="login-link" style={{ whiteSpace: 'nowrap' }}>
                                 Se connecter
                             </Link>
                         </div>

@@ -1093,7 +1093,7 @@ export default function TechnicianInterventionsPage() {
             {/* 6. CONFIRMATION CLOSING MODAL */}
             {showConfirmModal && createPortal(
                 <div style={{
-                    position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)',
+                    position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.72)',
                     backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex',
                     alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto', boxSizing: 'border-box'
                 }}>

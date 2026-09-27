@@ -5,6 +5,7 @@ import { initSocket } from "./config/socket.js";
 
 import { autoRappelScheduler } from "./services/reminders/AutoRappelScheduler.js";
 import { documentReminderScheduler } from "./services/reminders/DocumentReminderScheduler.js";
+import { subscriptionScheduler } from "./services/subscription/SubscriptionScheduler.js";
 
 const PORT = process.env.PORT || 5001;
 
@@ -21,9 +22,10 @@ const startServer = async () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
         });
 
-        // Démarrage des Planificateurs de Rappels
+        // Démarrage des Planificateurs de Rappels & Abonnements
         autoRappelScheduler.start();
         documentReminderScheduler.start();
+        subscriptionScheduler.start();
 
         // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 60 secondes
         const syncInterval = setInterval(async () => {
@@ -48,6 +50,7 @@ const startServer = async () => {
             clearInterval(syncInterval);
             autoRappelScheduler.stop();
             documentReminderScheduler.stop();
+            subscriptionScheduler.stop();
             console.log('Signal received. Shutting down...');
 
             const forceExitTimeout = setTimeout(() => {

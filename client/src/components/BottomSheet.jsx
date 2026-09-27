@@ -8,7 +8,7 @@ import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
 
-const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0, unreadSupportCount = 0 }) => {
+const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0, unreadSupportCount = 0, onOpenLogout }) => {
     const navigate = useNavigate();
     const { isStarter, isExpired } = useSubscription();
     const { role } = useUser();
@@ -200,14 +200,18 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                                 <li>
                                     <motion.button
                                         onClick={() => {
-                                            onClose();
-                                            setShowLogoutModal(true);
+                                            if (onOpenLogout) {
+                                                onOpenLogout();
+                                            } else {
+                                                onClose();
+                                                setShowLogoutModal(true);
+                                            }
                                         }}
                                         whileTap={{ scale: 0.96 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                                        className="w-full min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100 select-none text-[#DC2626]"
+                                        className="w-full min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none hover:bg-red-500/10 focus-visible:bg-red-500/10 active:bg-red-500/20 select-none text-red-500"
                                     >
-                                        <LogOut className="w-[25px] h-[25px] stroke-[1.8] text-[#DC2626]" />
+                                        <LogOut className="w-[25px] h-[25px] stroke-[1.8] text-red-500" />
                                         <span className="text-[17px] font-medium">Déconnexion</span>
                                     </motion.button>
                                 </li>
@@ -222,7 +226,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                 <div 
                     onClick={() => setShowLogoutModal(false)}
                     style={{
-                        position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                        position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.75)',
                         backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999999, display: 'flex',
                         alignItems: 'center', justifyContent: 'center', padding: '20px'
                     }}
@@ -231,8 +235,8 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
-                            borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
-                            boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                            borderRadius: '24px', padding: '28px', maxWidth: '440px', width: '100%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.4)', textAlign: 'center'
                         }}
                     >
                         <div style={{
@@ -253,14 +257,25 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                             <button
                                 type="button"
                                 onClick={() => setShowLogoutModal(false)}
-                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', fontWeight: 700, cursor: 'pointer', color: 'var(--foreground, #0F172A)' }}
+                                style={{ 
+                                    flex: 1, padding: '12px 16px', borderRadius: '12px', 
+                                    border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', 
+                                    fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap',
+                                    cursor: 'pointer', color: 'var(--foreground, #0F172A)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
                             >
                                 Annuler
                             </button>
                             <button
                                 type="button"
                                 onClick={() => { setShowLogoutModal(false); handleLogout(navigate); }}
-                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ 
+                                    flex: 1.3, padding: '12px 16px', borderRadius: '12px', 
+                                    border: 'none', backgroundColor: '#EF4444', color: '#FFF', 
+                                    fontWeight: 800, fontSize: '14px', whiteSpace: 'nowrap',
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
                             >
                                 Oui, me déconnecter
                             </button>

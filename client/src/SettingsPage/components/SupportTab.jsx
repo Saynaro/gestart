@@ -201,8 +201,27 @@ export default function SupportTab({ isMobileView, triggerToast }) {
 
     // Send a message (support direct or quick prompt with auto-reply)
     const handleSendMessage = async (customContent = null, autoReply = null) => {
-        const textToSend = (customContent || inputText).trim();
+        const textToSend = (customContent || inputText || (inputRef.current?.innerText || "")).trim();
         if (!textToSend || sending) return;
+
+        // 1. Optimistic message insertion (WhatsApp instant feel)
+        const optimisticId = `temp_${Date.now()}`;
+        const optimisticMsg = {
+            id: optimisticId,
+            senderRole: "OWNER",
+            senderId: user?.id,
+            content: textToSend,
+            createdAt: new Date().toISOString(),
+            readByAdmin: false,
+            isOptimistic: true
+        };
+
+        setMessages((prev) => [...prev, optimisticMsg]);
+        if (!customContent) {
+            setInputText("");
+            if (inputRef.current) inputRef.current.innerText = "";
+        }
+        setTimeout(() => scrollToBottom("smooth"), 30);
 
         setSending(true);
         try {
@@ -215,16 +234,20 @@ export default function SupportTab({ isMobileView, triggerToast }) {
             });
 
             if (res.success && res.data) {
-                // Instantly update local list if socket didn't already
-                setMessages((prev) => {
-                    if (prev.some((m) => m.id === res.data.id)) return prev;
-                    return [...prev, res.data];
-                });
-                if (!customContent) setInputText("");
-                setTimeout(() => scrollToBottom("smooth"), 100);
+                // Seamlessly replace optimistic message with server entity
+                setMessages((prev) =>
+                    prev.map((m) => (m.id === optimisticId ? res.data : m))
+                );
+                setTimeout(() => scrollToBottom("smooth"), 60);
             }
         } catch (error) {
             console.error("Error sending support message:", error);
+            // Revert optimistic message on error
+            setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+            if (!customContent) {
+                setInputText(textToSend);
+                if (inputRef.current) inputRef.current.innerText = textToSend;
+            }
             if (triggerToast) triggerToast("Erreur lors de l'envoi du message.", true);
         } finally {
             setSending(false);
@@ -522,16 +545,20 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                             </div>
                                         )}
 
-                                        <div style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: isFromMe ? 'flex-end' : 'flex-start',
-                                            gap: '4px',
-                                            maxWidth: isMobileView ? '88%' : '80%',
-                                            alignSelf: isFromMe ? 'flex-end' : 'flex-start'
-                                        }}>
+                                        <div 
+                                            key={msg.id || index}
+                                            className={isFromMe ? "chat-bubble-outgoing" : "chat-bubble-incoming"}
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: isFromMe ? 'flex-end' : 'flex-start',
+                                                gap: '3px',
+                                                maxWidth: isMobileView ? '88%' : '80%',
+                                                alignSelf: isFromMe ? 'flex-end' : 'flex-start'
+                                            }}
+                                        >
                                             {!isFromMe && (
-                                                <span style={{ fontSize: isMobileView ? '13px' : '11px', fontWeight: 700, color: 'var(--sidebar-primary)', marginLeft: '4px' }}>
+                                                <span style={{ fontSize: isMobileView ? '12.5px' : '11px', fontWeight: 700, color: 'var(--sidebar-primary)', marginLeft: '6px', marginBottom: '1px' }}>
                                                     {msg.senderName || "Assistant GestArt"}
                                                 </span>
                                             )}
@@ -542,11 +569,12 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                                 backgroundColor: isFromMe ? 'var(--sidebar-primary)' : 'var(--card)',
                                                 color: isFromMe ? '#ffffff' : 'var(--foreground)',
                                                 border: isFromMe ? 'none' : '1px solid var(--border)',
-                                                boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                                                boxShadow: isFromMe ? '0 2px 8px rgba(85, 107, 47, 0.25)' : '0 2px 6px rgba(0,0,0,0.04)',
                                                 fontSize: isMobileView ? '15.5px' : '13.5px',
                                                 lineHeight: '1.5',
                                                 wordBreak: 'break-word',
-                                                whiteSpace: 'pre-wrap'
+                                                whiteSpace: 'pre-wrap',
+                                                position: 'relative'
                                             }}>
                                                 {msg.content}
                                             </div>
@@ -566,7 +594,7 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                                         {msg.readByAdmin ? (
                                                             <CheckCheck size={14} style={{ color: '#22c55e' }} title="Lu par l'assistant" />
                                                         ) : (
-                                                            <Check size={14} style={{ color: 'var(--muted-foreground)' }} title="Distribué" />
+                                                            <Check size={14} style={{ color: 'var(--muted-foreground)' }} title={msg.isOptimistic ? "Envoi en cours..." : "Distribué"} />
                                                         )}
                                                     </span>
                                                 )}
@@ -597,6 +625,7 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                 <button
                                     key={prompt.id}
                                     type="button"
+                                    className="quick-prompt-btn"
                                     onClick={() => handleSendMessage(prompt.label, prompt.autoReply)}
                                     disabled={sending}
                                     style={{
@@ -608,7 +637,6 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                         border: '1px solid var(--border)',
                                         color: 'var(--foreground)',
                                         cursor: 'pointer',
-                                        transition: 'all 0.15s ease',
                                         fontWeight: 600,
                                         display: 'flex',
                                         alignItems: 'center',
@@ -635,13 +663,26 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                         gap: '10px',
                         flexShrink: 0
                     }}>
-                        <textarea
+                        <div
                             ref={inputRef}
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
+                            contentEditable={true}
+                            role="textbox"
+                            aria-multiline="true"
+                            tabIndex={0}
+                            enterKeyHint="send"
+                            autoCapitalize="sentences"
+                            autoCorrect="on"
+                            spellCheck="true"
+                            data-placeholder="Posez votre question à un assistant..."
+                            className="chat-contenteditable-input"
+                            onInput={(e) => setInputText(e.currentTarget.innerText || "")}
                             onKeyDown={handleKeyDown}
-                            placeholder="Posez votre question à un assistant..."
-                            rows={1}
+                            onPaste={(e) => {
+                                e.preventDefault();
+                                const text = e.clipboardData.getData('text/plain');
+                                document.execCommand('insertText', false, text);
+                                setInputText(inputRef.current?.innerText || "");
+                            }}
                             style={{
                                 flex: 1,
                                 padding: isMobileView ? '11px 14px' : '9px 12px',
@@ -650,38 +691,46 @@ export default function SupportTab({ isMobileView, triggerToast }) {
                                 backgroundColor: 'var(--background)',
                                 color: 'var(--foreground)',
                                 fontSize: isMobileView ? '15.5px' : '13.5px',
-                                resize: 'none',
                                 outline: 'none',
                                 fontFamily: 'inherit',
                                 minHeight: isMobileView ? '44px' : '40px',
                                 maxHeight: '110px',
-                                lineHeight: '1.4'
+                                overflowY: 'auto',
+                                lineHeight: '1.4',
+                                wordBreak: 'break-word',
+                                whiteSpace: 'pre-wrap',
+                                userSelect: 'text',
+                                WebkitUserSelect: 'text',
+                                boxSizing: 'border-box'
                             }}
                         />
                         <button
                             type="button"
+                            className="chat-send-btn"
                             onClick={() => handleSendMessage()}
                             disabled={!inputText.trim() || sending}
                             style={{
-                                height: isMobileView ? '44px' : '40px',
-                                padding: isMobileView ? '0 16px' : '0 18px',
+                                height: isMobileView ? '44px' : '42px',
+                                padding: isMobileView ? '0 14px' : '0 22px',
+                                minWidth: isMobileView ? '44px' : '115px',
                                 backgroundColor: 'var(--sidebar-primary)',
                                 color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '12px',
                                 fontWeight: 700,
-                                fontSize: '13.5px',
+                                fontSize: '14px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                whiteSpace: 'nowrap',
                                 cursor: inputText.trim() && !sending ? 'pointer' : 'not-allowed',
                                 opacity: inputText.trim() && !sending ? 1 : 0.6,
-                                transition: 'opacity 0.2s ease',
                                 flexShrink: 0
                             }}
                         >
-                            <Send size={16} className={sending ? "spin" : ""} />
-                            <span className="hide-on-mobile">Envoyer</span>
+                            <Send size={16} className={sending ? "spin" : ""} style={{ flexShrink: 0 }} />
+                            <span className="hide-on-mobile" style={{ whiteSpace: 'nowrap' }}>Envoyer</span>
                         </button>
                     </div>
                 </>
@@ -689,4 +738,5 @@ export default function SupportTab({ isMobileView, triggerToast }) {
         </div>
     );
 }
+
 

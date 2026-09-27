@@ -4,6 +4,10 @@ import { fileURLToPath } from "url";
 import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
+import {
+    sendSubscriptionActivatedEmail,
+    sendSubscriptionCancelledEmail
+} from "../utils/emailService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -350,6 +354,17 @@ export const verifyCheckoutSession = async (req, res) => {
             }
         });
 
+        if (req.user?.email) {
+            sendSubscriptionActivatedEmail({
+                to: req.user.email,
+                firstName: req.user.firstName || "Cher client",
+                planName: targetPlan.displayName || targetPlan.name,
+                amount: priceAmount ? priceAmount.toFixed(2) : undefined,
+                billingCycle: cycle === "ANNUAL" ? "annuel" : "mensuel",
+                nextBillingDate: updatedSubscription.currentPeriodEnd
+            }).catch(err => console.error("[VERIFY_SESSION EMAIL ERR]", err.message));
+        }
+
         return res.status(200).json({
             success: true,
             message: `Abonnement ${targetPlan.displayName} activé avec succès !`,
@@ -489,6 +504,17 @@ export const upgradeSubscription = async (req, res) => {
             }
         }).catch(err => console.warn("Payment history creation skip:", err.message));
 
+        if (req.user?.email) {
+            sendSubscriptionActivatedEmail({
+                to: req.user.email,
+                firstName: req.user.firstName || "Cher client",
+                planName: newPlan.displayName || newPlan.name,
+                amount: priceAmount ? priceAmount.toFixed(2) : undefined,
+                billingCycle: cycle === "ANNUAL" ? "annuel" : "mensuel",
+                nextBillingDate: updatedSubscription.currentPeriodEnd
+            }).catch(err => console.error("[UPGRADE_SUB EMAIL ERR]", err.message));
+        }
+
         return res.status(200).json({
             success: true,
             message: `Abonnement mis à jour vers l'offre ${newPlan.displayName}`,
@@ -508,7 +534,10 @@ export const cancelSubscription = async (req, res) => {
     const companyId = req.user.companyId;
 
     try {
-        const sub = await prisma.subscription.findUnique({ where: { companyId } });
+        const sub = await prisma.subscription.findUnique({
+            where: { companyId },
+            include: { plan: true }
+        });
 
         // If active Stripe Subscription exists, tell Stripe to cancel at end of period (no further charges)
         if (sub?.stripeSubscriptionId && stripe) {
@@ -529,6 +558,15 @@ export const cancelSubscription = async (req, res) => {
             },
             include: { plan: true }
         });
+
+        if (req.user?.email) {
+            sendSubscriptionCancelledEmail({
+                to: req.user.email,
+                firstName: req.user.firstName || "Cher client",
+                planName: sub?.plan?.displayName || sub?.plan?.name || "Pro",
+                accessUntilDate: sub?.currentPeriodEnd || new Date()
+            }).catch(err => console.error("[CANCEL_SUB EMAIL ERR]", err.message));
+        }
 
         return res.status(200).json({
             success: true,

@@ -117,7 +117,7 @@ export default function ForgotPasswordPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" className="auth-brand-link">
+                        <Link to="/" replace className="auth-brand-link">
                             <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                             <span className="auth-brand-text">GestArt</span>
                         </Link>
@@ -170,7 +170,7 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     <div className="back-link-wrapper">
-                        <Link to="/login" className="btn-back">
+                        <Link to="/login" replace className="btn-back">
                             <ArrowLeft size={16} />
                             <span>Retour à la connexion</span>
                         </Link>
@@ -242,7 +242,7 @@ export default function ForgotPasswordPage() {
                             </div>
 
                             <div className="action-buttons-group">
-                                <Link to="/login" className="btn-submit pill-btn" style={{ textDecoration: 'none' }}>
+                                <Link to="/login" replace className="btn-submit pill-btn" style={{ textDecoration: 'none' }}>
                                     Retour à la connexion
                                 </Link>
 
@@ -265,7 +265,7 @@ export default function ForgotPasswordPage() {
                     <div className="form-footer">
                         <div>
                             <span>Vous avez retrouvé votre mot de passe ? </span>
-                            <Link to="/login" className="register-link" style={{ whiteSpace: 'nowrap' }}>
+                            <Link to="/login" replace className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Se connecter
                             </Link>
                         </div>

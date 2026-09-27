@@ -127,7 +127,7 @@ export default function ResetPasswordPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" className="auth-brand-link">
+                        <Link to="/" replace className="auth-brand-link">
                             <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                             <span className="auth-brand-text">GestArt</span>
                         </Link>
@@ -172,7 +172,7 @@ export default function ResetPasswordPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" className="auth-brand-link">
+                            <Link to="/" replace className="auth-brand-link">
                                 <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                                 <span className="auth-brand-text">GestArt</span>
                             </Link>
@@ -180,7 +180,7 @@ export default function ResetPasswordPage() {
                     </div>
 
                     <div className="back-link-wrapper">
-                        <Link to="/login" className="btn-back">
+                        <Link to="/login" replace className="btn-back">
                             <ArrowLeft size={16} />
                             <span>Retour à la connexion</span>
                         </Link>
@@ -204,7 +204,7 @@ export default function ResetPasswordPage() {
                             </p>
 
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/login', { replace: true })}
                                 className="btn-submit pill-btn"
                                 style={{ marginTop: 12 }}
                             >
@@ -349,7 +349,7 @@ export default function ResetPasswordPage() {
                     <div className="form-footer">
                         <div>
                             <span>Déjà un mot de passe valide ? </span>
-                            <Link to="/login" className="register-link">
+                            <Link to="/login" replace className="register-link">
                                 Se connecter
                             </Link>
                         </div>

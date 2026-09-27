@@ -351,39 +351,54 @@ function SettingsPage() {
         return defaultOpen;
     });
 
-    const [isMobileHeaderTitleVisible, setIsMobileHeaderTitleVisible] = useState(false);
+    const [isListHeaderVisible, setIsListHeaderVisible] = useState(() => (scrollYRef.current || 0) > 24);
+    const [isDetailHeaderVisible, setIsDetailHeaderVisible] = useState(false);
 
-    // Scroll tracking for header transition
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 40) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
-        };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    const handleMobileScroll = useCallback((e) => {
+        const target = e?.currentTarget || mobileScrollRef.current;
+        const containerScroll = target ? target.scrollTop : 0;
+        const winScroll = typeof window !== "undefined" ? (window.scrollY || document.documentElement?.scrollTop || document.body?.scrollTop || 0) : 0;
+        const rootScroll = typeof document !== "undefined" ? (document.getElementById("root")?.scrollTop || 0) : 0;
+        const scrollPos = Math.max(containerScroll, winScroll, rootScroll);
+
+        if (mobileScreenState === "detail") {
+            setIsDetailHeaderVisible(scrollPos > 24);
+        } else {
+            scrollYRef.current = scrollPos;
+            setIsListHeaderVisible(scrollPos > 24);
+        }
+    }, [mobileScreenState]);
 
     // Apple Large Title pattern: hide header title when at top, reveal when scrolled past body title
     useEffect(() => {
         const container = mobileScrollRef.current;
-        if (!container) return;
+        if (container) {
+            container.addEventListener("scroll", handleMobileScroll, { passive: true });
+        }
+        window.addEventListener("scroll", handleMobileScroll, { passive: true });
+        const rootEl = document.getElementById("root");
+        if (rootEl) {
+            rootEl.addEventListener("scroll", handleMobileScroll, { passive: true });
+        }
 
-        const handleMobileScroll = () => {
-            if (container.scrollTop > 35) {
-                setIsMobileHeaderTitleVisible(true);
-            } else {
-                setIsMobileHeaderTitleVisible(false);
-            }
-        };
-
-        container.addEventListener("scroll", handleMobileScroll, { passive: true });
-        handleMobileScroll();
-
-        return () => container.removeEventListener("scroll", handleMobileScroll);
-    }, [mobileScreenState, activeTab]);
+        if (mobileScreenState === "detail") {
+            setIsDetailHeaderVisible(false);
+            const rafId = requestAnimationFrame(handleMobileScroll);
+            return () => {
+                if (container) container.removeEventListener("scroll", handleMobileScroll);
+                window.removeEventListener("scroll", handleMobileScroll);
+                if (rootEl) rootEl.removeEventListener("scroll", handleMobileScroll);
+                cancelAnimationFrame(rafId);
+            };
+        } else {
+            setIsListHeaderVisible((scrollYRef.current || 0) > 24);
+            return () => {
+                if (container) container.removeEventListener("scroll", handleMobileScroll);
+                window.removeEventListener("scroll", handleMobileScroll);
+                if (rootEl) rootEl.removeEventListener("scroll", handleMobileScroll);
+            };
+        }
+    }, [mobileScreenState, activeTab, handleMobileScroll]);
 
     // Detect screen size on resize
     useEffect(() => {
@@ -646,7 +661,8 @@ function SettingsPage() {
     }, []);
 
     const handleBackFromDetail = useCallback(() => {
-        setIsMobileHeaderTitleVisible(false);
+        setIsDetailHeaderVisible(false);
+        setIsListHeaderVisible((scrollYRef.current || 0) > 24);
         if (typeof window !== "undefined" && window.history.state?.settingsDetail) {
             window.history.back();
         } else {
@@ -682,11 +698,14 @@ function SettingsPage() {
     useEffect(() => {
         const handlePopState = (e) => {
             if (e.state && e.state.settingsDetail) {
+                setIsDetailHeaderVisible(false);
                 setMobileScreenState("detail");
                 if (e.state.tab) {
                     setActiveTab(e.state.tab);
                 }
             } else {
+                setIsDetailHeaderVisible(false);
+                setIsListHeaderVisible((scrollYRef.current || 0) > 24);
                 setMobileScreenState("list");
                 restoreListScroll();
                 setTimeout(restoreListScroll, 0);
@@ -798,11 +817,13 @@ function SettingsPage() {
 
     // Helper to change tab
     const handleTabSelect = useCallback((itemId) => {
-        setIsMobileHeaderTitleVisible(false);
+        if (mobileScrollRef.current) {
+            scrollYRef.current = mobileScrollRef.current.scrollTop;
+        }
+        setIsDetailHeaderVisible(false);
         setActiveTab(itemId);
         if (typeof window !== "undefined" && window.innerWidth <= 768) {
             if (mobileScreenState === "list" && mobileScrollRef.current) {
-                scrollYRef.current = mobileScrollRef.current.scrollTop;
                 mobileScrollRef.current.scrollTop = 0;
             }
             if (mobileScreenState === "detail") {
@@ -952,14 +973,14 @@ function SettingsPage() {
                     </div>
 
                     <span
-                        className="mobile-nav-header-title visible"
+                        className="mobile-nav-header-title"
                         style={{
                             position: 'absolute',
                             left: '50%',
                             top: 'calc(env(safe-area-inset-top, 0px) + 28px)',
-                            transform: 'translate(-50%, -50%)',
-                            opacity: 1,
-                            fontSize: '18px',
+                            transform: (isDetail ? (isDetailHeaderVisible || activeTab === "support") : isListHeaderVisible) ? 'translate(-50%, -50%)' : 'translate(-50%, -36%)',
+                            opacity: (isDetail ? (isDetailHeaderVisible || activeTab === "support") : isListHeaderVisible) ? 1 : 0,
+                            fontSize: '17px',
                             fontWeight: 800,
                             color: 'var(--foreground)',
                             maxWidth: 'calc(100% - 120px)',
@@ -967,7 +988,8 @@ function SettingsPage() {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             pointerEvents: 'none',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
                         }}
                     >
                         {isDetail ? (activeTab === "support" ? "Support direct" : currentItem.label) : "Paramètres"}
@@ -1022,7 +1044,7 @@ function SettingsPage() {
                         <SupportTab isMobileView={true} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />
                     </div>
                 ) : (
-                    <div className="mobile-settings-scroll-container" ref={mobileScrollRef}>
+                    <div className="mobile-settings-scroll-container" ref={mobileScrollRef} onScroll={handleMobileScroll}>
                         <PullToRefresh onRefresh={handleSettingsRefresh}>
                             {/* List View Container - Kept permanently mounted in DOM for instant 0ms Safari swipe-back */}
                             <div style={{ display: !isDetail ? 'block' : 'none' }}>

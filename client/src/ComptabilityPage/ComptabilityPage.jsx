@@ -13,10 +13,9 @@ import TvaSummary from "./components/TvaSummary";
 import UrssafSummary from "./components/UrssafSummary";
 import ExportPanel from "./components/ExportPanel";
 import ExportHistory from "./components/ExportHistory";
-import AccountingIntegration from "./components/AccountingIntegration";
 
 // Icons
-import { Landmark, Calculator, FileSpreadsheet, History, Link2 } from "lucide-react";
+import { Landmark, Calculator, FileSpreadsheet, History } from "lucide-react";
 import { useSubscription } from "../utils/useSubscription";
 import FeatureLockBanner from "../components/FeatureLockBanner";
 
@@ -55,8 +54,7 @@ function ComptabilityPage() {
         { id: "tva", label: "Résumé TVA", shortLabel: "TVA", icon: Landmark },
         { id: "urssaf", label: "Déclaration URSSAF & Net", shortLabel: "URSSAF & Net", icon: Calculator },
         { id: "export", label: "Export comptable", shortLabel: "Export", icon: FileSpreadsheet },
-        { id: "history", label: "Historique exports", shortLabel: "Historique", icon: History },
-        { id: "integration", label: "Intégration comptable", shortLabel: "Intégration", icon: Link2 }
+        { id: "history", label: "Historique exports", shortLabel: "Historique", icon: History }
     ];
 
     const renderActiveSubPanel = () => {
@@ -69,8 +67,6 @@ function ComptabilityPage() {
                 return <ExportPanel isMobile={isMobile} />;
             case "history":
                 return <ExportHistory isMobile={isMobile} />;
-            case "integration":
-                return <AccountingIntegration isMobile={isMobile} />;
             default:
                 return <TvaSummary isMobile={isMobile} />;
         }

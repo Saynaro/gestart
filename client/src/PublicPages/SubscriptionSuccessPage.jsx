@@ -68,7 +68,7 @@ export function SubscriptionSuccessPage() {
                 </p>
 
                 <button
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/settings?tab=abonnement', { replace: true })}
                     style={{
                         width: '100%',
                         padding: '16px',
@@ -85,7 +85,7 @@ export function SubscriptionSuccessPage() {
                         gap: '8px'
                     }}
                 >
-                    Accéder à mon Dashboard <ArrowRight size={18} />
+                    Accéder à mon espace <ArrowRight size={18} />
                 </button>
             </motion.div>
         </div>
@@ -128,7 +128,7 @@ export function SubscriptionCancelPage() {
                 </p>
 
                 <button
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/settings?tab=abonnement', { replace: true })}
                     style={{
                         width: '100%',
                         padding: '16px',
@@ -141,7 +141,7 @@ export function SubscriptionCancelPage() {
                         cursor: 'pointer'
                     }}
                 >
-                    Retour au Dashboard
+                    Retour aux paramètres d'abonnement
                 </button>
             </motion.div>
         </div>

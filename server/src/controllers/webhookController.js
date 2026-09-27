@@ -2,6 +2,12 @@ import { prisma } from "../config/db.js";
 import { stripe } from "../config/stripe.js";
 import { syncAccountStatus } from "../services/stripeConnectService.js";
 import { dispatchNotification } from "../services/notificationService.js";
+import {
+    sendSubscriptionActivatedEmail,
+    sendSubscriptionRenewedEmail,
+    sendSubscriptionCancelledEmail,
+    sendSubscriptionPaymentFailedEmail
+} from "../utils/emailService.js";
 
 /**
  * Webhook Stripe pour la Plateforme & Abonnements SaaS (GestArt CRM)
@@ -144,7 +150,7 @@ export const handleStripeWebhook = async (req, res) => {
                 const subscriptionId = session.subscription;
 
                 if (companyId && subscriptionId) {
-                    await prisma.subscription.update({
+                    const updatedSub = await prisma.subscription.update({
                         where: { companyId },
                         data: {
                             status: "ACTIVE",
@@ -152,8 +158,30 @@ export const handleStripeWebhook = async (req, res) => {
                             stripeSubscriptionId: subscriptionId,
                             currentPeriodStart: new Date(),
                             currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                        },
+                        include: {
+                            plan: true,
+                            company: {
+                                include: {
+                                    users: {
+                                        where: { role: "OWNER", isActive: true }
+                                    }
+                                }
+                            }
                         }
                     });
+
+                    const owner = updatedSub.company?.users?.[0];
+                    if (owner?.email) {
+                        sendSubscriptionActivatedEmail({
+                            to: owner.email,
+                            firstName: owner.firstName || "Cher client",
+                            planName: updatedSub.plan?.displayName || updatedSub.plan?.name || "Pro",
+                            amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : undefined,
+                            billingCycle: updatedSub.cycle === "ANNUAL" ? "annuel" : "mensuel",
+                            nextBillingDate: updatedSub.currentPeriodEnd
+                        }).catch(err => console.error("[WEBHOOK SUB ACTIVATED EMAIL ERROR]", err.message));
+                    }
                 }
                 break;
             }
@@ -164,17 +192,45 @@ export const handleStripeWebhook = async (req, res) => {
 
                 if (customerId) {
                     const sub = await prisma.subscription.findFirst({
-                        where: { stripeCustomerId: customerId }
+                        where: { stripeCustomerId: customerId },
+                        include: {
+                            plan: true,
+                            company: {
+                                include: {
+                                    users: {
+                                        where: { role: "OWNER", isActive: true }
+                                    }
+                                }
+                            }
+                        }
                     });
 
                     if (sub) {
+                        const nextPeriodEnd = invoice.lines?.data?.[0]?.period?.end
+                            ? new Date(invoice.lines.data[0].period.end * 1000)
+                            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
                         await prisma.subscription.update({
                             where: { id: sub.id },
                             data: {
                                 status: "ACTIVE",
-                                currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                currentPeriodEnd: nextPeriodEnd
                             }
                         });
+
+                        // Only send renewal email on automatic recurring invoice cycles
+                        if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update") {
+                            const owner = sub.company?.users?.[0];
+                            if (owner?.email) {
+                                sendSubscriptionRenewedEmail({
+                                    to: owner.email,
+                                    firstName: owner.firstName || "Cher client",
+                                    planName: sub.plan?.displayName || sub.plan?.name || "Pro",
+                                    amount: invoice.amount_paid ? (invoice.amount_paid / 100).toFixed(2) : undefined,
+                                    nextBillingDate: nextPeriodEnd
+                                }).catch(err => console.error("[WEBHOOK SUB RENEWED EMAIL ERROR]", err.message));
+                            }
+                        }
                     }
                 }
                 break;
@@ -186,7 +242,17 @@ export const handleStripeWebhook = async (req, res) => {
 
                 if (customerId) {
                     const sub = await prisma.subscription.findFirst({
-                        where: { stripeCustomerId: customerId }
+                        where: { stripeCustomerId: customerId },
+                        include: {
+                            plan: true,
+                            company: {
+                                include: {
+                                    users: {
+                                        where: { role: "OWNER", isActive: true }
+                                    }
+                                }
+                            }
+                        }
                     });
 
                     if (sub) {
@@ -194,6 +260,16 @@ export const handleStripeWebhook = async (req, res) => {
                             where: { id: sub.id },
                             data: { status: "PAST_DUE" }
                         });
+
+                        const owner = sub.company?.users?.[0];
+                        if (owner?.email) {
+                            sendSubscriptionPaymentFailedEmail({
+                                to: owner.email,
+                                firstName: owner.firstName || "Cher client",
+                                planName: sub.plan?.displayName || sub.plan?.name || "Pro",
+                                amount: invoice.amount_due ? (invoice.amount_due / 100).toFixed(2) : undefined
+                            }).catch(err => console.error("[WEBHOOK SUB PAYMENT FAILED EMAIL ERROR]", err.message));
+                        }
                     }
                 }
                 break;
@@ -204,7 +280,17 @@ export const handleStripeWebhook = async (req, res) => {
                 const subscriptionId = subscription.id;
 
                 const sub = await prisma.subscription.findFirst({
-                    where: { stripeSubscriptionId: subscriptionId }
+                    where: { stripeSubscriptionId: subscriptionId },
+                    include: {
+                        plan: true,
+                        company: {
+                            include: {
+                                users: {
+                                    where: { role: "OWNER", isActive: true }
+                                }
+                            }
+                        }
+                    }
                 });
 
                 if (sub) {
@@ -215,6 +301,16 @@ export const handleStripeWebhook = async (req, res) => {
                             canceledAt: new Date()
                         }
                     });
+
+                    const owner = sub.company?.users?.[0];
+                    if (owner?.email) {
+                        sendSubscriptionCancelledEmail({
+                            to: owner.email,
+                            firstName: owner.firstName || "Cher client",
+                            planName: sub.plan?.displayName || sub.plan?.name || "Pro",
+                            accessUntilDate: sub.currentPeriodEnd || new Date()
+                        }).catch(err => console.error("[WEBHOOK SUB CANCELLED EMAIL ERROR]", err.message));
+                    }
                 }
                 break;
             }

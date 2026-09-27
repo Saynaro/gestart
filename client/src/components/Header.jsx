@@ -1184,7 +1184,7 @@ function Header({ title }) {
                 <div 
                     onClick={() => setShowLogoutModal(false)}
                     style={{
-                        position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                        position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.75)',
                         backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999999, display: 'flex',
                         alignItems: 'center', justifyContent: 'center', padding: '20px'
                     }}
@@ -1193,8 +1193,8 @@ function Header({ title }) {
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             backgroundColor: 'var(--card, #FFFFFF)', border: '1px solid var(--border, #E2E8F0)',
-                            borderRadius: '24px', padding: '28px', maxWidth: '400px', width: '100%',
-                            boxShadow: '0 20px 50px rgba(0,0,0,0.25)', textAlign: 'center'
+                            borderRadius: '24px', padding: '28px', maxWidth: '440px', width: '100%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.4)', textAlign: 'center'
                         }}
                     >
                         <div style={{
@@ -1215,14 +1215,25 @@ function Header({ title }) {
                             <button
                                 type="button"
                                 onClick={() => setShowLogoutModal(false)}
-                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', fontWeight: 700, cursor: 'pointer', color: 'var(--foreground, #0F172A)' }}
+                                style={{ 
+                                    flex: 1, padding: '12px 16px', borderRadius: '12px', 
+                                    border: '1px solid var(--border, #CBD5E1)', backgroundColor: 'transparent', 
+                                    fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap',
+                                    cursor: 'pointer', color: 'var(--foreground, #0F172A)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
                             >
                                 Annuler
                             </button>
                             <button
                                 type="button"
                                 onClick={() => { setShowLogoutModal(false); handleLogout(navigate); }}
-                                style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontWeight: 800, cursor: 'pointer' }}
+                                style={{ 
+                                    flex: 1.3, padding: '12px 16px', borderRadius: '12px', 
+                                    border: 'none', backgroundColor: '#EF4444', color: '#FFF', 
+                                    fontWeight: 800, fontSize: '14px', whiteSpace: 'nowrap',
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
                             >
                                 Oui, me déconnecter
                             </button>

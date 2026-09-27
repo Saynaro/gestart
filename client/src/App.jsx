@@ -102,10 +102,17 @@ function AdminProtectedRoute({ children }) {
   return children;
 }
 
-// Route Guard for Public Auth Pages (Redirects to /home if already logged in)
+// Route Guard for Public Auth Pages (Redirects to /home or role dashboard if already logged in)
 function PublicOnlyRoute({ children }) {
+  const { role, loading } = useUser();
   if (isAuthenticated()) {
-    return <Navigate to={isSuperAdmin() ? "/admin" : "/home"} replace />;
+    if (isSuperAdmin()) {
+      return <Navigate to="/admin" replace />;
+    }
+    if (!loading && role === "TECHNICIAN") {
+      return <Navigate to="/interventions/today" replace />;
+    }
+    return <Navigate to="/home" replace />;
   }
   return children;
 }
@@ -172,11 +179,18 @@ function App() {
     const handlePageShow = (event) => {
       if (event.persisted) {
         window.dispatchEvent(new CustomEvent('userProfileChanged'));
+        const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/'];
+        const isAuth = isAuthenticated();
+        if (!isAuth && !publicRoutes.includes(location.pathname) && !location.pathname.startsWith('/pay/') && !location.pathname.startsWith('/sign/') && !location.pathname.startsWith('/contact/')) {
+          window.location.replace('/login');
+        } else if (isAuth && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/reset-password')) {
+          window.location.replace('/home');
+        }
       }
     };
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
-  }, []);
+  }, [location.pathname]);
 
   // Fix iOS Safari virtual keyboard: after input blur, scroll body back to top
   // This prevents the "grey gap at bottom" when the virtual keyboard hides

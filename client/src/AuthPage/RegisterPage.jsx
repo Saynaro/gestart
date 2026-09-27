@@ -569,7 +569,7 @@ export default function RegisterPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" className="auth-brand-link">
+                        <Link to="/" replace className="auth-brand-link">
                             <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                             <span className="auth-brand-text">GestArt</span>
                         </Link>
@@ -611,7 +611,7 @@ export default function RegisterPage() {
                 <div className="form-card">
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" className="auth-brand-link">
+                            <Link to="/" replace className="auth-brand-link">
                                 <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                                 <span className="auth-brand-text">GestArt</span>
                             </Link>
@@ -663,7 +663,7 @@ export default function RegisterPage() {
                             <div style={{ flex: 1 }}>
                                 <div>{error}</div>
                                 {error.includes("inscrit") && (
-                                    <Link to="/login" style={{ color: 'var(--destructive)', fontWeight: 700, textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}>
+                                    <Link to="/login" replace style={{ color: 'var(--destructive)', fontWeight: 700, textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}>
                                         Se connecter maintenant →
                                     </Link>
                                 )}
@@ -969,7 +969,7 @@ export default function RegisterPage() {
 
                             <div className="button-group">
                                 {formData.isGoogle ? (
-                                    <button type="button" className="btn-back" onClick={() => navigate('/login')}>
+                                    <button type="button" className="btn-back" onClick={() => navigate('/login', { replace: true })}>
                                         <ArrowLeft size={18} /> Annuler
                                     </button>
                                 ) : (
@@ -1096,7 +1096,7 @@ export default function RegisterPage() {
                         {step !== 2 && <p className="required-note">(*) Les champs sont obligatoires</p>}
                         <div>
                             <span>Vous avez déjà un compte ? </span>
-                            <Link to="/login" className="login-link" style={{ whiteSpace: 'nowrap' }}>
+                            <Link to="/login" replace className="login-link" style={{ whiteSpace: 'nowrap' }}>
                                 Se connecter
                             </Link>
                         </div>

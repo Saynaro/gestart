@@ -10,7 +10,7 @@ async function main() {
         company = await prisma.company.create({
             data: {
                 name: "GestArt Siège SuperAdmin",
-                email: "khalid.cizdoev777@gmail.com",
+                email: "support.gestart@gmail.com",
                 phone: "0600000000",
                 address: "Paris, France"
             }
@@ -20,14 +20,14 @@ async function main() {
     const hashedPassword = await bcrypt.hash('Khalid2527@@', 10);
 
     const superAdmin = await prisma.user.upsert({
-        where: { email: 'khalid.cizdoev777@gmail.com' },
+        where: { email: 'support.gestart@gmail.com' },
         update: {
             role: 'SUPERADMIN',
             emailVerified: true,
             password: hashedPassword
         },
         create: {
-            email: 'khalid.cizdoev777@gmail.com',
+            email: 'support.gestart@gmail.com',
             password: hashedPassword,
             firstName: 'Khalid',
             lastName: 'Sainaro',

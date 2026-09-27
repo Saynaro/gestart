@@ -823,3 +823,501 @@ ${content}
     }
 };
 
+/**
+ * 1. Email : Rappel d'expiration de l'essai gratuit (3 jours avant)
+ */
+export const sendTrialExpiringSoonEmail = async ({
+    to,
+    firstName = "Bonjour",
+    companyName,
+    daysRemaining = 3,
+    trialEndsAt
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const plansUrl = `${frontendUrl}/settings?tab=abonnement`;
+        const subject = `⏳ Plus que ${daysRemaining} jours d'essai gratuit sur GestArt`;
+
+        const dateFormatted = trialEndsAt ? new Date(trialEndsAt).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }) : "dans 3 jours";
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Votre période d'essai gratuit se termine bientôt
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        Votre période d'essai gratuit pour <strong>${companyName || 'votre entreprise'}</strong> prendra fin le <strong>${dateFormatted}</strong>.
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 24px 0;">
+                        Pour continuer à créer vos devis, factures, gérer votre planning et vos interventions sans aucune interruption, choisissez l'offre adaptée à votre activité :
+                    </p>
+
+                    <!-- Action Button -->
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${plansUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Choisir mon offre GestArt →
+                        </a>
+                    </div>
+
+                    <p style="font-size: 13.5px; color: #64748B; line-height: 1.5; margin: 0 0 32px 0;">
+                        Une question ou besoin d'assistance ? Répondez simplement à cet email ou contactez-nous directement dans votre espace.
+                    </p>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nVotre période d'essai gratuit sur GestArt se termine le ${dateFormatted}.\nPour continuer à utiliser vos outils sans interruption, choisissez votre offre ici : ${plansUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[TRIAL EXPIRING EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * 2. Email : Fin de la période d'essai (Trial Expired)
+ */
+export const sendTrialExpiredEmail = async ({
+    to,
+    firstName = "Bonjour",
+    companyName
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const plansUrl = `${frontendUrl}/settings?tab=abonnement`;
+        const subject = `Votre période d'essai GestArt est terminée`;
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Votre essai gratuit est arrivé à son terme
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        La période d'essai de <strong>${companyName || 'votre compte'}</strong> est maintenant terminée. Vos fonctionnalités d'envoi et de gestion sont temporairement suspendues.
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 24px 0;">
+                        <strong>Rassurez-vous :</strong> toutes vos données, fiches clients, devis et factures sont soigneusement conservées en toute sécurité. Vous pouvez réactiver votre compte en 1 clic :
+                    </p>
+
+                    <!-- Action Button -->
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${plansUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Réactiver mon compte GestArt →
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nVotre période d'essai gratuit sur GestArt est terminée.\nToutes vos données restent conservées. Pour réactiver votre compte, souscrivez à une offre ici : ${plansUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[TRIAL EXPIRED EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * 3. Email : Confirmation d'activation d'abonnement (Bienvenue)
+ */
+export const sendSubscriptionActivatedEmail = async ({
+    to,
+    firstName = "Bonjour",
+    planName = "Pro",
+    amount,
+    billingCycle = "mensuel",
+    nextBillingDate
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const dashboardUrl = `${frontendUrl}/`;
+        const subject = `🎉 Bienvenue ! Votre abonnement GestArt ${planName} est activé`;
+
+        const nextDateFormatted = nextBillingDate ? new Date(nextBillingDate).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }) : null;
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Votre abonnement est maintenant actif
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        Nous vous confirmons l'activation de votre abonnement <strong>GestArt ${planName}</strong> (${billingCycle}).
+                        ${amount ? ` Montant : <strong>${amount} € HT</strong>.` : ''}
+                    </p>
+
+                    ${nextDateFormatted ? `
+                    <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin: 0 0 24px 0;">
+                        Prochain renouvellement automatique : <strong>${nextDateFormatted}</strong>.
+                    </p>` : ''}
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 28px 0;">
+                        Toutes vos fonctionnalités professionnelles sont immédiatement disponibles dans votre espace de travail :
+                    </p>
+
+                    <!-- Action Button -->
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${dashboardUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Accéder à mon espace GestArt →
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nVotre abonnement GestArt ${planName} est activé avec succès !\nAccédez à votre espace : ${dashboardUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[SUBSCRIPTION ACTIVATED EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * 4. Email : Renouvellement automatique d'abonnement réussi
+ */
+export const sendSubscriptionRenewedEmail = async ({
+    to,
+    firstName = "Bonjour",
+    planName = "Pro",
+    amount,
+    nextBillingDate
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const billingUrl = `${frontendUrl}/settings?tab=abonnement`;
+        const subject = `Confirmation de renouvellement de votre abonnement GestArt`;
+
+        const nextDateFormatted = nextBillingDate ? new Date(nextBillingDate).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }) : null;
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Renouvellement de votre abonnement
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        Le paiement pour le renouvellement de votre formule <strong>GestArt ${planName}</strong>${amount ? ` d'un montant de <strong>${amount} € HT</strong>` : ''} a bien été validé.
+                    </p>
+
+                    ${nextDateFormatted ? `
+                    <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin: 0 0 24px 0;">
+                        Prochaine échéance : <strong>${nextDateFormatted}</strong>.
+                    </p>` : ''}
+
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${billingUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Gérer mon abonnement & factures →
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nLe paiement de votre abonnement GestArt ${planName} a été validé avec succès.\nRetrouvez vos factures dans votre espace : ${billingUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[SUBSCRIPTION RENEWED EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * 5. Email : Annulation / Résiliation d'abonnement
+ */
+export const sendSubscriptionCancelledEmail = async ({
+    to,
+    firstName = "Bonjour",
+    planName = "Pro",
+    accessUntilDate
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const reactivateUrl = `${frontendUrl}/settings?tab=abonnement`;
+        const subject = `Confirmation de résiliation de votre abonnement GestArt`;
+
+        const accessFormatted = accessUntilDate ? new Date(accessUntilDate).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }) : "la fin de la période en cours";
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Votre demande d'annulation a été prise en compte
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        Nous vous confirmons l'arrêt du renouvellement automatique de votre abonnement <strong>GestArt ${planName}</strong>.
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 24px 0;">
+                        Vous conservez l'accès complet à l'ensemble de vos outils jusqu'au <strong>${accessFormatted}</strong>. Aucun prélèvement supplémentaire ne sera effectué.
+                    </p>
+
+                    <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin: 0 0 28px 0;">
+                        Vous changez d'avis ? Vous pouvez réactiver votre abonnement à tout moment d'un simple clic :
+                    </p>
+
+                    <!-- Action Button -->
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${reactivateUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Réactiver mon abonnement →
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nVotre abonnement GestArt ${planName} a été résilié. Vous conservez l'accès jusqu'au ${accessFormatted}.\nPour réactiver : ${reactivateUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[SUBSCRIPTION CANCELLED EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+/**
+ * 6. Email : Échec de paiement d'abonnement (Carte expirée / refus)
+ */
+export const sendSubscriptionPaymentFailedEmail = async ({
+    to,
+    firstName = "Bonjour",
+    planName = "Pro",
+    amount
+}) => {
+    try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const updatePaymentUrl = `${frontendUrl}/settings?tab=abonnement`;
+        const subject = `⚠️ Échec de prélèvement de votre abonnement GestArt`;
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0F172A;">
+                <div style="max-width: 560px; margin: 0 auto; padding: 36px 20px;">
+                    <!-- Header Logo -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 10px;">
+                                <img src="${frontendUrl}/Logo-transparent.png" alt="GestArt" width="28" height="28" style="display: block; width: 28px; height: 28px; border: 0;" />
+                            </td>
+                            <td style="vertical-align: middle; font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">
+                                GestArt
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h1 style="font-size: 19px; font-weight: 700; color: #DC2626; margin: 0 0 16px 0; letter-spacing: -0.01em;">
+                        Échec de paiement pour votre abonnement
+                    </h1>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+                        Bonjour ${firstName},
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
+                        Nous n'avons pas pu prélever le montant de votre abonnement <strong>GestArt ${planName}</strong>${amount ? ` (${amount} € HT)` : ''} sur votre carte bancaire enregistrée.
+                    </p>
+
+                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 24px 0;">
+                        Afin d'éviter toute coupure d'accès à vos services, nous vous invitons à mettre à jour vos coordonnées de paiement :
+                    </p>
+
+                    <!-- Action Button -->
+                    <div style="margin: 28px 0 32px 0;">
+                        <a href="${updatePaymentUrl}" style="background-color: #DC2626; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Mettre à jour mon moyen de paiement →
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const text = `Bonjour ${firstName},\n\nLe paiement de votre abonnement GestArt ${planName} a échoué.\nPour éviter toute interruption de service, mettez à jour votre carte ici : ${updatePaymentUrl}\n\nL'équipe GestArt`;
+
+        return await sendEmail({ to, subject, html, text });
+    } catch (err) {
+        console.error("[SUBSCRIPTION PAYMENT FAILED EMAIL ERROR]", err);
+        return { success: false, error: err.message };
+    }
+};
+
+

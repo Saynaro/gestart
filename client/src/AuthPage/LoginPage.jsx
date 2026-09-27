@@ -277,7 +277,7 @@ export default function LoginPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" className="auth-brand-link">
+                        <Link to="/" replace className="auth-brand-link">
                             <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                             <span className="auth-brand-text">GestArt</span>
                         </Link>
@@ -322,7 +322,7 @@ export default function LoginPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" className="auth-brand-link">
+                            <Link to="/" replace className="auth-brand-link">
                                 <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                                 <span className="auth-brand-text">GestArt</span>
                             </Link>
@@ -464,7 +464,7 @@ export default function LoginPage() {
                                     </button>
                                 </div>
                                 <div className="forgot-password-align">
-                                    <Link to="/forgot-password" className="forgot-link">
+                                    <Link to="/forgot-password" replace className="forgot-link">
                                         Mot de passe oublié ?
                                     </Link>
                                 </div>
@@ -510,7 +510,7 @@ export default function LoginPage() {
                         <p className="required-note">(*) Les champs sont obligatoires</p>
                         <div>
                             <span>Pas encore de compte ? </span>
-                            <Link to="/register" className="register-link" style={{ whiteSpace: 'nowrap' }}>
+                            <Link to="/register" replace className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Créer un compte
                             </Link>
                         </div>

@@ -230,6 +230,22 @@ export default function AdminPage() {
         const text = (customText || supportInput).trim();
         if (!text || !selectedSupportCompanyId || supportSending) return;
 
+        const optimisticId = `temp_adm_${Date.now()}`;
+        const optimisticMsg = {
+            id: optimisticId,
+            companyId: selectedSupportCompanyId,
+            content: text,
+            senderRole: "SUPERADMIN",
+            senderName: "Vous (Super Admin)",
+            createdAt: new Date().toISOString(),
+            readByOwner: false,
+            isOptimistic: true
+        };
+
+        setSupportMessages(prev => [...prev, optimisticMsg]);
+        setSupportInput("");
+        setTimeout(() => scrollAdminChatToBottom("smooth"), 30);
+
         setSupportSending(true);
         try {
             const res = await apiFetch("/v1/support/messages", {
@@ -241,12 +257,10 @@ export default function AdminPage() {
             });
 
             if (res.success && res.data) {
-                setSupportMessages(prev => {
-                    if (prev.some(m => m.id === res.data.id)) return prev;
-                    return [...prev, res.data];
-                });
-                setSupportInput("");
-                setTimeout(() => scrollAdminChatToBottom("smooth"), 100);
+                setSupportMessages(prev =>
+                    prev.map(m => (m.id === optimisticId ? res.data : m))
+                );
+                setTimeout(() => scrollAdminChatToBottom("smooth"), 60);
 
                 // Update conversation snippet
                 setSupportConversations(prev => prev.map(c => {
@@ -267,11 +281,14 @@ export default function AdminPage() {
             }
         } catch (err) {
             console.error("Support reply error:", err);
+            setSupportMessages(prev => prev.filter(m => m.id !== optimisticId));
+            setSupportInput(text);
             showToast("Erreur lors de l'envoi du message.");
         } finally {
             setSupportSending(false);
         }
     };
+
 
     // Fetch live activities feed
     const fetchAdminActivities = async () => {
@@ -1371,6 +1388,7 @@ export default function AdminPage() {
                                                             return (
                                                                 <div 
                                                                     key={msg.id || idx}
+                                                                    className={isMe ? "admin-bubble-outgoing" : "admin-bubble-incoming"}
                                                                     style={{
                                                                         display: 'flex',
                                                                         flexDirection: 'column',

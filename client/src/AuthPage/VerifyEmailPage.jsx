@@ -199,7 +199,7 @@ export default function VerifyEmailPage() {
                 <div className="banner-glow" />
                 <div className="banner-content">
                     <div className="logo-badge">
-                        <Link to="/" className="auth-brand-link">
+                        <Link to="/" replace className="auth-brand-link">
                             <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                             <span className="auth-brand-text">GestArt</span>
                         </Link>
@@ -244,7 +244,7 @@ export default function VerifyEmailPage() {
                 >
                     <div className="mobile-brand-header">
                         <div className="mobile-brand-badge">
-                            <Link to="/" className="auth-brand-link">
+                            <Link to="/" replace className="auth-brand-link">
                                 <img src="/Logo-transparent.png" alt="GestArt" className="auth-brand-icon" />
                                 <span className="auth-brand-text">GestArt</span>
                             </Link>
@@ -252,7 +252,7 @@ export default function VerifyEmailPage() {
                     </div>
 
                     <div className="back-link-wrapper">
-                        <Link to="/login" className="btn-back">
+                        <Link to="/login" replace className="btn-back">
                             <ArrowLeft size={16} />
                             <span>Retour à la connexion</span>
                         </Link>
@@ -276,7 +276,7 @@ export default function VerifyEmailPage() {
                             </p>
 
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => navigate('/login', { replace: true })}
                                 className="btn-submit pill-btn"
                                 style={{ marginTop: 12 }}
                             >
@@ -379,7 +379,7 @@ export default function VerifyEmailPage() {
                     <div className="form-footer">
                         <div>
                             <span>Vous préférez vous connecter ? </span>
-                            <Link to="/login" className="register-link" style={{ whiteSpace: 'nowrap' }}>
+                            <Link to="/login" replace className="register-link" style={{ whiteSpace: 'nowrap' }}>
                                 Connexion
                             </Link>
                         </div>

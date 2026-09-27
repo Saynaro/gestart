@@ -25,7 +25,6 @@ import {
     RefreshCw,
     Sliders,
     History,
-    FileSpreadsheet,
     X,
     Check,
     Users,
@@ -47,7 +46,6 @@ import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import PullToRefresh from "../components/PullToRefresh";
 import FeatureLockBanner from "../components/FeatureLockBanner";
-import AccountingIntegration from "../ComptabilityPage/components/AccountingIntegration";
 
 import { apiFetch } from "../utils/api";
 import { useSubscription } from "../utils/useSubscription";
@@ -116,7 +114,7 @@ function PremiumPage() {
     const companyInitials = companyName.split(" ").map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "EP";
 
     // Tab state
-    const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "automations" | "templates" | "services" | "history" | "accounting"
+    const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" | "automations" | "templates" | "services" | "history"
     const tabsBarRef = useRef(null);
 
     const handleTabClick = (tabKey, event) => {
@@ -791,12 +789,6 @@ function PremiumPage() {
                                 onClick={(e) => handleTabClick("history", e)}
                             >
                                 <History size={16} /> Historique des relances
-                            </button>
-                            <button
-                                className={`premium-tab-btn ${activeTab === "accounting" ? "active" : ""}`}
-                                onClick={(e) => handleTabClick("accounting", e)}
-                            >
-                                <FileSpreadsheet size={16} /> Intégration comptable
                             </button>
                         </div>
                         <div className="premium-tabs-fade-right" aria-hidden="true" />
@@ -1942,13 +1934,6 @@ function PremiumPage() {
                                     </>
                                 )}
                             </div>
-                        </div>
-                    )}
-
-                    {/* ── TAB 6: INTÉGRATION COMPTABLE (CONSERVÉE) ────────────── */}
-                    {activeTab === "accounting" && (
-                        <div className="tab-pane animate-fade-in">
-                            <AccountingIntegration />
                         </div>
                     )}
                     </motion.div>

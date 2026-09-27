@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Gift, Copy, Check, Users, Share2, MessageCircle, Mail, Smartphone, ArrowRight, Sparkles, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { useUser } from "../../utils/useUser";
@@ -6,6 +7,7 @@ import { useUser } from "../../utils/useUser";
 export default function ParrainageTab({ isMobileView, triggerToast }) {
     const { user, company } = useUser();
     const [copied, setCopied] = useState(false);
+    const [copiedCode, setCopiedCode] = useState(false);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState(null);
 
@@ -40,13 +42,64 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
     const totalSavingsEur = stats?.totalSavingsEur || (totalRewardedMonths * 39);
     const referrals = stats?.referrals || [];
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(referralLink);
+    const copyTextToClipboard = async (text) => {
+        let copiedSuccessfully = false;
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(text);
+                copiedSuccessfully = true;
+            } catch (err) {
+                console.warn("Clipboard API failed:", err);
+            }
+        }
+
+        if (!copiedSuccessfully) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.width = "2em";
+                textArea.style.height = "2em";
+                textArea.style.padding = "0";
+                textArea.style.border = "none";
+                textArea.style.outline = "none";
+                textArea.style.boxShadow = "none";
+                textArea.style.background = "transparent";
+                textArea.setAttribute("readonly", "");
+                document.body.appendChild(textArea);
+
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, 99999);
+
+                const successful = document.execCommand("copy");
+                document.body.removeChild(textArea);
+                if (successful) copiedSuccessfully = true;
+            } catch (err) {
+                console.warn("Fallback copy failed:", err);
+            }
+        }
+        return copiedSuccessfully;
+    };
+
+    const handleCopy = async () => {
+        await copyTextToClipboard(referralLink);
         setCopied(true);
         if (triggerToast) {
             triggerToast("Lien de parrainage copié dans le presse-papier !");
         }
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setCopied(false), 2200);
+    };
+
+    const handleCopyCode = async () => {
+        await copyTextToClipboard(referralCode);
+        setCopiedCode(true);
+        if (triggerToast) {
+            triggerToast(`Code "${referralCode}" copié dans le presse-papier !`);
+        }
+        setTimeout(() => setCopiedCode(false), 2200);
     };
 
     const shareMessage = `Salut ! J'utilise GestArt pour gérer mes devis, factures et planning d'artisan en toute simplicité. Inscris-toi via mon lien exclusif pour tester gratuitement et profiter d'avantages : ${referralLink}`;
@@ -71,10 +124,10 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
             {/* Banner Parrainage */}
             <div style={{
-                background: 'linear-gradient(135deg, rgba(85, 107, 47, 0.12) 0%, rgba(85, 107, 47, 0.03) 100%)',
-                border: '1px solid rgba(85, 107, 47, 0.25)',
-                borderRadius: '16px',
-                padding: '22px'
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '14px',
+                padding: '20px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
                     <div style={{
@@ -128,22 +181,29 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
                                 width: '100%',
                                 padding: '12px 14px',
                                 backgroundColor: 'var(--background)',
-                                border: '1px solid var(--border)',
+                                border: `1px solid ${copied ? 'rgba(34, 197, 94, 0.5)' : 'var(--border)'}`,
                                 borderRadius: '10px',
                                 fontSize: '13px',
                                 fontWeight: 700,
-                                color: 'var(--sidebar-primary)',
-                                outline: 'none'
+                                color: copied ? '#22c55e' : 'var(--sidebar-primary)',
+                                outline: 'none',
+                                transition: 'all 0.3s ease'
                             }}
                         />
                     </div>
 
-                    <button
+                    <motion.button
                         type="button"
                         onClick={handleCopy}
+                        whileTap={{ scale: 0.94 }}
+                        whileHover={{ scale: 1.02 }}
+                        animate={{
+                            backgroundColor: copied ? '#16a34a' : 'var(--sidebar-primary)',
+                            boxShadow: copied ? '0 0 14px rgba(34, 197, 94, 0.4)' : '0 2px 6px rgba(0,0,0,0.1)'
+                        }}
+                        transition={{ duration: 0.2 }}
                         style={{
-                            padding: '12px 20px',
-                            backgroundColor: 'var(--sidebar-primary)',
+                            padding: '12px 22px',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '10px',
@@ -155,12 +215,44 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
                             justifyContent: 'center',
                             gap: '8px',
                             flexShrink: 0,
-                            transition: 'opacity 0.2s ease'
+                            userSelect: 'none',
+                            overflow: 'hidden'
                         }}
                     >
-                        {copied ? <Check size={17} /> : <Copy size={17} />}
-                        {copied ? "Lien copié !" : "Copier le lien"}
-                    </button>
+                        <AnimatePresence mode="wait" initial={false}>
+                            {copied ? (
+                                <motion.div
+                                    key="copied"
+                                    initial={{ scale: 0.6, opacity: 0, y: 5 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.6, opacity: 0, y: -5 }}
+                                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                                >
+                                    <motion.div
+                                        initial={{ rotate: -45, scale: 0 }}
+                                        animate={{ rotate: 0, scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 600, damping: 20 }}
+                                    >
+                                        <Check size={18} strokeWidth={2.8} />
+                                    </motion.div>
+                                    <span>Lien copié !</span>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="copy"
+                                    initial={{ scale: 0.6, opacity: 0, y: -5 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.6, opacity: 0, y: 5 }}
+                                    transition={{ duration: 0.15 }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                                >
+                                    <Copy size={17} />
+                                    <span>Copier le lien</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.button>
                 </div>
 
                 {/* Quick Share Buttons Row */}
@@ -315,28 +407,96 @@ export default function ParrainageTab({ isMobileView, triggerToast }) {
                 padding: '20px',
                 backgroundColor: 'var(--card)'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobileView ? 'flex-start' : 'center', marginBottom: '16px', flexDirection: isMobileView ? 'column' : 'row', gap: '10px' }}>
+                    <h4 style={{ margin: 0, fontSize: isMobileView ? '16.5px' : '15px', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.2px' }}>
                         Historique de vos parrainages
                     </h4>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--muted-foreground)' }}>
-                        Code : <code style={{ color: 'var(--sidebar-primary)', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>{referralCode}</code>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--muted-foreground)', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                        Code :
+                        <motion.button
+                            type="button"
+                            onClick={handleCopyCode}
+                            whileTap={{ scale: 0.93 }}
+                            whileHover={{ scale: 1.04 }}
+                            animate={{
+                                backgroundColor: copiedCode ? 'rgba(34, 197, 94, 0.15)' : 'var(--background)',
+                                borderColor: copiedCode ? '#22c55e' : 'var(--border)',
+                                color: copiedCode ? '#16a34a' : 'var(--sidebar-primary)'
+                            }}
+                            title="Cliquer pour copier le code"
+                            style={{
+                                border: '1px solid var(--border)',
+                                padding: '4px 10px',
+                                borderRadius: '7px',
+                                fontSize: '13px',
+                                fontWeight: 800,
+                                letterSpacing: '0.6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                whiteSpace: 'nowrap',
+                                outline: 'none',
+                                userSelect: 'none'
+                            }}
+                        >
+                            <span>{referralCode}</span>
+                            <AnimatePresence mode="wait" initial={false}>
+                                {copiedCode ? (
+                                    <motion.span
+                                        key="check"
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                        style={{ display: 'inline-flex', alignItems: 'center', color: '#16a34a' }}
+                                    >
+                                        <Check size={14} strokeWidth={2.8} />
+                                    </motion.span>
+                                ) : (
+                                    <motion.span
+                                        key="copy"
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                        style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.6 }}
+                                    >
+                                        <Copy size={13} />
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </motion.button>
                     </span>
                 </div>
 
                 {referrals.length === 0 ? (
                     <div style={{
-                        padding: '36px 20px',
+                        padding: isMobileView ? '44px 20px' : '38px 20px',
                         textAlign: 'center',
                         backgroundColor: 'var(--background)',
-                        borderRadius: '10px',
-                        border: '1px dashed var(--border)'
+                        borderRadius: '12px',
+                        border: '1px dashed var(--border)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}>
-                        <Users size={32} style={{ color: 'var(--muted-foreground)', margin: '0 auto 10px', opacity: 0.6 }} />
-                        <h5 style={{ margin: '0 0 6px 0', fontSize: '14.5px', fontWeight: 700, color: 'var(--foreground)' }}>
+                        <div style={{
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '14px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid var(--border)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '14px'
+                        }}>
+                            <Users size={28} style={{ color: 'var(--muted-foreground)', opacity: 0.8 }} />
+                        </div>
+                        <h5 style={{ margin: '0 0 8px 0', fontSize: isMobileView ? '16.5px' : '15px', fontWeight: 800, color: 'var(--foreground)', lineHeight: 1.35 }}>
                             Aucun parrainage enregistré pour le moment
                         </h5>
-                        <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)', maxWidth: '420px', margin: '0 auto' }}>
+                        <p style={{ margin: 0, fontSize: isMobileView ? '14px' : '13px', color: 'var(--muted-foreground)', maxWidth: '440px', lineHeight: 1.55 }}>
                             Partagez votre lien exclusif pour commencer à inviter des artisans et cumuler des mois d'abonnement gratuits !
                         </p>
                     </div>

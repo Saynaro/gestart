@@ -1,4 +1,5 @@
 import { EInvoicingService } from "../modules/e-invoicing/services/EInvoicingService.js";
+import { ProviderRegistry } from "../modules/e-invoicing/core/ProviderRegistry.js";
 import { prisma } from "../config/db.js";
 
 /**
@@ -31,8 +32,108 @@ export const getConnection = async (req, res) => {
 };
 
 /**
+ * POST /api/v1/e-invoicing/provision
+ * White-Label eDocSync automated activation
+ */
+export const provisionEDocSync = async (req, res) => {
+    const companyId = req.user.companyId;
+    try {
+        const result = await EInvoicingService.provisionEDocSync(companyId, req.body);
+        return res.status(200).json({
+            success: true,
+            message: "Facturation électronique activée avec succès !",
+            data: result
+        });
+    } catch (error) {
+        console.error("PROVISION EDOCSYNC ERROR:", error.message);
+        return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * GET /api/v1/e-invoicing/:provider/connect
+ * Initiate OAuth 2.0 authorization redirect URL
+ */
+export const getOAuthConnectUrl = async (req, res) => {
+    const companyId = req.user.companyId;
+    const providerName = (req.params.provider || "QONTO").toUpperCase();
+
+    try {
+        const provider = ProviderRegistry.get(providerName);
+        if (!provider || !provider.getCapabilities().supportsOAuth) {
+            return res.status(400).json({ success: false, message: "Ce fournisseur ne supporte pas OAuth 2.0" });
+        }
+
+        const clientRedirectUri = `${process.env.CLIENT_URL || "http://localhost:5173"}/settings/facturation-electronique/callback`;
+        const authData = await provider.getAuthorizationUrl({
+            companyId,
+            redirectUri: clientRedirectUri
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                url: typeof authData === "string" ? authData : authData.url,
+                state: authData.state || null
+            }
+        });
+    } catch (error) {
+        console.error("GET OAUTH URL ERROR:", error.message);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * GET /api/v1/e-invoicing/:provider/callback
+ * Complete OAuth 2.0 code exchange
+ */
+export const handleOAuthCallback = async (req, res) => {
+    const companyId = req.user.companyId;
+    const providerName = (req.params.provider || "QONTO").toUpperCase();
+    const { code, state } = req.query;
+
+    if (!code) {
+        return res.status(400).json({ success: false, message: "Code d'autorisation manquant" });
+    }
+
+    try {
+        const provider = ProviderRegistry.get(providerName);
+        const clientRedirectUri = `${process.env.CLIENT_URL || "http://localhost:5173"}/settings/facturation-electronique/callback`;
+
+        const connectionData = await provider.handleOAuthCallback({
+            code,
+            state,
+            redirectUri: clientRedirectUri
+        });
+
+        await prisma.eInvoicingConnection.upsert({
+            where: { companyId },
+            create: {
+                companyId,
+                provider: providerName,
+                connectionType: "OAUTH2",
+                ...connectionData
+            },
+            update: {
+                provider: providerName,
+                connectionType: "OAUTH2",
+                ...connectionData
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: `${provider.getProviderInfo().name} connecté avec succès !`
+        });
+    } catch (error) {
+        console.error("OAUTH CALLBACK ERROR:", error.message);
+        return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+/**
  * POST /api/v1/e-invoicing/connect
- * Connect or update PA credentials (chiffré)
+ * Connect or update PA credentials (API Key)
  */
 export const connectCompany = async (req, res) => {
     const companyId = req.user.companyId;
@@ -61,6 +162,25 @@ export const connectCompany = async (req, res) => {
     } catch (error) {
         console.error("CONNECT COMPANY ERROR:", error.message);
         return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * POST /api/v1/e-invoicing/sync
+ * Trigger sync of incoming invoices & statuses
+ */
+export const syncEInvoicing = async (req, res) => {
+    const companyId = req.user.companyId;
+    try {
+        const result = await EInvoicingService.sync(companyId);
+        return res.status(200).json({
+            success: true,
+            message: `Synchronisation terminée (${result.incoming.syncedCount} nouvelles factures reçues)`,
+            data: result
+        });
+    } catch (error) {
+        console.error("SYNC E-INVOICING ERROR:", error.message);
+        return res.status(500).json({ success: false, message: error.message });
     }
 };
 

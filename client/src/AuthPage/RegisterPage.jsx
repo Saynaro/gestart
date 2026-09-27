@@ -30,7 +30,10 @@ import {
     Sun,
     TreePine,
     Info,
-    RefreshCw
+    RefreshCw,
+    Gift,
+    Sparkles,
+    Loader2
 } from 'lucide-react';
 import './RegisterPage.css';
 import CompanyAutocomplete from '../components/CompanyAutocomplete';
@@ -119,7 +122,11 @@ export default function RegisterPage() {
     const digitRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
     const [devCode, setDevCode] = useState('');
 
-    // Form fields
+    const initialRefCode = (searchParams.get('ref') || searchParams.get('promo') || searchParams.get('parrainage') || '').toUpperCase().trim();
+    const [promoInfo, setPromoInfo] = useState(null);
+    const [showPromoInput, setShowPromoInput] = useState(Boolean(initialRefCode));
+    const [isCheckingPromo, setIsCheckingPromo] = useState(false);
+
     const [formData, setFormData] = useState({
         email: googleEmail || '',
         password: '',
@@ -128,14 +135,46 @@ export default function RegisterPage() {
         phone: '',
         invitationCode: invitationToken || '',
         companyName: '',
+        siret: '',
+        siren: '',
         legalForm: 'SAS',
         tradeCategories: ['clim', 'plombier'],
         planName: initialPlan,
+        referralCode: initialRefCode || '',
         acceptTerms: isGoogleSignup ? true : false,
         isGoogle: isGoogleSignup,
         googleToken: googleToken || '',
         avatarUrl: googleAvatarUrl || ''
     });
+
+    useEffect(() => {
+        if (initialRefCode) {
+            validatePromo(initialRefCode);
+        }
+    }, [initialRefCode]);
+
+    const validatePromo = async (code) => {
+        const clean = (code || '').trim().toUpperCase();
+        if (!clean) {
+            setPromoInfo(null);
+            return;
+        }
+        setIsCheckingPromo(true);
+        try {
+            const res = await fetch(`${API_URL}/v1/referrals/validate?code=${encodeURIComponent(clean)}`);
+            const data = await res.json();
+            if (data && data.valid) {
+                setPromoInfo({ valid: true, message: data.message || "Code validé : 30 jours offerts (1 mois gratuit) !" });
+                showToastNotification("✓ Code validé : vous bénéficiez de 30 jours d'essai gratuits !", "success");
+            } else {
+                setPromoInfo({ valid: false, message: data?.message || "Code promo introuvable ou invalide" });
+            }
+        } catch (e) {
+            setPromoInfo({ valid: false, message: "Erreur lors de la vérification du code" });
+        } finally {
+            setIsCheckingPromo(false);
+        }
+    };
 
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -1006,6 +1045,9 @@ export default function RegisterPage() {
                                         setFormData(prev => ({
                                             ...prev,
                                             companyName: company.nom,
+                                            siret: company.siret || prev.siret || '',
+                                            siren: company.siren || prev.siren || '',
+                                            legalForm: company.forme_juridique || prev.legalForm || 'SAS',
                                             vatNumber: company.siret ? `FR${(12 + parseInt(company.siren || "0") % 97) % 97}${company.siren}` : prev.vatNumber,
                                             zipCode: company.code_postal || prev.zipCode,
                                             city: company.ville || prev.city
@@ -1038,7 +1080,18 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="input-group">
-                                <label>Formule choisie (14j d'essai offerts)</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                    <label style={{ margin: 0 }}>Formule choisie</label>
+                                    {promoInfo?.valid ? (
+                                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#16a34a', backgroundColor: 'rgba(34, 197, 94, 0.12)', padding: '3px 10px', borderRadius: '50px', border: '1px solid rgba(34, 197, 94, 0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Sparkles size={13} /> 30 jours offerts (Offre Parrainage)
+                                        </span>
+                                    ) : (
+                                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                                            14 jours d'essai gratuits
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="plans-cards">
                                     {PLANS_LIST.map(plan => {
                                         const isSelected = formData.planName === plan.id;
@@ -1047,14 +1100,152 @@ export default function RegisterPage() {
                                                 key={plan.id}
                                                 className={`plan-card ${isSelected ? 'selected' : ''}`}
                                                 onClick={() => setFormData(prev => ({ ...prev, planName: plan.id }))}
+                                                style={{ position: 'relative' }}
                                             >
-                                                {plan.popular && <span className="pop-tag">Recommandé</span>}
+                                                {promoInfo?.valid ? (
+                                                    <span className="pop-tag" style={{ background: '#16a34a', color: '#fff', fontSize: '10px', fontWeight: 800 }}>1 mois offert</span>
+                                                ) : (
+                                                    plan.popular && <span className="pop-tag">Recommandé</span>
+                                                )}
                                                 <div className="plan-name">{plan.name}</div>
-                                                <div className="plan-price">{plan.price}<span>{plan.period}</span></div>
+                                                <div className="plan-price">
+                                                    {promoInfo?.valid ? (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                            <div>
+                                                                <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8em', marginRight: '4px' }}>{plan.price}</span>
+                                                                <span style={{ color: '#16a34a', fontWeight: 800 }}>0€</span>
+                                                            </div>
+                                                            <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, marginTop: '2px' }}>pendant 30 jours</span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {plan.price}<span>{plan.period}</span>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         );
                                     })}
                                 </div>
+                            </div>
+
+                            {/* Code Promo & Parrainage */}
+                            <div className="input-group" style={{ marginTop: '4px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label style={{ margin: 0, fontSize: '0.85rem' }}>Code promo ou de parrainage</label>
+                                    {!showPromoInput && !formData.referralCode && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPromoInput(true)}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: 'var(--sidebar-primary)',
+                                                fontSize: '12px',
+                                                fontWeight: 700,
+                                                cursor: 'pointer',
+                                                padding: 0
+                                            }}
+                                        >
+                                            + Ajouter un code
+                                        </button>
+                                    )}
+                                </div>
+
+                                {(showPromoInput || formData.referralCode) && (
+                                    <div style={{ marginTop: '6px' }}>
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+                                            <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                                                <Gift size={16} style={{ position: 'absolute', left: '12px', color: promoInfo?.valid ? '#22c55e' : 'var(--muted-foreground)' }} />
+                                                <input
+                                                    type="text"
+                                                    name="referralCode"
+                                                    placeholder="ex: ARTISAN-9X2Y"
+                                                    value={formData.referralCode}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.toUpperCase();
+                                                        setFormData(prev => ({ ...prev, referralCode: val }));
+                                                        if (!val) setPromoInfo(null);
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            validatePromo(formData.referralCode);
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '10px 12px 10px 38px',
+                                                        backgroundColor: 'var(--background)',
+                                                        border: `1px solid ${promoInfo?.valid ? '#22c55e' : promoInfo?.valid === false ? '#ef4444' : 'var(--border)'}`,
+                                                        borderRadius: '8px',
+                                                        fontSize: '13px',
+                                                        fontWeight: 700,
+                                                        color: 'var(--foreground)',
+                                                        textTransform: 'uppercase'
+                                                    }}
+                                                />
+                                                {promoInfo?.valid && (
+                                                    <CheckCircle2 size={16} style={{ position: 'absolute', right: '12px', color: '#22c55e' }} />
+                                                )}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => validatePromo(formData.referralCode)}
+                                                disabled={isCheckingPromo || !formData.referralCode.trim()}
+                                                style={{
+                                                    padding: '0 16px',
+                                                    borderRadius: '8px',
+                                                    backgroundColor: promoInfo?.valid ? '#16a34a' : 'var(--sidebar-primary)',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    fontWeight: 700,
+                                                    fontSize: '12.5px',
+                                                    cursor: (isCheckingPromo || !formData.referralCode.trim()) ? 'not-allowed' : 'pointer',
+                                                    opacity: (isCheckingPromo || !formData.referralCode.trim()) ? 0.6 : 1,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {isCheckingPromo ? (
+                                                    <Loader2 size={14} className="animate-spin" />
+                                                ) : promoInfo?.valid ? (
+                                                    'Validé ✓'
+                                                ) : (
+                                                    'Vérifier'
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        {promoInfo ? (
+                                            <div style={{
+                                                marginTop: '8px',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                backgroundColor: promoInfo.valid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                                border: `1px solid ${promoInfo.valid ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px'
+                                            }}>
+                                                {promoInfo.valid ? (
+                                                    <Sparkles size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
+                                                ) : (
+                                                    <span style={{ color: '#ef4444', fontWeight: 800 }}>✕</span>
+                                                )}
+                                                <span style={{ fontSize: '12px', color: promoInfo.valid ? '#16a34a' : '#ef4444', fontWeight: 700 }}>
+                                                    {promoInfo.valid ? `✓ Code validé : Vous bénéficiez de 30 jours gratuits (1 mois offert) !` : promoInfo.message}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <p style={{ margin: '5px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
+                                                Entrez le code d'un confrère pour bénéficier d'un mois offert (30 jours d'essai).
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="button-group">
@@ -1062,7 +1253,7 @@ export default function RegisterPage() {
                                     <ArrowLeft size={18} /> Retour
                                 </button>
                                 <button type="submit" className="btn-submit pill-btn" disabled={loading}>
-                                    {loading ? 'Accès au Dashboard...' : 'Démarrer mes 14j d\'essai →'}
+                                    {loading ? 'Accès au Dashboard...' : promoInfo?.valid ? 'Démarrer mes 30 jours offerts →' : 'Démarrer mes 14j d\'essai →'}
                                 </button>
                             </div>
                         </motion.form>

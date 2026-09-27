@@ -168,7 +168,7 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
     }, [faqs, selectedCategory, searchQuery]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Header intro & Search Bar */}
             <div style={{
                 backgroundColor: 'var(--card)',
@@ -179,24 +179,27 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                 flexDirection: 'column',
                 gap: '16px'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{
-                        width: '38px',
-                        height: '38px',
-                        borderRadius: '10px',
+                        width: '42px',
+                        height: '42px',
+                        minWidth: '42px',
+                        minHeight: '42px',
+                        borderRadius: '12px',
                         backgroundColor: 'var(--sidebar-primary)',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flexShrink: 0
                     }}>
-                        <HelpCircle size={20} />
+                        <HelpCircle size={22} />
                     </div>
-                    <div>
-                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--foreground)' }}>
-                            Centre d'aide & Foire Aux Questions
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                        <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: 'var(--foreground)', lineHeight: 1.3 }}>
+                            Centre d'aide & FAQ
                         </h3>
-                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)' }}>
+                        <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
                             Trouvez rapidement des réponses claires sur le fonctionnement de votre CRM GestArt.
                         </p>
                     </div>
@@ -211,7 +214,7 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                     <Search size={18} style={{ position: 'absolute', left: '14px', color: 'var(--muted-foreground)' }} />
                     <input
                         type="text"
-                        placeholder="Rechercher une fonction (devis, facture, SMS, signature, technicien, TVA, 2FA)..."
+                        placeholder="Rechercher une question (devis, facture, SMS, TVA, 2FA)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -220,7 +223,7 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                             backgroundColor: 'var(--background)',
                             border: '1px solid var(--border)',
                             borderRadius: '10px',
-                            fontSize: '13.5px',
+                            fontSize: '14px',
                             color: 'var(--foreground)',
                             outline: 'none',
                             transition: 'border-color 0.2s ease'
@@ -246,8 +249,18 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                     )}
                 </div>
 
-                {/* Category Pills (Equal consistent height and padding, no jump) */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                {/* Category Pills (Horizontal scroll bar on mobile, no huge vertical pile) */}
+                <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    overflowX: 'auto',
+                    flexWrap: 'nowrap',
+                    alignItems: 'center',
+                    paddingBottom: '4px',
+                    WebkitOverflowScrolling: 'touch',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}>
                     {categories.map(cat => {
                         const isSelected = selectedCategory === cat.id;
                         return (
@@ -256,21 +269,21 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                                 type="button"
                                 onClick={() => setSelectedCategory(cat.id)}
                                 style={{
-                                    padding: '7px 14px',
+                                    padding: '8px 15px',
                                     borderRadius: '20px',
-                                    fontSize: '12px',
+                                    fontSize: '12.5px',
                                     lineHeight: '1.2',
-                                    fontWeight: 500,
+                                    fontWeight: isSelected ? 700 : 500,
                                     backgroundColor: isSelected ? 'var(--sidebar-primary)' : 'var(--background)',
                                     color: isSelected ? '#ffffff' : 'var(--muted-foreground)',
                                     border: `1px solid ${isSelected ? 'var(--sidebar-primary)' : 'var(--border)'}`,
                                     cursor: 'pointer',
-                                    transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
-                                    boxSizing: 'border-box',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    flexShrink: 0
+                                    transition: 'all 0.15s ease'
                                 }}
                             >
                                 {cat.label}
@@ -280,7 +293,7 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                 </div>
             </div>
 
-            {/* Questions List with Smooth Accordion Animation */}
+            {/* Questions List with Modern Layout and Accordion */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {filteredFaqs.length === 0 ? (
                     <div style={{
@@ -288,7 +301,7 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                         textAlign: 'center',
                         backgroundColor: 'var(--card)',
                         border: '1px solid var(--border)',
-                        borderRadius: '12px'
+                        borderRadius: '14px'
                     }}>
                         <HelpCircle size={32} style={{ color: 'var(--muted-foreground)', margin: '0 auto 10px' }} />
                         <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 700 }}>Aucune question correspondante</h4>
@@ -303,12 +316,12 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                             <div
                                 key={faq.id || idx}
                                 style={{
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '12px',
+                                    border: `1px solid ${isOpen ? 'var(--sidebar-primary)' : 'var(--border)'}`,
+                                    borderRadius: '14px',
                                     overflow: 'hidden',
                                     backgroundColor: 'var(--card)',
-                                    boxShadow: isOpen ? '0 4px 12px rgba(0,0,0,0.04)' : 'none',
-                                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+                                    boxShadow: isOpen ? '0 4px 14px rgba(0,0,0,0.06)' : 'none',
+                                    transition: 'all 0.2s ease'
                                 }}
                             >
                                 <button
@@ -316,43 +329,68 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                                     onClick={() => setOpenFaq(isOpen ? null : faq.id)}
                                     style={{
                                         width: '100%',
-                                        padding: '16px 18px',
+                                        padding: '16px',
                                         backgroundColor: 'transparent',
                                         border: 'none',
                                         textAlign: 'left',
-                                        fontWeight: 700,
-                                        fontSize: '14px',
                                         color: 'var(--foreground)',
                                         cursor: 'pointer',
                                         display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
+                                        alignItems: 'flex-start',
                                         gap: '12px'
                                     }}
                                 >
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                                        <CheckCircle2 size={16} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
-                                        <span>{faq.q}</span>
-                                    </span>
-                                    {faq.tag && (
-                                        <span style={{
-                                            fontSize: '10.5px',
+                                    <div style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        minWidth: '32px',
+                                        minHeight: '32px',
+                                        borderRadius: '8px',
+                                        backgroundColor: isOpen ? 'var(--sidebar-primary)' : 'rgba(85, 107, 47, 0.12)',
+                                        color: isOpen ? '#fff' : 'var(--sidebar-primary)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                        marginTop: '1px'
+                                    }}>
+                                        <CheckCircle2 size={18} />
+                                    </div>
+
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        {faq.tag && (
+                                            <span style={{
+                                                display: 'inline-block',
+                                                fontSize: '11px',
+                                                fontWeight: 700,
+                                                padding: '2px 7px',
+                                                borderRadius: '5px',
+                                                backgroundColor: 'rgba(85, 107, 47, 0.1)',
+                                                color: 'var(--sidebar-primary)',
+                                                marginBottom: '4px'
+                                            }}>
+                                                {faq.tag}
+                                            </span>
+                                        )}
+                                        <div style={{
                                             fontWeight: 700,
-                                            padding: '2px 8px',
-                                            borderRadius: '6px',
-                                            backgroundColor: 'rgba(85, 107, 47, 0.12)',
-                                            color: 'var(--sidebar-primary)',
-                                            flexShrink: 0
+                                            fontSize: '14.5px',
+                                            lineHeight: '1.4',
+                                            color: 'var(--foreground)'
                                         }}>
-                                            {faq.tag}
-                                        </span>
-                                    )}
-                                    {isOpen ? (
-                                        <ChevronUp size={18} style={{ color: 'var(--sidebar-primary)', flexShrink: 0 }} />
-                                    ) : (
-                                        <ChevronDown size={18} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
-                                    )}
+                                            {faq.q}
+                                        </div>
+                                    </div>
+
+                                    <div style={{
+                                        flexShrink: 0,
+                                        paddingTop: '4px',
+                                        color: isOpen ? 'var(--sidebar-primary)' : 'var(--muted-foreground)'
+                                    }}>
+                                        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                    </div>
                                 </button>
+
                                 <AnimatePresence initial={false}>
                                     {isOpen && (
                                         <motion.div
@@ -364,10 +402,10 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                                             style={{ overflow: "hidden" }}
                                         >
                                             <div style={{
-                                                padding: '0 18px 16px 44px',
-                                                fontSize: '13.5px',
+                                                padding: '4px 18px 18px 60px',
+                                                fontSize: '14px',
                                                 color: 'var(--muted-foreground)',
-                                                lineHeight: '1.6'
+                                                lineHeight: '1.65'
                                             }}>
                                                 {faq.a}
                                             </div>
@@ -384,19 +422,19 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
             <div style={{
                 border: '1px dashed var(--border)',
                 borderRadius: '14px',
-                padding: '20px',
+                padding: '18px 20px',
                 backgroundColor: 'rgba(255, 255, 255, 0.02)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: '16px'
+                gap: '14px'
             }}>
-                <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14.5px', fontWeight: 700 }}>
+                <div style={{ minWidth: '240px', flex: 1 }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: 700, color: 'var(--foreground)' }}>
                         Vous avez une question spécifique ?
                     </h4>
-                    <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--muted-foreground)' }}>
+                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.4 }}>
                         Un de nos assistants GestArt vous répond en direct dans l'espace Support.
                     </p>
                 </div>
@@ -410,13 +448,13 @@ export default function FaqTab({ isMobileView, triggerToast, onOpenSupport }) {
                         }
                     }}
                     style={{
-                        padding: '10px 18px',
+                        padding: '11px 18px',
                         backgroundColor: 'var(--sidebar-primary)',
                         color: '#fff',
                         border: 'none',
-                        borderRadius: '9px',
+                        borderRadius: '10px',
                         fontWeight: 700,
-                        fontSize: '13px',
+                        fontSize: '13.5px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',

@@ -70,7 +70,6 @@ import CommunicationTab from "./components/CommunicationTab";
 import NotificationsTab from "./components/NotificationsTab";
 import SupportTab from "./components/SupportTab";
 import FaqTab from "./components/FaqTab";
-import AvisTab from "./components/AvisTab";
 import ParrainageTab from "./components/ParrainageTab";
 import AboutTab from "./components/AboutTab";
 import EInvoicingTab from "./components/EInvoicingTab";
@@ -245,7 +244,7 @@ function SettingsPage() {
                 setOpenCategories(prev => ({ ...prev, "Comptabilité": true }));
             } else if (tabParam === "communication" || tabParam === "paiements" || tabParam === "facturation" || tabParam === "notifications") {
                 setOpenCategories(prev => ({ ...prev, "Config": true }));
-            } else if (tabParam === "support" || tabParam === "faq" || tabParam === "avis" || tabParam === "parrainage") {
+            } else if (tabParam === "support" || tabParam === "faq" || tabParam === "parrainage") {
                 setOpenCategories(prev => ({ ...prev, "Communauté": true }));
             } else {
                 setOpenCategories(prev => ({ ...prev, "Mon compte": true }));
@@ -343,7 +342,7 @@ function SettingsPage() {
             defaultOpen["Comptabilité"] = true;
         } else if (tabParam === "communication" || tabParam === "paiements" || tabParam === "facturation" || tabParam === "notifications" || params.get("id_connection") || params.get("banking")) {
             defaultOpen["Config"] = true;
-        } else if (tabParam === "support" || tabParam === "faq" || tabParam === "avis" || tabParam === "parrainage") {
+        } else if (tabParam === "support" || tabParam === "faq" || tabParam === "parrainage") {
             defaultOpen["Communauté"] = true;
         } else if (tabParam) {
             defaultOpen["Mon compte"] = true;
@@ -526,8 +525,7 @@ function SettingsPage() {
                 {
                     title: "Communauté",
                     items: [
-                        { id: "faq", label: "FAQ & Centre d'aide", icon: HelpCircle, subtitle: "Guides et fiches pratiques" },
-                        { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis sur GestArt" }
+                        { id: "faq", label: "FAQ & Centre d'aide", icon: HelpCircle, subtitle: "Guides et fiches pratiques" }
                     ]
                 },
                 {
@@ -577,7 +575,6 @@ function SettingsPage() {
                 items: [
                     { id: "support", label: "Support direct", icon: MessageSquare, subtitle: "Discussion en direct avec GestArt", badge: unreadSupportCount > 0 ? unreadSupportCount : undefined },
                     { id: "faq", label: "FAQ & Centre d'aide", icon: HelpCircle, subtitle: "Guides et fiches pratiques" },
-                    { id: "avis", label: "Avis", icon: Star, subtitle: "Partagez votre avis" },
                     { id: "parrainage", label: "Parrainage", icon: Gift, subtitle: "Gagnez des cadeaux" }
                 ]
             },
@@ -921,8 +918,6 @@ function SettingsPage() {
                             return <SupportTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "faq":
                             return <FaqTab isMobileView={isMobileView} triggerToast={triggerToast} onOpenSupport={() => handleTabSelect("support")} />;
-                        case "avis":
-                            return <AvisTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "parrainage":
                             return <ParrainageTab isMobileView={isMobileView} triggerToast={triggerToast} triggerConfirm={triggerConfirm} />;
                         case "mentions":

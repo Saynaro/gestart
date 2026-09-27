@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
-import { X, MoreVertical, Send, Edit2, CheckCircle, CheckCircle2, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check } from "lucide-react";
+import { X, MoreVertical, Send, Edit2, CheckCircle, CheckCircle2, FileText, Copy, RotateCcw, Eye, Palette, Lock, Trash2, Clock, Check, Loader2 } from "lucide-react";
 import DocumentCustomizerModal from "../../components/DocumentCustomizerModal";
 import { useDocumentCustomization, getEffectiveCustomization } from "../../utils/documentCustomization";
 import { useUser } from "../../utils/useUser";
@@ -31,7 +31,8 @@ function InvoiceDetailDrawer({
     onDelete,
     onOpenLinkedDevis,
     onUpdateInvoiceCustomization,
-    overlayStyle
+    overlayStyle,
+    showToast
 }) {
     const { company } = useUser();
     const dragControls = useDragControls();
@@ -40,6 +41,17 @@ function InvoiceDetailDrawer({
     const [showCustomizer, setShowCustomizer] = useState(false);
     const [globalCustomization] = useDocumentCustomization();
     const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth <= 768 : false);
+    const [internalToast, setInternalToast] = useState(null);
+    const [transmitting, setTransmitting] = useState(false);
+
+    const triggerToast = (msg, type = "success") => {
+        if (showToast) {
+            showToast(msg, type);
+        } else {
+            setInternalToast({ msg, type, id: Date.now() });
+            setTimeout(() => setInternalToast(null), 4000);
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -1406,57 +1418,110 @@ function InvoiceDetailDrawer({
                                 </div>
                             )}
 
-                            {/* Facturation électronique B2B (Réforme 2026/2027) */}
-                            <div className="fp-drawer-section">
-                                <div className="fp-drawer-section-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                    <span>Facturation électronique B2B</span>
-                                    <span style={{
-                                        fontSize: "10px",
-                                        fontWeight: 800,
-                                        padding: "2px 6px",
-                                        borderRadius: "6px",
-                                        backgroundColor: invoice.einvoicingStatus === "ACCEPTED" ? "rgba(34, 197, 94, 0.15)" : invoice.einvoicingStatus === "SENT" ? "rgba(59, 130, 246, 0.15)" : "rgba(234, 179, 8, 0.15)",
-                                        color: invoice.einvoicingStatus === "ACCEPTED" ? "#16a34a" : invoice.einvoicingStatus === "SENT" ? "#2563eb" : "#ca8a04"
-                                    }}>
-                                        {invoice.einvoicingStatus === "ACCEPTED" ? "Acceptée" : invoice.einvoicingStatus === "SENT" ? "Transmise PA" : invoice.einvoicingStatus === "PROCESSING" ? "En cours" : invoice.einvoicingStatus === "REJECTED" ? "Rejetée" : "Non transmise"}
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginBottom: "8px" }}>
-                                    Format structuré Factur-X / EN 16931 pour acheminement via Plateforme Agréée (B2Brouter).
-                                </div>
-                                {invoice.einvoicingStatus !== "ACCEPTED" && invoice.einvoicingStatus !== "SENT" && (
-                                    <button
-                                        type="button"
-                                        onClick={async (e) => {
-                                            e.stopPropagation();
-                                            try {
-                                                const res = await apiFetch(`/v1/e-invoicing/invoices/${invoice.id}/transmit`, { method: "POST" });
-                                                alert(res.message || "Facture transmise avec succès à la Plateforme Agréée !");
-                                                if (onClose) onClose();
-                                            } catch (err) {
-                                                alert(err.message || "Erreur lors de la transmission");
-                                            }
-                                        }}
-                                        style={{
-                                            width: "100%",
-                                            padding: "9px 12px",
-                                            borderRadius: "8px",
-                                            border: "1px solid var(--sidebar-primary)",
-                                            backgroundColor: "rgba(85, 107, 47, 0.08)",
-                                            color: "var(--sidebar-primary)",
-                                            fontSize: "12px",
-                                            fontWeight: 700,
-                                            cursor: "pointer",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: "6px"
-                                        }}
-                                    >
-                                        ⚡ Transmettre à la Plateforme Agréée
-                                    </button>
-                                )}
-                            </div>
+                            {/* Facturation électronique B2B vs B2C */}
+                            {(() => {
+                                const isB2BClient = Boolean(
+                                    client.companyName ||
+                                    client.sirenNumber ||
+                                    client.siret ||
+                                    client.clientTvaNumber ||
+                                    client.clientType === "ORGANIZATION" ||
+                                    client.type === "ORGANIZATION" ||
+                                    client.type === "PRO" ||
+                                    invoice.isB2B
+                                );
+
+                                if (isB2BClient) {
+                                    return (
+                                        <div className="fp-drawer-section">
+                                            <div className="fp-drawer-section-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                <span>Facturation électronique B2B</span>
+                                                <span style={{
+                                                    fontSize: "10px",
+                                                    fontWeight: 800,
+                                                    padding: "2px 6px",
+                                                    borderRadius: "6px",
+                                                    backgroundColor: invoice.einvoicingStatus === "ACCEPTED" ? "rgba(34, 197, 94, 0.15)" : invoice.einvoicingStatus === "SENT" ? "rgba(59, 130, 246, 0.15)" : "rgba(234, 179, 8, 0.15)",
+                                                    color: invoice.einvoicingStatus === "ACCEPTED" ? "#16a34a" : invoice.einvoicingStatus === "SENT" ? "#2563eb" : "#ca8a04"
+                                                }}>
+                                                    {invoice.einvoicingStatus === "ACCEPTED" ? "Acceptée" : invoice.einvoicingStatus === "SENT" ? "Transmise PA" : invoice.einvoicingStatus === "PROCESSING" ? "En cours" : invoice.einvoicingStatus === "REJECTED" ? "Rejetée" : "Non transmise"}
+                                                </span>
+                                            </div>
+                                            <div style={{ fontSize: "12px", color: "var(--muted-foreground)", marginBottom: "8px" }}>
+                                                Format structuré Factur-X / EN 16931 pour acheminement via Plateforme Agréée (PDP / PPF).
+                                            </div>
+                                            {invoice.einvoicingStatus !== "ACCEPTED" && invoice.einvoicingStatus !== "SENT" && (
+                                                <button
+                                                    type="button"
+                                                    disabled={transmitting}
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        if (transmitting) return;
+                                                        try {
+                                                            setTransmitting(true);
+                                                            const res = await apiFetch(`/v1/e-invoicing/invoices/${invoice.id}/transmit`, { method: "POST" });
+                                                            triggerToast(res.message || "Facture transmise avec succès à la Plateforme Agréée !", "success");
+                                                            if (invoice) {
+                                                                invoice.einvoicingStatus = "PROCESSING";
+                                                            }
+                                                        } catch (err) {
+                                                            triggerToast(err.message || "Erreur lors de la transmission", "error");
+                                                        } finally {
+                                                            setTransmitting(false);
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        width: "100%",
+                                                        padding: "9px 12px",
+                                                        borderRadius: "8px",
+                                                        border: "1px solid var(--sidebar-primary)",
+                                                        backgroundColor: "rgba(85, 107, 47, 0.08)",
+                                                        color: "var(--sidebar-primary)",
+                                                        fontSize: "12px",
+                                                        fontWeight: 700,
+                                                        cursor: transmitting ? "not-allowed" : "pointer",
+                                                        opacity: transmitting ? 0.7 : 1,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        gap: "6px"
+                                                    }}
+                                                >
+                                                    {transmitting ? (
+                                                        <>
+                                                            <Loader2 size={14} className="spin-loader" />
+                                                            Transmission en cours...
+                                                        </>
+                                                    ) : (
+                                                        "⚡ Transmettre à la Plateforme Agréée"
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="fp-drawer-section">
+                                        <div className="fp-drawer-section-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <span>Facturation Particulier (B2C)</span>
+                                            <span style={{
+                                                fontSize: "10px",
+                                                fontWeight: 800,
+                                                padding: "2px 6px",
+                                                borderRadius: "6px",
+                                                backgroundColor: "rgba(59, 130, 246, 0.12)",
+                                                color: "#3b82f6"
+                                            }}>
+                                                Envoi direct Email / PDF
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: "12px", color: "var(--muted-foreground)", lineHeight: "1.4" }}>
+                                            Conformément à la réglementation, les factures pour particuliers ne transitent pas par une Plateforme Agréée (PDP). L'envoi se fait directement par email/PDF et le montant est intégré automatiquement à l'e-reporting global.
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             {/* Documents liés */}
                             <div className="fp-drawer-section">
@@ -1594,6 +1659,30 @@ function InvoiceDetailDrawer({
                     }}
                     onClose={() => setShowCustomizer(false)}
                 />
+            )}
+            {internalToast && (
+                <div style={{
+                    position: "fixed",
+                    bottom: "24px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: internalToast.type === "error" ? "rgba(220, 38, 38, 0.95)" : "rgba(24, 24, 27, 0.95)",
+                    color: "#fff",
+                    padding: "10px 18px",
+                    borderRadius: "10px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+                    zIndex: 9999,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    backdropFilter: "blur(8px)",
+                    maxWidth: "90vw",
+                    textAlign: "center"
+                }}>
+                    <span>{internalToast.msg}</span>
+                </div>
             )}
         </>
     );

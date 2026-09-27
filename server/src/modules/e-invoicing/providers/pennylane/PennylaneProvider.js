@@ -1,36 +1,106 @@
 import { EInvoicingProvider } from "../../interfaces/EInvoicingProvider.js";
+import { encryptCredential, decryptCredential } from "../../services/EncryptionService.js";
+import { prisma } from "../../../../config/db.js";
 
 /**
- * Pennylane Provider Implementation (Scaffolding for Future Extension)
+ * Pennylane Provider Adapter
  * Documented at https://pennylane.readme.io
  */
 export class PennylaneProvider extends EInvoicingProvider {
-    async connectCompany(companyId, credentials) {
+    getProviderInfo() {
         return {
-            success: true,
-            provider: "PENNYLANE",
-            status: "CONNECTED"
+            id: "PENNYLANE",
+            name: "Pennylane",
+            legalStatus: "Plateforme Agréée (PDP / Comptabilité)",
+            description: "Plateforme tout-en-un de gestion financière et comptable.",
+            docsUrl: "https://pennylane.readme.io",
+            status: "AVAILABLE",
+            authType: "API_KEY"
         };
     }
 
-    async disconnectCompany(companyId) {
-        return;
+    getCapabilities() {
+        return {
+            supportsOAuth: false,
+            supportsApiKey: true,
+            supportsEmbeddedProvisioning: false,
+            supportsIncomingInvoices: true,
+            supportsOutgoingInvoices: true,
+            supportsInvoiceDownload: true,
+            supportsInvoiceSending: true,
+            supportsLifecycleStatus: true,
+            supportsWebhooks: false,
+            supportsPolling: true,
+            supportsUBL: false,
+            supportsCII: false,
+            supportsFacturX: true,
+            supportsEReporting: false,
+            supportsDirectory: false,
+            supportsAutomaticAccountProvisioning: false
+        };
     }
 
-    async testConnection(companyId) {
+    async connectCompany(companyId, credentials) {
+        const { apiKey, accountId, environment = "production" } = credentials;
+        if (!apiKey) {
+            throw new Error("La clé API Pennylane est obligatoire");
+        }
+
+        const apiKeyEncrypted = encryptCredential(apiKey);
+
+        const connection = await prisma.eInvoicingConnection.upsert({
+            where: { companyId },
+            create: {
+                companyId,
+                provider: "PENNYLANE",
+                providerAccountId: accountId || null,
+                environment,
+                status: "CONNECTED",
+                apiKeyEncrypted,
+                receivingEnabled: true,
+                emissionEnabled: true,
+                lastSyncAt: new Date()
+            },
+            update: {
+                provider: "PENNYLANE",
+                providerAccountId: accountId || undefined,
+                environment,
+                status: "CONNECTED",
+                apiKeyEncrypted,
+                lastSyncAt: new Date(),
+                lastSyncError: null
+            }
+        });
+
+        return {
+            success: true,
+            provider: "PENNYLANE",
+            status: connection.status
+        };
+    }
+
+    async disconnect(connection) {
+        const companyId = connection.companyId || connection.id;
+        await prisma.eInvoicingConnection.updateMany({
+            where: { companyId },
+            data: {
+                status: "DISCONNECTED",
+                apiKeyEncrypted: null,
+                accessTokenEncrypted: null
+            }
+        }).catch(() => {});
+    }
+
+    async disconnectCompany(companyId) {
+        return this.disconnect({ companyId });
+    }
+
+    async testConnection(companyIdOrConn) {
         return {
             connected: true,
             status: "CONNECTED",
             provider: "PENNYLANE"
         };
-    }
-
-    async createCustomer(companyId, canonicalCustomer) {
-        return { providerCustomerId: canonicalCustomer.id, status: "ACTIVE" };
-    }
-
-    async createInvoice(companyId, canonicalInvoice, options = {}) {
-        return { providerInvoiceId: canonicalInvoice.number, status: "SENT" };
     }
 
     async sendInvoice(companyId, providerInvoiceId) {
@@ -45,20 +115,12 @@ export class PennylaneProvider extends EInvoicingProvider {
         return { cancelled: true, status: "CANCELLED" };
     }
 
-    async listReceivedInvoices(companyId, queryOptions = {}) {
+    async getIncomingInvoices(connection, queryOptions = {}) {
         return [];
-    }
-
-    async getReceivedInvoice(companyId, providerInvoiceId) {
-        return null;
     }
 
     async downloadInvoice(companyId, providerInvoiceId, format = "pdf") {
         return { data: Buffer.from(""), contentType: "application/pdf", filename: `pennylane_${providerInvoiceId}.pdf` };
-    }
-
-    async sendPaymentStatus(companyId, providerInvoiceId, paymentData) {
-        return { acknowledged: true };
     }
 
     async handleWebhook(payload, headers = {}) {

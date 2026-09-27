@@ -252,6 +252,9 @@ enum StripeFeeBearer {
 // ── FACTURATION ÉLECTRONIQUE (RÉFORME 2026/2027) ─────────
 enum EInvoicingProviderType {
   B2BROUTER
+  QONTO
+  SAGE_ACTIVE
+  INDY
   PENNYLANE
   SAGE
   OTHER
@@ -2028,10 +2031,12 @@ model EInvoicingConnection {
   companyId String  @unique
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  provider            EInvoicingProviderType     @default(B2BROUTER)
-  providerAccountId   String?                    // Account ID chez le provider (ex: B2Brouter project/account ID)
-  environment         String                     @default("sandbox") // "sandbox" | "production"
-  status              EInvoicingConnectionStatus @default(DISCONNECTED)
+  provider               EInvoicingProviderType     @default(B2BROUTER)
+  connectionType         String                     @default("API_KEY") // "API_KEY" | "OAUTH2" | "EDOCSYNC_PROVISIONED" | "MANUAL"
+  providerAccountId      String?                    // Account ID chez le provider (ex: B2Brouter project/account ID, Qonto organization ID)
+  providerOrganizationId String?                    // Organization ID chez le provider
+  environment            String                     @default("sandbox") // "sandbox" | "production"
+  status                 EInvoicingConnectionStatus @default(DISCONNECTED)
 
   // Credentials chiffrées (AES-256-GCM) — JAMAIS stockées en clair
   apiKeyEncrypted       String?
@@ -2039,6 +2044,8 @@ model EInvoicingConnection {
   accessTokenEncrypted  String?
   refreshTokenEncrypted String?
   tokenExpiresAt        DateTime?
+  scopes                Json?                      // Scopes OAuth autorisés
+  metadata              Json?                      // Données supplémentaires du provider
 
   // Paramètres fonctionnels
   receivingEnabled Boolean @default(true)  // Obligatoire à partir du 1er sept 2026

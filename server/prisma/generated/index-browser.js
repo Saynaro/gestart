@@ -855,7 +855,9 @@ exports.Prisma.EInvoicingConnectionScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
   provider: 'provider',
+  connectionType: 'connectionType',
   providerAccountId: 'providerAccountId',
+  providerOrganizationId: 'providerOrganizationId',
   environment: 'environment',
   status: 'status',
   apiKeyEncrypted: 'apiKeyEncrypted',
@@ -863,6 +865,8 @@ exports.Prisma.EInvoicingConnectionScalarFieldEnum = {
   accessTokenEncrypted: 'accessTokenEncrypted',
   refreshTokenEncrypted: 'refreshTokenEncrypted',
   tokenExpiresAt: 'tokenExpiresAt',
+  scopes: 'scopes',
+  metadata: 'metadata',
   receivingEnabled: 'receivingEnabled',
   emissionEnabled: 'emissionEnabled',
   autoSyncIncoming: 'autoSyncIncoming',
@@ -1279,6 +1283,9 @@ exports.EInvoicingStatus = exports.$Enums.EInvoicingStatus = {
 
 exports.EInvoicingProviderType = exports.$Enums.EInvoicingProviderType = {
   B2BROUTER: 'B2BROUTER',
+  QONTO: 'QONTO',
+  SAGE_ACTIVE: 'SAGE_ACTIVE',
+  INDY: 'INDY',
   PENNYLANE: 'PENNYLANE',
   SAGE: 'SAGE',
   OTHER: 'OTHER'

@@ -3,6 +3,10 @@ import {
     getProviders,
     getConnection,
     connectCompany,
+    provisionEDocSync,
+    getOAuthConnectUrl,
+    handleOAuthCallback,
+    syncEInvoicing,
     testConnection,
     disconnectCompany,
     getReceivedInvoices,
@@ -24,6 +28,10 @@ router.use(authMiddleware, requireManager);
 router.get("/providers", getProviders);
 router.get("/connection", getConnection);
 router.post("/connect", requireOwner, connectCompany);
+router.post("/provision", requireOwner, provisionEDocSync);
+router.get("/:provider/connect", requireOwner, getOAuthConnectUrl);
+router.get("/:provider/callback", requireOwner, handleOAuthCallback);
+router.post("/sync", syncEInvoicing);
 router.post("/test", testConnection);
 router.delete("/connection", requireOwner, disconnectCompany);
 

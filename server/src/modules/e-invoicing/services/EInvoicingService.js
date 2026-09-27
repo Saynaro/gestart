@@ -1,54 +1,34 @@
 import { prisma } from "../../../config/db.js";
 import { ProviderFactory } from "../providers/ProviderFactory.js";
+import { ProviderRegistry } from "../core/ProviderRegistry.js";
 import { CanonicalInvoiceMapper } from "./CanonicalInvoiceMapper.js";
-import { EInvoicingValidator } from "./EInvoicingValidator.js";
+import { FrenchEInvoiceValidator } from "../core/FrenchEInvoiceValidator.js";
+import { SyncService } from "../core/SyncService.js";
+import { B2BrouterEDocSync } from "../providers/b2brouter/B2BrouterEDocSync.js";
 import { JobQueueService } from "./JobQueueService.js";
 import { ReconciliationService } from "./ReconciliationService.js";
 
 /**
- * Main E-Invoicing Service Facade for the CRM
+ * Universal E-Invoicing Service Facade for the CRM
+ * Implements DGFiP 2026/2027 Reform Architecture
  */
 export class EInvoicingService {
     /**
-     * Get available providers metadata
+     * Get available Plateformes Agréées catalog with dynamic capabilities
      */
     static getAvailableProviders() {
-        return [
-            {
-                id: "B2BROUTER",
-                name: "B2Brouter",
-                description: "Plateforme Agréée certifiée DGFiP pour facturation électronique et e-reporting B2B / B2G.",
-                status: "ACTIVE",
-                receptionReady2026: true,
-                emissionReady2027: true,
-                supportedEnvironments: ["sandbox", "production"],
-                docsUrl: "https://developer.b2brouter.net"
-            },
-            {
-                id: "PENNYLANE",
-                name: "Pennylane",
-                description: "Plateforme Agréée partenaire comptable.",
-                status: "BETA",
-                receptionReady2026: true,
-                emissionReady2027: true,
-                supportedEnvironments: ["production"],
-                docsUrl: "https://pennylane.readme.io"
-            },
-            {
-                id: "SAGE",
-                name: "Sage Network",
-                description: "Réseau de facturation électronique Sage.",
-                status: "COMING_SOON",
-                receptionReady2026: true,
-                emissionReady2027: true,
-                supportedEnvironments: ["sandbox", "production"],
-                docsUrl: "https://developer.sage.com"
-            }
-        ];
+        return ProviderRegistry.getProviderCatalog();
     }
 
     /**
-     * Connect company to a provider
+     * White-Label eDocSync account activation
+     */
+    static async provisionEDocSync(companyId, options = {}) {
+        return await B2BrouterEDocSync.provisionAccount(companyId, options);
+    }
+
+    /**
+     * Connect company to a provider via API Key
      */
     static async connectCompany(companyId, credentials) {
         const providerName = credentials.provider || "B2BROUTER";
@@ -60,20 +40,36 @@ export class EInvoicingService {
      * Disconnect company
      */
     static async disconnectCompany(companyId) {
-        const provider = await ProviderFactory.getProviderForCompany(companyId);
-        return await provider.disconnectCompany(companyId);
+        const connection = await prisma.eInvoicingConnection.findUnique({
+            where: { companyId }
+        });
+
+        if (connection) {
+            const provider = ProviderFactory.getProvider(connection.provider);
+            await provider.disconnect(connection);
+        }
+
+        return { success: true, message: "Déconnexion effectuée" };
     }
 
     /**
      * Test active connection
      */
     static async testConnection(companyId) {
-        const provider = await ProviderFactory.getProviderForCompany(companyId);
-        return await provider.testConnection(companyId);
+        const connection = await prisma.eInvoicingConnection.findUnique({
+            where: { companyId }
+        });
+
+        if (!connection || connection.status !== "CONNECTED") {
+            return { connected: false, error: "Aucune connexion active configurée" };
+        }
+
+        const provider = ProviderFactory.getProvider(connection.provider);
+        return await provider.testConnection(connection);
     }
 
     /**
-     * Get company connection details (WITHOUT exposing plaintext secrets)
+     * Get company connection details
      */
     static async getConnection(companyId) {
         const [connection, company] = await Promise.all([
@@ -107,6 +103,7 @@ export class EInvoicingService {
                 connected: false,
                 status: "DISCONNECTED",
                 provider: "B2BROUTER",
+                connectionType: "API_KEY",
                 receivingEnabled: true,
                 emissionEnabled: false,
                 company: formattedCompany
@@ -118,6 +115,7 @@ export class EInvoicingService {
             connected: connection.status === "CONNECTED",
             status: connection.status,
             provider: connection.provider,
+            connectionType: connection.connectionType || "API_KEY",
             providerAccountId: connection.providerAccountId,
             environment: connection.environment,
             receivingEnabled: connection.receivingEnabled,
@@ -145,7 +143,7 @@ export class EInvoicingService {
         if (!invoice) throw new Error("Facture introuvable");
 
         const canonical = CanonicalInvoiceMapper.toCanonicalInvoice(invoice);
-        const validation = EInvoicingValidator.validate(canonical);
+        const validation = FrenchEInvoiceValidator.validate(canonical);
 
         if (!validation.valid) {
             const errorMessages = validation.errors.map(e => `${e.field}: ${e.message}`).join(" | ");
@@ -173,6 +171,15 @@ export class EInvoicingService {
             status: "PROCESSING",
             validation
         };
+    }
+
+    /**
+     * Trigger manual or automated sync
+     */
+    static async sync(companyId) {
+        const incoming = await SyncService.syncIncomingInvoices(companyId);
+        const outgoing = await SyncService.syncOutgoingStatuses(companyId);
+        return { incoming, outgoing };
     }
 
     /**
@@ -265,7 +272,7 @@ export class EInvoicingService {
     }
 
     /**
-     * Trigger manual or automated reconciliation
+     * Trigger reconciliation
      */
     static async runReconciliation(companyId) {
         return await ReconciliationService.runReconciliation(companyId);

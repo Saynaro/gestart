@@ -32,6 +32,7 @@ import { fileURLToPath } from "url";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
+import referralRoutes from "./routes/referralRoutes.js";
 
 dotenv.config();
 
@@ -112,6 +113,7 @@ app.use("/api/v1/communication", channelRoutes);
 app.use("/api/v1/reminders", reminderRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/support", supportRoutes);
+app.use("/api/v1/referrals", referralRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack || err);

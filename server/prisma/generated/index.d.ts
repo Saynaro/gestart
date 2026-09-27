@@ -537,6 +537,9 @@ export type StripeFeeBearer = (typeof StripeFeeBearer)[keyof typeof StripeFeeBea
 
 export const EInvoicingProviderType: {
   B2BROUTER: 'B2BROUTER',
+  QONTO: 'QONTO',
+  SAGE_ACTIVE: 'SAGE_ACTIVE',
+  INDY: 'INDY',
   PENNYLANE: 'PENNYLANE',
   SAGE: 'SAGE',
   OTHER: 'OTHER'
@@ -54352,7 +54355,9 @@ export namespace Prisma {
     id: string | null
     companyId: string | null
     provider: $Enums.EInvoicingProviderType | null
+    connectionType: string | null
     providerAccountId: string | null
+    providerOrganizationId: string | null
     environment: string | null
     status: $Enums.EInvoicingConnectionStatus | null
     apiKeyEncrypted: string | null
@@ -54373,7 +54378,9 @@ export namespace Prisma {
     id: string | null
     companyId: string | null
     provider: $Enums.EInvoicingProviderType | null
+    connectionType: string | null
     providerAccountId: string | null
+    providerOrganizationId: string | null
     environment: string | null
     status: $Enums.EInvoicingConnectionStatus | null
     apiKeyEncrypted: string | null
@@ -54394,7 +54401,9 @@ export namespace Prisma {
     id: number
     companyId: number
     provider: number
+    connectionType: number
     providerAccountId: number
+    providerOrganizationId: number
     environment: number
     status: number
     apiKeyEncrypted: number
@@ -54402,6 +54411,8 @@ export namespace Prisma {
     accessTokenEncrypted: number
     refreshTokenEncrypted: number
     tokenExpiresAt: number
+    scopes: number
+    metadata: number
     receivingEnabled: number
     emissionEnabled: number
     autoSyncIncoming: number
@@ -54417,7 +54428,9 @@ export namespace Prisma {
     id?: true
     companyId?: true
     provider?: true
+    connectionType?: true
     providerAccountId?: true
+    providerOrganizationId?: true
     environment?: true
     status?: true
     apiKeyEncrypted?: true
@@ -54438,7 +54451,9 @@ export namespace Prisma {
     id?: true
     companyId?: true
     provider?: true
+    connectionType?: true
     providerAccountId?: true
+    providerOrganizationId?: true
     environment?: true
     status?: true
     apiKeyEncrypted?: true
@@ -54459,7 +54474,9 @@ export namespace Prisma {
     id?: true
     companyId?: true
     provider?: true
+    connectionType?: true
     providerAccountId?: true
+    providerOrganizationId?: true
     environment?: true
     status?: true
     apiKeyEncrypted?: true
@@ -54467,6 +54484,8 @@ export namespace Prisma {
     accessTokenEncrypted?: true
     refreshTokenEncrypted?: true
     tokenExpiresAt?: true
+    scopes?: true
+    metadata?: true
     receivingEnabled?: true
     emissionEnabled?: true
     autoSyncIncoming?: true
@@ -54553,7 +54572,9 @@ export namespace Prisma {
     id: string
     companyId: string
     provider: $Enums.EInvoicingProviderType
+    connectionType: string
     providerAccountId: string | null
+    providerOrganizationId: string | null
     environment: string
     status: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted: string | null
@@ -54561,6 +54582,8 @@ export namespace Prisma {
     accessTokenEncrypted: string | null
     refreshTokenEncrypted: string | null
     tokenExpiresAt: Date | null
+    scopes: JsonValue | null
+    metadata: JsonValue | null
     receivingEnabled: boolean
     emissionEnabled: boolean
     autoSyncIncoming: boolean
@@ -54591,7 +54614,9 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     provider?: boolean
+    connectionType?: boolean
     providerAccountId?: boolean
+    providerOrganizationId?: boolean
     environment?: boolean
     status?: boolean
     apiKeyEncrypted?: boolean
@@ -54599,6 +54624,8 @@ export namespace Prisma {
     accessTokenEncrypted?: boolean
     refreshTokenEncrypted?: boolean
     tokenExpiresAt?: boolean
+    scopes?: boolean
+    metadata?: boolean
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -54613,7 +54640,9 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     provider?: boolean
+    connectionType?: boolean
     providerAccountId?: boolean
+    providerOrganizationId?: boolean
     environment?: boolean
     status?: boolean
     apiKeyEncrypted?: boolean
@@ -54621,6 +54650,8 @@ export namespace Prisma {
     accessTokenEncrypted?: boolean
     refreshTokenEncrypted?: boolean
     tokenExpiresAt?: boolean
+    scopes?: boolean
+    metadata?: boolean
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -54635,7 +54666,9 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     provider?: boolean
+    connectionType?: boolean
     providerAccountId?: boolean
+    providerOrganizationId?: boolean
     environment?: boolean
     status?: boolean
     apiKeyEncrypted?: boolean
@@ -54643,6 +54676,8 @@ export namespace Prisma {
     accessTokenEncrypted?: boolean
     refreshTokenEncrypted?: boolean
     tokenExpiresAt?: boolean
+    scopes?: boolean
+    metadata?: boolean
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -54657,7 +54692,9 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     provider?: boolean
+    connectionType?: boolean
     providerAccountId?: boolean
+    providerOrganizationId?: boolean
     environment?: boolean
     status?: boolean
     apiKeyEncrypted?: boolean
@@ -54665,6 +54702,8 @@ export namespace Prisma {
     accessTokenEncrypted?: boolean
     refreshTokenEncrypted?: boolean
     tokenExpiresAt?: boolean
+    scopes?: boolean
+    metadata?: boolean
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -54674,7 +54713,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type EInvoicingConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "providerAccountId" | "environment" | "status" | "apiKeyEncrypted" | "apiSecretEncrypted" | "accessTokenEncrypted" | "refreshTokenEncrypted" | "tokenExpiresAt" | "receivingEnabled" | "emissionEnabled" | "autoSyncIncoming" | "lastSyncAt" | "lastSyncError" | "createdAt" | "updatedAt", ExtArgs["result"]["eInvoicingConnection"]>
+  export type EInvoicingConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "provider" | "connectionType" | "providerAccountId" | "providerOrganizationId" | "environment" | "status" | "apiKeyEncrypted" | "apiSecretEncrypted" | "accessTokenEncrypted" | "refreshTokenEncrypted" | "tokenExpiresAt" | "scopes" | "metadata" | "receivingEnabled" | "emissionEnabled" | "autoSyncIncoming" | "lastSyncAt" | "lastSyncError" | "createdAt" | "updatedAt", ExtArgs["result"]["eInvoicingConnection"]>
   export type EInvoicingConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -54694,7 +54733,9 @@ export namespace Prisma {
       id: string
       companyId: string
       provider: $Enums.EInvoicingProviderType
+      connectionType: string
       providerAccountId: string | null
+      providerOrganizationId: string | null
       environment: string
       status: $Enums.EInvoicingConnectionStatus
       apiKeyEncrypted: string | null
@@ -54702,6 +54743,8 @@ export namespace Prisma {
       accessTokenEncrypted: string | null
       refreshTokenEncrypted: string | null
       tokenExpiresAt: Date | null
+      scopes: Prisma.JsonValue | null
+      metadata: Prisma.JsonValue | null
       receivingEnabled: boolean
       emissionEnabled: boolean
       autoSyncIncoming: boolean
@@ -55136,7 +55179,9 @@ export namespace Prisma {
     readonly id: FieldRef<"EInvoicingConnection", 'String'>
     readonly companyId: FieldRef<"EInvoicingConnection", 'String'>
     readonly provider: FieldRef<"EInvoicingConnection", 'EInvoicingProviderType'>
+    readonly connectionType: FieldRef<"EInvoicingConnection", 'String'>
     readonly providerAccountId: FieldRef<"EInvoicingConnection", 'String'>
+    readonly providerOrganizationId: FieldRef<"EInvoicingConnection", 'String'>
     readonly environment: FieldRef<"EInvoicingConnection", 'String'>
     readonly status: FieldRef<"EInvoicingConnection", 'EInvoicingConnectionStatus'>
     readonly apiKeyEncrypted: FieldRef<"EInvoicingConnection", 'String'>
@@ -55144,6 +55189,8 @@ export namespace Prisma {
     readonly accessTokenEncrypted: FieldRef<"EInvoicingConnection", 'String'>
     readonly refreshTokenEncrypted: FieldRef<"EInvoicingConnection", 'String'>
     readonly tokenExpiresAt: FieldRef<"EInvoicingConnection", 'DateTime'>
+    readonly scopes: FieldRef<"EInvoicingConnection", 'Json'>
+    readonly metadata: FieldRef<"EInvoicingConnection", 'Json'>
     readonly receivingEnabled: FieldRef<"EInvoicingConnection", 'Boolean'>
     readonly emissionEnabled: FieldRef<"EInvoicingConnection", 'Boolean'>
     readonly autoSyncIncoming: FieldRef<"EInvoicingConnection", 'Boolean'>
@@ -73620,7 +73667,9 @@ export namespace Prisma {
     id: 'id',
     companyId: 'companyId',
     provider: 'provider',
+    connectionType: 'connectionType',
     providerAccountId: 'providerAccountId',
+    providerOrganizationId: 'providerOrganizationId',
     environment: 'environment',
     status: 'status',
     apiKeyEncrypted: 'apiKeyEncrypted',
@@ -73628,6 +73677,8 @@ export namespace Prisma {
     accessTokenEncrypted: 'accessTokenEncrypted',
     refreshTokenEncrypted: 'refreshTokenEncrypted',
     tokenExpiresAt: 'tokenExpiresAt',
+    scopes: 'scopes',
+    metadata: 'metadata',
     receivingEnabled: 'receivingEnabled',
     emissionEnabled: 'emissionEnabled',
     autoSyncIncoming: 'autoSyncIncoming',
@@ -79059,7 +79110,9 @@ export namespace Prisma {
     id?: StringFilter<"EInvoicingConnection"> | string
     companyId?: StringFilter<"EInvoicingConnection"> | string
     provider?: EnumEInvoicingProviderTypeFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    connectionType?: StringFilter<"EInvoicingConnection"> | string
     providerAccountId?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    providerOrganizationId?: StringNullableFilter<"EInvoicingConnection"> | string | null
     environment?: StringFilter<"EInvoicingConnection"> | string
     status?: EnumEInvoicingConnectionStatusFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
@@ -79067,6 +79120,8 @@ export namespace Prisma {
     accessTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
     refreshTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
     tokenExpiresAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    scopes?: JsonNullableFilter<"EInvoicingConnection">
+    metadata?: JsonNullableFilter<"EInvoicingConnection">
     receivingEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
     emissionEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
     autoSyncIncoming?: BoolFilter<"EInvoicingConnection"> | boolean
@@ -79081,7 +79136,9 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     provider?: SortOrder
+    connectionType?: SortOrder
     providerAccountId?: SortOrderInput | SortOrder
+    providerOrganizationId?: SortOrderInput | SortOrder
     environment?: SortOrder
     status?: SortOrder
     apiKeyEncrypted?: SortOrderInput | SortOrder
@@ -79089,6 +79146,8 @@ export namespace Prisma {
     accessTokenEncrypted?: SortOrderInput | SortOrder
     refreshTokenEncrypted?: SortOrderInput | SortOrder
     tokenExpiresAt?: SortOrderInput | SortOrder
+    scopes?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     receivingEnabled?: SortOrder
     emissionEnabled?: SortOrder
     autoSyncIncoming?: SortOrder
@@ -79106,7 +79165,9 @@ export namespace Prisma {
     OR?: EInvoicingConnectionWhereInput[]
     NOT?: EInvoicingConnectionWhereInput | EInvoicingConnectionWhereInput[]
     provider?: EnumEInvoicingProviderTypeFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    connectionType?: StringFilter<"EInvoicingConnection"> | string
     providerAccountId?: StringNullableFilter<"EInvoicingConnection"> | string | null
+    providerOrganizationId?: StringNullableFilter<"EInvoicingConnection"> | string | null
     environment?: StringFilter<"EInvoicingConnection"> | string
     status?: EnumEInvoicingConnectionStatusFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
@@ -79114,6 +79175,8 @@ export namespace Prisma {
     accessTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
     refreshTokenEncrypted?: StringNullableFilter<"EInvoicingConnection"> | string | null
     tokenExpiresAt?: DateTimeNullableFilter<"EInvoicingConnection"> | Date | string | null
+    scopes?: JsonNullableFilter<"EInvoicingConnection">
+    metadata?: JsonNullableFilter<"EInvoicingConnection">
     receivingEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
     emissionEnabled?: BoolFilter<"EInvoicingConnection"> | boolean
     autoSyncIncoming?: BoolFilter<"EInvoicingConnection"> | boolean
@@ -79128,7 +79191,9 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     provider?: SortOrder
+    connectionType?: SortOrder
     providerAccountId?: SortOrderInput | SortOrder
+    providerOrganizationId?: SortOrderInput | SortOrder
     environment?: SortOrder
     status?: SortOrder
     apiKeyEncrypted?: SortOrderInput | SortOrder
@@ -79136,6 +79201,8 @@ export namespace Prisma {
     accessTokenEncrypted?: SortOrderInput | SortOrder
     refreshTokenEncrypted?: SortOrderInput | SortOrder
     tokenExpiresAt?: SortOrderInput | SortOrder
+    scopes?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     receivingEnabled?: SortOrder
     emissionEnabled?: SortOrder
     autoSyncIncoming?: SortOrder
@@ -79155,7 +79222,9 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
     companyId?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
     provider?: EnumEInvoicingProviderTypeWithAggregatesFilter<"EInvoicingConnection"> | $Enums.EInvoicingProviderType
+    connectionType?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
     providerAccountId?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
+    providerOrganizationId?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
     environment?: StringWithAggregatesFilter<"EInvoicingConnection"> | string
     status?: EnumEInvoicingConnectionStatusWithAggregatesFilter<"EInvoicingConnection"> | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
@@ -79163,6 +79232,8 @@ export namespace Prisma {
     accessTokenEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
     refreshTokenEncrypted?: StringNullableWithAggregatesFilter<"EInvoicingConnection"> | string | null
     tokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"EInvoicingConnection"> | Date | string | null
+    scopes?: JsonNullableWithAggregatesFilter<"EInvoicingConnection">
+    metadata?: JsonNullableWithAggregatesFilter<"EInvoicingConnection">
     receivingEnabled?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
     emissionEnabled?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
     autoSyncIncoming?: BoolWithAggregatesFilter<"EInvoicingConnection"> | boolean
@@ -86007,7 +86078,9 @@ export namespace Prisma {
   export type EInvoicingConnectionCreateInput = {
     id?: string
     provider?: $Enums.EInvoicingProviderType
+    connectionType?: string
     providerAccountId?: string | null
+    providerOrganizationId?: string | null
     environment?: string
     status?: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: string | null
@@ -86015,6 +86088,8 @@ export namespace Prisma {
     accessTokenEncrypted?: string | null
     refreshTokenEncrypted?: string | null
     tokenExpiresAt?: Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -86029,7 +86104,9 @@ export namespace Prisma {
     id?: string
     companyId: string
     provider?: $Enums.EInvoicingProviderType
+    connectionType?: string
     providerAccountId?: string | null
+    providerOrganizationId?: string | null
     environment?: string
     status?: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: string | null
@@ -86037,6 +86114,8 @@ export namespace Prisma {
     accessTokenEncrypted?: string | null
     refreshTokenEncrypted?: string | null
     tokenExpiresAt?: Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -86049,7 +86128,9 @@ export namespace Prisma {
   export type EInvoicingConnectionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86057,6 +86138,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
@@ -86071,7 +86154,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86079,6 +86164,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
@@ -86092,7 +86179,9 @@ export namespace Prisma {
     id?: string
     companyId: string
     provider?: $Enums.EInvoicingProviderType
+    connectionType?: string
     providerAccountId?: string | null
+    providerOrganizationId?: string | null
     environment?: string
     status?: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: string | null
@@ -86100,6 +86189,8 @@ export namespace Prisma {
     accessTokenEncrypted?: string | null
     refreshTokenEncrypted?: string | null
     tokenExpiresAt?: Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -86112,7 +86203,9 @@ export namespace Prisma {
   export type EInvoicingConnectionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86120,6 +86213,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
@@ -86133,7 +86228,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86141,6 +86238,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
@@ -91577,7 +91676,9 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     provider?: SortOrder
+    connectionType?: SortOrder
     providerAccountId?: SortOrder
+    providerOrganizationId?: SortOrder
     environment?: SortOrder
     status?: SortOrder
     apiKeyEncrypted?: SortOrder
@@ -91585,6 +91686,8 @@ export namespace Prisma {
     accessTokenEncrypted?: SortOrder
     refreshTokenEncrypted?: SortOrder
     tokenExpiresAt?: SortOrder
+    scopes?: SortOrder
+    metadata?: SortOrder
     receivingEnabled?: SortOrder
     emissionEnabled?: SortOrder
     autoSyncIncoming?: SortOrder
@@ -91598,7 +91701,9 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     provider?: SortOrder
+    connectionType?: SortOrder
     providerAccountId?: SortOrder
+    providerOrganizationId?: SortOrder
     environment?: SortOrder
     status?: SortOrder
     apiKeyEncrypted?: SortOrder
@@ -91619,7 +91724,9 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     provider?: SortOrder
+    connectionType?: SortOrder
     providerAccountId?: SortOrder
+    providerOrganizationId?: SortOrder
     environment?: SortOrder
     status?: SortOrder
     apiKeyEncrypted?: SortOrder
@@ -100145,7 +100252,9 @@ export namespace Prisma {
   export type EInvoicingConnectionCreateWithoutCompanyInput = {
     id?: string
     provider?: $Enums.EInvoicingProviderType
+    connectionType?: string
     providerAccountId?: string | null
+    providerOrganizationId?: string | null
     environment?: string
     status?: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: string | null
@@ -100153,6 +100262,8 @@ export namespace Prisma {
     accessTokenEncrypted?: string | null
     refreshTokenEncrypted?: string | null
     tokenExpiresAt?: Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -100165,7 +100276,9 @@ export namespace Prisma {
   export type EInvoicingConnectionUncheckedCreateWithoutCompanyInput = {
     id?: string
     provider?: $Enums.EInvoicingProviderType
+    connectionType?: string
     providerAccountId?: string | null
+    providerOrganizationId?: string | null
     environment?: string
     status?: $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: string | null
@@ -100173,6 +100286,8 @@ export namespace Prisma {
     accessTokenEncrypted?: string | null
     refreshTokenEncrypted?: string | null
     tokenExpiresAt?: Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: boolean
     emissionEnabled?: boolean
     autoSyncIncoming?: boolean
@@ -101636,7 +101751,9 @@ export namespace Prisma {
   export type EInvoicingConnectionUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101644,6 +101761,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean
@@ -101656,7 +101775,9 @@ export namespace Prisma {
   export type EInvoicingConnectionUncheckedUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumEInvoicingProviderTypeFieldUpdateOperationsInput | $Enums.EInvoicingProviderType
+    connectionType?: StringFieldUpdateOperationsInput | string
     providerAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    providerOrganizationId?: NullableStringFieldUpdateOperationsInput | string | null
     environment?: StringFieldUpdateOperationsInput | string
     status?: EnumEInvoicingConnectionStatusFieldUpdateOperationsInput | $Enums.EInvoicingConnectionStatus
     apiKeyEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101664,6 +101785,8 @@ export namespace Prisma {
     accessTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     refreshTokenEncrypted?: NullableStringFieldUpdateOperationsInput | string | null
     tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scopes?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     receivingEnabled?: BoolFieldUpdateOperationsInput | boolean
     emissionEnabled?: BoolFieldUpdateOperationsInput | boolean
     autoSyncIncoming?: BoolFieldUpdateOperationsInput | boolean

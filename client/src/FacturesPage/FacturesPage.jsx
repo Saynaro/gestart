@@ -819,6 +819,7 @@ function FacturesPage() {
                         onDelete={handleDeleteInvoice}
                         onOpenLinkedDevis={handleOpenLinkedDevis}
                         onUpdateInvoiceCustomization={handleUpdateInvoiceCustomization}
+                        showToast={showToast}
                     />
                 )}
             </AnimatePresence>

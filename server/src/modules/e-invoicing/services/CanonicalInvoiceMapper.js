@@ -40,10 +40,17 @@ export class CanonicalInvoiceMapper {
         else if (invoice.paymentMethod === "CHEQUE") paymentMeansCode = PAYMENT_MEANS.CHEQUE;
         else if (invoice.paymentMethod === "CASH") paymentMeansCode = PAYMENT_MEANS.CASH;
 
-        // Map lines
-        const canonicalLines = lines.map((line, index) => {
-            const qty = Number(line.quantity) || 1;
-            const price = Number(line.unitPrice) || 0;
+        // Map lines (with fallback if no line items defined)
+        const rawLines = (lines && lines.length > 0) ? lines : [{
+            description: invoice.description || "Prestation de services",
+            quantity: 1,
+            unitPrice: Number(invoice.amountHT || invoice.amountTTC || 0),
+            tvaRate: Number(invoice.tvaRate !== undefined ? invoice.tvaRate : 20)
+        }];
+
+        const canonicalLines = rawLines.map((line, index) => {
+            const qty = Number(line.quantity || line.qty) || 1;
+            const price = Number(line.unitPrice || line.price) || 0;
             const disc = Number(line.discount) || 0;
             const netAmount = Math.round(qty * price * (1 - disc / 100) * 100) / 100;
             const rate = Number(line.tvaRate !== undefined ? line.tvaRate : (invoice.tvaRate || 20));
@@ -58,7 +65,7 @@ export class CanonicalInvoiceMapper {
             return {
                 id: line.id || String(index + 1),
                 position: line.position !== undefined ? line.position : index + 1,
-                description: line.description || "Prestation",
+                description: line.description || "Prestation de services",
                 reference: line.reference || null,
                 quantity: qty,
                 unit: line.unit || "UNITE",
@@ -72,9 +79,14 @@ export class CanonicalInvoiceMapper {
         });
 
         // Compute totals & VAT breakdown
-        const totalHT = Math.round((Number(invoice.amountHT) || canonicalLines.reduce((sum, l) => sum + l.netAmount, 0)) * 100) / 100;
+        const computedHtSum = canonicalLines.reduce((sum, l) => sum + l.netAmount, 0);
+        const totalHT = Math.round((Number(invoice.amountHT) || computedHtSum) * 100) / 100;
         const totalTTC = Math.round((Number(invoice.amountTTC) || (totalHT * (1 + (Number(invoice.tvaRate) || 20) / 100))) * 100) / 100;
         const totalVAT = Math.round((totalTTC - totalHT) * 100) / 100;
+
+        const buyerCleanSiren = (client.sirenNumber || client.siret || "").replace(/\s+/g, "");
+        const buyerSiren = buyerCleanSiren.length >= 9 ? buyerCleanSiren.substring(0, 9) : null;
+        const buyerSiret = buyerCleanSiren.length === 14 ? buyerCleanSiren : null;
 
         return {
             id: invoice.id,
@@ -125,8 +137,8 @@ export class CanonicalInvoiceMapper {
                 name: client.companyName || `${client.firstName || ""} ${client.lastName || ""}`.trim() || "Client",
                 isB2B,
                 companyName: client.companyName || null,
-                siren: client.sirenNumber ? client.sirenNumber.substring(0, 9) : null,
-                siret: client.sirenNumber && client.sirenNumber.length === 14 ? client.sirenNumber : null,
+                siren: buyerSiren,
+                siret: buyerSiret,
                 vatNumber: client.clientTvaNumber || null,
                 legalForm: client.clientLegalForm || null,
                 address: client.address || "Adresse client",
@@ -153,6 +165,11 @@ export class CanonicalInvoiceMapper {
 
             // Lines & Amounts
             lines: canonicalLines,
+            totals: {
+                totalHT,
+                totalVAT,
+                totalTTC
+            },
             amountHT: totalHT,
             amountVAT: totalVAT,
             amountTTC: totalTTC

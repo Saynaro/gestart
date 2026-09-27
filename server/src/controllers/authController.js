@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { prisma } from "../config/db.js";
+import { stripe } from "../config/stripe.js";
 import { generateAccessToken, generateRefreshToken, setRefreshCookie, setAuthCookies } from "../utils/generateToken.js";
 import { sendVerificationEmail, sendPasswordResetEmail, sendTwoFactorCodeEmail } from "../utils/emailService.js";
 import { ChannelConnectionService } from "../services/messaging/ChannelConnectionService.js";
@@ -52,6 +53,8 @@ export const register = async (req, res) => {
             email,
             password,
             companyName,
+            siret,
+            siren,
             tradeCategories, // Array of TradeCategory IDs or slugs
             planName = "STARTER", // "STARTER", "PRO", "UNLIMITED"
             phone,
@@ -64,6 +67,7 @@ export const register = async (req, res) => {
             avatarUrl,
             isGoogle,
             googleToken,
+            referralCode,
         } = req.body;
 
         const isGoogleAuth = Boolean(isGoogle || googleToken);
@@ -95,6 +99,31 @@ export const register = async (req, res) => {
             });
         }
 
+        // 2b. Vérification unicité SIRET / SIREN
+        let cleanSiret = (siret || "").toString().replace(/[^0-9]/g, "").trim() || null;
+        let cleanSiren = (siren || "").toString().replace(/[^0-9]/g, "").trim() || null;
+        if (!cleanSiren && cleanSiret && cleanSiret.length >= 9) {
+            cleanSiren = cleanSiret.slice(0, 9);
+        }
+
+        if (cleanSiret || cleanSiren) {
+            const existingCompany = await prisma.company.findFirst({
+                where: {
+                    OR: [
+                        ...(cleanSiret ? [{ siret: cleanSiret }] : []),
+                        ...(cleanSiren ? [{ siren: cleanSiren }] : [])
+                    ]
+                }
+            });
+
+            if (existingCompany) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Une entreprise avec ce numéro SIRET / SIREN est déjà inscrite sur GestArt. Veuillez vous connecter ou contacter le support.",
+                });
+            }
+        }
+
         // 3. Hash du mot de passe (ou mot de passe sécurisé aléatoire si compte Google)
         const salt = await bcrypt.genSalt(10);
         const rawPassword = password || crypto.randomBytes(32).toString("hex");
@@ -122,6 +151,8 @@ export const register = async (req, res) => {
                 data: {
                     name: companyName,
                     legalForm: legalForm || "SAS",
+                    siret: cleanSiret || null,
+                    siren: cleanSiren || null,
                     phone: phone || null,
                     email: email.toLowerCase().trim(),
                     tvaNumber: vatNumber || null,
@@ -182,6 +213,103 @@ export const register = async (req, res) => {
                     avatarUrl: avatarUrl || null,
                 },
             });
+
+            // Traitement du code de parrainage
+            const cleanRefCode = (referralCode || "").trim().toUpperCase();
+            if (cleanRefCode) {
+                try {
+                    const parts = cleanRefCode.split("-");
+                    const suffix = parts[parts.length - 1];
+                    if (suffix && suffix.length >= 3) {
+                        const referrerCompany = await tx.company.findFirst({
+                            where: {
+                                id: { endsWith: suffix, mode: "insensitive" }
+                            },
+                            include: { subscription: true }
+                        });
+
+                        // Anti-fraude : empêcher le parrainage de soi-même
+                        if (referrerCompany && referrerCompany.email?.toLowerCase().trim() !== email.toLowerCase().trim()) {
+                            const alreadyLogged = await tx.auditLog.findFirst({
+                                where: {
+                                    action: "referral.registered",
+                                    entityType: "Referral",
+                                    entityId: company.id
+                                }
+                            });
+
+                            if (!alreadyLogged) {
+                                // 1. Enregistrement du parrainage
+                                await tx.auditLog.create({
+                                    data: {
+                                        companyId: referrerCompany.id,
+                                        action: "referral.registered",
+                                        entityType: "Referral",
+                                        entityId: company.id,
+                                        newData: {
+                                            referredCompanyId: company.id,
+                                            referredCompanyName: company.name,
+                                            referredEmail: email.toLowerCase().trim(),
+                                            referralCode: cleanRefCode,
+                                            status: "REGISTERED",
+                                            reward: "1 mois offert"
+                                        }
+                                    }
+                                });
+
+                                // 2. Récompense du parrain (+1 mois offert / +30 jours)
+                                if (referrerCompany.subscription) {
+                                    const currentEnd = referrerCompany.subscription.trialEndsAt || referrerCompany.subscription.currentPeriodEnd || new Date();
+                                    const newEnd = new Date(currentEnd.getTime() + 30 * 24 * 60 * 60 * 1000);
+                                    await tx.subscription.update({
+                                        where: { id: referrerCompany.subscription.id },
+                                        data: {
+                                            trialEndsAt: newEnd,
+                                            currentPeriodEnd: newEnd
+                                        }
+                                    });
+
+                                    // Si le parrain a un abonnement actif sur Stripe, décaler la prochaine date de facturation
+                                    if (stripe && referrerCompany.subscription.stripeSubscriptionId) {
+                                        try {
+                                            const stripeSub = await stripe.subscriptions.retrieve(referrerCompany.subscription.stripeSubscriptionId);
+                                            if (stripeSub && stripeSub.status !== "canceled") {
+                                                const baseSeconds = (stripeSub.trial_end && stripeSub.trial_end * 1000 > Date.now())
+                                                    ? stripeSub.trial_end
+                                                    : (stripeSub.current_period_end || Math.floor(Date.now() / 1000));
+                                                const updatedTrialEnd = Math.floor(baseSeconds + (30 * 24 * 60 * 60));
+
+                                                await stripe.subscriptions.update(referrerCompany.subscription.stripeSubscriptionId, {
+                                                    trial_end: updatedTrialEnd,
+                                                    proration_behavior: "none"
+                                                });
+                                                console.log(`[STRIPE REFERRAL SYNC] Facturation décalée de 30 jours pour sub ${referrerCompany.subscription.stripeSubscriptionId} jusqu'au ${new Date(updatedTrialEnd * 1000).toISOString()}`);
+                                            }
+                                        } catch (stripeErr) {
+                                            console.warn("[STRIPE REFERRAL SYNC WARNING]:", stripeErr.message);
+                                        }
+                                    }
+                                }
+
+                                // 3. Récompense du filleul (30 jours d'essai au lieu de 14)
+                                if (subscription) {
+                                    const extraTrialEnd = new Date();
+                                    extraTrialEnd.setDate(extraTrialEnd.getDate() + 30);
+                                    await tx.subscription.update({
+                                        where: { id: subscription.id },
+                                        data: {
+                                            trialEndsAt: extraTrialEnd,
+                                            currentPeriodEnd: extraTrialEnd
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } catch (refErr) {
+                    console.warn("Erreur attribution parrainage:", refErr);
+                }
+            }
 
             return { company, user, subscription };
         });

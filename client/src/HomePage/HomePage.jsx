@@ -42,7 +42,7 @@ function HomePage() {
         try {
             const cached = sessionStorage.getItem('dashboardDataCache') || localStorage.getItem('dashboardDataCache');
             if (cached) return JSON.parse(cached);
-        } catch (e) {}
+        } catch (e) { }
         return null;
     });
 
@@ -55,7 +55,7 @@ function HomePage() {
                 try {
                     sessionStorage.setItem('dashboardDataCache', JSON.stringify(d));
                     localStorage.setItem('dashboardDataCache', JSON.stringify(d));
-                } catch (e) {}
+                } catch (e) { }
             }
         } catch (err) {
             console.warn("API dashboard non disponible:", err.message);
@@ -135,8 +135,8 @@ function HomePage() {
     const capitalizedPeriod = currentMonthFormatted.charAt(0).toUpperCase() + currentMonthFormatted.slice(1);
 
     const revenueVal = dashboardData?.stats?.revenueThisMonth || 0;
-    const cotisationsVal = dashboardData?.stats?.cotisationsThisMonth !== undefined 
-        ? dashboardData.stats.cotisationsThisMonth 
+    const cotisationsVal = dashboardData?.stats?.cotisationsThisMonth !== undefined
+        ? dashboardData.stats.cotisationsThisMonth
         : Math.round(revenueVal * 0.212 * 100) / 100;
     const resultatVal = dashboardData?.stats?.resultatThisMonth !== undefined
         ? dashboardData.stats.resultatThisMonth
@@ -148,97 +148,97 @@ function HomePage() {
             <div className="main-content">
                 <Header />
                 <PullToRefresh onRefresh={fetchDashboard} disabled={showOnboarding}>
-                    <motion.div 
+                    <motion.div
                         className="page-content"
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     >
-                    {/* Welcome Greeting Section */}
-                    <Greeting name={user?.firstName || "Khalid"} />
+                        {/* Welcome Greeting Section */}
+                        <Greeting name={user?.firstName || "Khalid"} />
 
-                    {/* Top Row: Financial Statistics Cards & Interactive Chart */}
-                    <div className="dashboard-top-section">
-                        <FinancialStats 
-                            chiffreAffaires={revenueVal} 
-                            cotisations={cotisationsVal} 
-                            resultat={resultatVal} 
-                            period={`${capitalizedPeriod} (Mois en cours)`}
-                            onConnectUrssaf={handleConnectUrssaf}
-                            onConfigureTaux={handleConfigureTaux}
-                        />
-                        <FinancialChart 
-                            data={dashboardData?.financialChart || []} 
-                            rawTransactions={dashboardData?.financialTransactions || []}
-                            cotisationsRate={dashboardData?.cotisationsRate || dashboardData?.stats?.totalCotisationsRate || 0.212}
-                        />
-                    </div>
-
-                    {/* Dashboard Segmented Tabs */}
-                    <DashboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-                    {/* Dynamic Tabs Content panels */}
-                    {activeTab === "comptabilite" && (
-                        <div className="dashboard-comptabilite-content">
-                            <div className="dashboard-bottom-grid">
-                                <FacturesCard 
-                                    enRetardCount={dashboardData?.factures?.enRetardCount || 0}
-                                    enRetardAmount={dashboardData?.factures?.enRetardAmount || 0}
-                                    enAttenteCount={dashboardData?.factures?.enAttenteCount || 0}
-                                    enAttenteAmount={dashboardData?.factures?.enAttenteAmount || 0}
-                                    overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
-                                    pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
-                                    onCreateFacture={handleCreateFacture} 
-                                />
-                                <DevisCard 
-                                    draftCount={dashboardData?.devis?.brouillonsCount || 0}
-                                    draftAmount={dashboardData?.devis?.brouillonsAmount || 0}
-                                    sentCount={dashboardData?.devis?.envoyesCount || 0}
-                                    sentAmount={dashboardData?.devis?.envoyesAmount || 0}
-                                    draftDevis={dashboardData?.devis?.brouillonsQuotes || []}
-                                    sentDevis={dashboardData?.devis?.sentQuotes || []}
-                                    onCreateDevis={handleCreateDevis} 
-                                />
-                                <InterventionsCard 
-                                    plannedCount={dashboardData?.interventions?.plannedCount ?? dashboardData?.interventions?.todayCount ?? 0}
-                                    completedCount={dashboardData?.interventions?.completedCount ?? dashboardData?.interventions?.completedThisMonth ?? 0}
-                                    plannedInterventions={dashboardData?.interventions?.plannedInterventions || dashboardData?.plannedInterventions || dashboardData?.todayInterventions || []}
-                                    completedInterventions={dashboardData?.interventions?.completedInterventions || dashboardData?.completedInterventions || []}
-                                    onPlanIntervention={handlePlanIntervention} 
-                                />
-                            </div>
-                            <PlafondsCard 
-                                servicesCurrent={dashboardData?.plafonds?.servicesCurrent || 0}
-                                commercialCurrent={dashboardData?.plafonds?.commercialCurrent || 0}
-                                servicesMax={dashboardData?.plafonds?.servicesMax || 77700}
-                                servicesTva={dashboardData?.plafonds?.servicesTva || 36800}
-                                servicesTvaMax={dashboardData?.plafonds?.servicesTvaMax || 39100}
-                                commercialMax={dashboardData?.plafonds?.commercialMax || 188700}
-                                commercialTva={dashboardData?.plafonds?.commercialTva || 91900}
-                                commercialTvaMax={dashboardData?.plafonds?.commercialTvaMax || 101000}
+                        {/* Top Row: Financial Statistics Cards & Interactive Chart */}
+                        <div className="dashboard-top-section">
+                            <FinancialStats
+                                chiffreAffaires={revenueVal}
+                                cotisations={cotisationsVal}
+                                resultat={resultatVal}
+                                period={`${capitalizedPeriod} (Mois en cours)`}
+                                onConnectUrssaf={handleConnectUrssaf}
+                                onConfigureTaux={handleConfigureTaux}
+                            />
+                            <FinancialChart
+                                data={dashboardData?.financialChart || []}
+                                rawTransactions={dashboardData?.financialTransactions || []}
+                                cotisationsRate={dashboardData?.cotisationsRate || dashboardData?.stats?.totalCotisationsRate || 0.212}
                             />
                         </div>
-                    )}
 
-                    {activeTab === "statistiques" && (
-                        <StatsTab 
-                            revenueThisMonth={revenueVal}
-                            cotisationsThisMonth={cotisationsVal}
-                            topArticles={dashboardData?.topArticles || []}
-                            topClients={dashboardData?.topClients || []}
-                            pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
-                            overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
-                        />
-                    )}
+                        {/* Dashboard Segmented Tabs */}
+                        <DashboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-                    {activeTab === "productivite" && (
-                        <ProductivityTab 
-                            trackingColumns={dashboardData?.interventions?.trackingColumns}
-                            onCreateTask={handleCreateTask}
-                            onCreateBoard={handleCreateBoard}
-                        />
-                    )}
-                </motion.div>
+                        {/* Dynamic Tabs Content panels */}
+                        {activeTab === "comptabilite" && (
+                            <div className="dashboard-comptabilite-content">
+                                <div className="dashboard-bottom-grid">
+                                    <FacturesCard
+                                        enRetardCount={dashboardData?.factures?.enRetardCount || 0}
+                                        enRetardAmount={dashboardData?.factures?.enRetardAmount || 0}
+                                        enAttenteCount={dashboardData?.factures?.enAttenteCount || 0}
+                                        enAttenteAmount={dashboardData?.factures?.enAttenteAmount || 0}
+                                        overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
+                                        pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
+                                        onCreateFacture={handleCreateFacture}
+                                    />
+                                    <DevisCard
+                                        draftCount={dashboardData?.devis?.brouillonsCount || 0}
+                                        draftAmount={dashboardData?.devis?.brouillonsAmount || 0}
+                                        sentCount={dashboardData?.devis?.envoyesCount || 0}
+                                        sentAmount={dashboardData?.devis?.envoyesAmount || 0}
+                                        draftDevis={dashboardData?.devis?.brouillonsQuotes || []}
+                                        sentDevis={dashboardData?.devis?.sentQuotes || []}
+                                        onCreateDevis={handleCreateDevis}
+                                    />
+                                    <InterventionsCard
+                                        plannedCount={dashboardData?.interventions?.plannedCount ?? dashboardData?.interventions?.todayCount ?? 0}
+                                        completedCount={dashboardData?.interventions?.completedCount ?? dashboardData?.interventions?.completedThisMonth ?? 0}
+                                        plannedInterventions={dashboardData?.interventions?.plannedInterventions || dashboardData?.plannedInterventions || dashboardData?.todayInterventions || []}
+                                        completedInterventions={dashboardData?.interventions?.completedInterventions || dashboardData?.completedInterventions || []}
+                                        onPlanIntervention={handlePlanIntervention}
+                                    />
+                                </div>
+                                <PlafondsCard
+                                    servicesCurrent={dashboardData?.plafonds?.servicesCurrent || 0}
+                                    commercialCurrent={dashboardData?.plafonds?.commercialCurrent || 0}
+                                    servicesMax={dashboardData?.plafonds?.servicesMax || 77700}
+                                    servicesTva={dashboardData?.plafonds?.servicesTva || 36800}
+                                    servicesTvaMax={dashboardData?.plafonds?.servicesTvaMax || 39100}
+                                    commercialMax={dashboardData?.plafonds?.commercialMax || 188700}
+                                    commercialTva={dashboardData?.plafonds?.commercialTva || 91900}
+                                    commercialTvaMax={dashboardData?.plafonds?.commercialTvaMax || 101000}
+                                />
+                            </div>
+                        )}
+
+                        {activeTab === "statistiques" && (
+                            <StatsTab
+                                revenueThisMonth={revenueVal}
+                                cotisationsThisMonth={cotisationsVal}
+                                topArticles={dashboardData?.topArticles || []}
+                                topClients={dashboardData?.topClients || []}
+                                pendingInvoices={dashboardData?.factures?.pendingInvoices || []}
+                                overdueInvoices={dashboardData?.factures?.overdueInvoices || []}
+                            />
+                        )}
+
+                        {activeTab === "productivite" && (
+                            <ProductivityTab
+                                trackingColumns={dashboardData?.interventions?.trackingColumns}
+                                onCreateTask={handleCreateTask}
+                                onCreateBoard={handleCreateBoard}
+                            />
+                        )}
+                    </motion.div>
                 </PullToRefresh>
             </div>
 
@@ -294,7 +294,7 @@ function HomePage() {
                             </div>
 
                             <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
-                                Votre espace d'essai est prêt ! 🚀
+                                Votre espace d'essai est prêt !
                             </h2>
                             <p style={{ color: 'var(--muted-foreground)', fontSize: '0.95rem', marginBottom: '24px', lineHeight: 1.5 }}>
                                 Vous bénéficiez de 14 jours d'essai gratuit. Voici les 3 premières actions recommandées pour démarrer :

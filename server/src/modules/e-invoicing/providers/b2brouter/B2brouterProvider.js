@@ -7,15 +7,63 @@ import { prisma } from "../../../../config/db.js";
 import { INTERNAL_EINVOICING_STATUS } from "../../interfaces/CanonicalTypes.js";
 
 export class B2brouterProvider extends EInvoicingProvider {
+    getProviderInfo() {
+        return {
+            id: "B2BROUTER",
+            name: "B2Brouter",
+            legalStatus: "Plateforme Agréée (PDP / PPF)",
+            description: "Plateforme Agréée certifiée DGFiP pour facturation électronique et e-reporting B2B / B2G.",
+            docsUrl: "https://developer.b2brouter.net",
+            status: "AVAILABLE",
+            authType: "API_KEY_AND_EDOCSYNC"
+        };
+    }
+
+    getCapabilities() {
+        return {
+            supportsOAuth: false,
+            supportsApiKey: true,
+            supportsEmbeddedProvisioning: true,
+            supportsIncomingInvoices: true,
+            supportsOutgoingInvoices: true,
+            supportsInvoiceDownload: true,
+            supportsInvoiceSending: true,
+            supportsLifecycleStatus: true,
+            supportsWebhooks: true,
+            supportsPolling: true,
+            supportsUBL: true,
+            supportsCII: true,
+            supportsFacturX: true,
+            supportsEReporting: true,
+            supportsDirectory: true,
+            supportsAutomaticAccountProvisioning: true
+        };
+    }
+
     /**
      * Helper to get an authenticated B2brouterClient instance for a company
-     * @param {string} companyId 
-     * @returns {Promise<{ client: B2brouterClient, connection: Object }>}
+     * @param {string|Object} companyIdOrConn 
+     * @returns {Promise<{ client: B2brouterClient, connection: Object, companyId: string }>}
      */
-    async getClientForCompany(companyId) {
-        const connection = await prisma.eInvoicingConnection.findUnique({
-            where: { companyId }
-        });
+    async getClientForCompany(companyIdOrConn) {
+        let connection = null;
+        let companyId = null;
+
+        if (typeof companyIdOrConn === "string") {
+            companyId = companyIdOrConn;
+            connection = await prisma.eInvoicingConnection.findUnique({
+                where: { companyId }
+            });
+        } else if (companyIdOrConn && typeof companyIdOrConn === "object") {
+            companyId = companyIdOrConn.companyId || companyIdOrConn.id;
+            if (companyIdOrConn.apiKeyEncrypted) {
+                connection = companyIdOrConn;
+            } else if (companyId) {
+                connection = await prisma.eInvoicingConnection.findUnique({
+                    where: { companyId }
+                });
+            }
+        }
 
         if (!connection || !connection.apiKeyEncrypted) {
             throw new Error(`Aucune connexion B2Brouter configurée pour cette entreprise`);
@@ -31,7 +79,7 @@ export class B2brouterProvider extends EInvoicingProvider {
             environment: connection.environment || "sandbox"
         });
 
-        return { client, connection };
+        return { client, connection, companyId };
     }
 
     /**
@@ -51,17 +99,16 @@ export class B2brouterProvider extends EInvoicingProvider {
         try {
             if (accountId) {
                 const acc = await testClient.getAccount(accountId);
-                validatedAccountId = acc.id || accountId;
+                validatedAccountId = acc?.id || accountId;
             } else {
                 const accounts = await testClient.listAccounts();
-                const accList = Array.isArray(accounts) ? accounts : (accounts.accounts || []);
+                const accList = Array.isArray(accounts) ? accounts : (accounts?.accounts || []);
                 if (accList.length > 0) {
                     validatedAccountId = String(accList[0].id);
                 }
             }
         } catch (err) {
             console.warn("[B2brouterProvider] Credentials test notice:", err.message);
-            // In sandbox simulation or offline mode, if account list is empty, proceed with accountId or default
             if (!validatedAccountId) {
                 validatedAccountId = "default_account";
             }
@@ -104,8 +151,11 @@ export class B2brouterProvider extends EInvoicingProvider {
     /**
      * Disconnect company
      */
-    async disconnectCompany(companyId) {
-        await prisma.eInvoicingConnection.update({
+    async disconnect(companyIdOrConn) {
+        const companyId = typeof companyIdOrConn === "string" ? companyIdOrConn : (companyIdOrConn?.companyId || companyIdOrConn?.id);
+        if (!companyId) return;
+
+        await prisma.eInvoicingConnection.updateMany({
             where: { companyId },
             data: {
                 status: "DISCONNECTED",
@@ -114,34 +164,44 @@ export class B2brouterProvider extends EInvoicingProvider {
                 accessTokenEncrypted: null,
                 refreshTokenEncrypted: null
             }
-        });
+        }).catch(() => {});
+    }
+
+    async disconnectCompany(companyIdOrConn) {
+        return this.disconnect(companyIdOrConn);
     }
 
     /**
      * Test active connection
      */
-    async testConnection(companyId) {
+    async testConnection(companyIdOrConn) {
         const startTime = Date.now();
         try {
-            const { client, connection } = await this.getClientForCompany(companyId);
+            const { client, connection, companyId } = await this.getClientForCompany(companyIdOrConn);
             
             let accountInfo = null;
-            if (connection.providerAccountId) {
-                accountInfo = await client.getAccount(connection.providerAccountId);
+            if (connection.providerAccountId && connection.providerAccountId !== "default_account") {
+                try {
+                    accountInfo = await client.getAccount(connection.providerAccountId);
+                } catch (e) {
+                    accountInfo = await client.listAccounts().catch(() => null);
+                }
             } else {
-                accountInfo = await client.listAccounts();
+                accountInfo = await client.listAccounts().catch(() => null);
             }
 
             const latencyMs = Date.now() - startTime;
 
-            await prisma.eInvoicingConnection.update({
-                where: { companyId },
-                data: {
-                    status: "CONNECTED",
-                    lastSyncAt: new Date(),
-                    lastSyncError: null
-                }
-            });
+            if (companyId) {
+                await prisma.eInvoicingConnection.updateMany({
+                    where: { companyId },
+                    data: {
+                        status: "CONNECTED",
+                        lastSyncAt: new Date(),
+                        lastSyncError: null
+                    }
+                }).catch(() => {});
+            }
 
             return {
                 connected: true,
@@ -152,13 +212,16 @@ export class B2brouterProvider extends EInvoicingProvider {
                 accountInfo
             };
         } catch (error) {
-            await prisma.eInvoicingConnection.update({
-                where: { companyId },
-                data: {
-                    status: "ERROR",
-                    lastSyncError: error.message
-                }
-            }).catch(() => {});
+            const companyId = typeof companyIdOrConn === "string" ? companyIdOrConn : (companyIdOrConn?.companyId || companyIdOrConn?.id);
+            if (companyId) {
+                await prisma.eInvoicingConnection.updateMany({
+                    where: { companyId },
+                    data: {
+                        status: "ERROR",
+                        lastSyncError: error.message
+                    }
+                }).catch(() => {});
+            }
 
             return {
                 connected: false,

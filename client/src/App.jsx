@@ -50,6 +50,12 @@ const SignatureQuote = lazy(() => import('./PublicPages/SignatureQuote'))
 const PublicContact = lazy(() => import('./PublicPages/PublicContact'))
 const PaySuccessPage = lazy(() => import('./PublicPages/PaySuccessPage'))
 
+// Legal Pages (Standalone Minimalist Pages)
+const MentionsLegalesPage = lazy(() => import('./LegalPages/MentionsLegalesPage'))
+const CguPage = lazy(() => import('./LegalPages/CguPage'))
+const ConfidentialitePage = lazy(() => import('./LegalPages/ConfidentialitePage'))
+const CookiesPage = lazy(() => import('./LegalPages/CookiesPage'))
+
 // Route Guard for Private Pages (Requires valid Auth Token)
 function ProtectedRoute({ children }) {
   if (!isAuthenticated()) {
@@ -222,7 +228,15 @@ function App() {
       location.pathname.startsWith("/forgot-password") ||
       location.pathname.startsWith("/reset-password") ||
       location.pathname.startsWith("/verify-email") ||
-      location.pathname.startsWith("/auth");
+      location.pathname.startsWith("/auth") ||
+      location.pathname.startsWith("/mentions") ||
+      location.pathname.startsWith("/cgu") ||
+      location.pathname.startsWith("/cgv") ||
+      location.pathname.startsWith("/terms") ||
+      location.pathname.startsWith("/confidentialite") ||
+      location.pathname.startsWith("/rgpd") ||
+      location.pathname.startsWith("/privacy") ||
+      location.pathname.startsWith("/cookies");
 
     if (isAlwaysLight) {
       document.documentElement.classList.remove("dark");
@@ -288,6 +302,16 @@ function App() {
             <Route path="/sign/success" element={<PaySuccessPage />} />
             <Route path="/devis/:id" element={<SignatureQuote />} />
             <Route path="/contact/:companySlug" element={<PublicContact />} />
+            {/* Standalone Legal Pages (Publicly accessible) */}
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/mentions" element={<MentionsLegalesPage />} />
+            <Route path="/cgu" element={<CguPage />} />
+            <Route path="/cgv" element={<CguPage />} />
+            <Route path="/terms" element={<CguPage />} />
+            <Route path="/confidentialite" element={<ConfidentialitePage />} />
+            <Route path="/rgpd" element={<ConfidentialitePage />} />
+            <Route path="/privacy" element={<ConfidentialitePage />} />
+            <Route path="/cookies" element={<CookiesPage />} />
 
             {/* Catch-all Fallback */}
             <Route path="*" element={<Navigate to={isAuthenticated() ? "/home" : "/login"} replace />} />

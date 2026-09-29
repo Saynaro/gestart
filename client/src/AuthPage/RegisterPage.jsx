@@ -41,7 +41,6 @@ import PhoneInput from '../components/PhoneInput';
 import { apiFetch } from '../utils/api';
 import { API_URL } from '../utils/config';
 import { setAuthToken, clearAuthToken } from '../utils/auth';
-import LegalModal from '../components/LegalHelpModal';
 import { useUser } from '../utils/useUser';
 import { useSubscription } from '../utils/useSubscription';
 import OtpInput6 from '../components/OtpInput6';
@@ -64,7 +63,13 @@ const PLANS_LIST = [
         name: 'Starter',
         price: '34€',
         period: '/mois',
-        features: ['1 utilisateur (patron)', '100 clients max', '100 SMS/mois', 'Facturation & Chorus Pro', 'Rappels automatiques']
+        subtitle: 'Artisan seul',
+        features: [
+            '1 patron / gérant',
+            '100 clients max',
+            '100 SMS/mois inclus',
+            'Devis & Facturation conformes'
+        ]
     },
     {
         id: 'PRO',
@@ -72,14 +77,26 @@ const PLANS_LIST = [
         price: '69€',
         period: '/mois',
         popular: true,
-        features: ['5 techniciens inclus', '500 clients max', '500 SMS/mois', 'App Mobile Techniciens', 'Support prioritaire 7j/7']
+        subtitle: 'Équipe (1 à 5 techs)',
+        features: [
+            'Jusqu\'à 5 techniciens',
+            '500 clients max',
+            '500 SMS/mois inclus',
+            'Planning & App Mobile Tech'
+        ]
     },
     {
         id: 'UNLIMITED',
         name: 'Unlimited',
         price: '129€',
         period: '/mois',
-        features: ['Clients & Techs illimités', '1 500 SMS/mois', 'Facturation B2B & Chorus Pro', 'Support VIP 7j/7']
+        subtitle: 'Croissance & Grands comptes',
+        features: [
+            'Techs & clients illimités',
+            '1 500 SMS/mois inclus',
+            'Facturation B2B Chorus Pro',
+            'Support VIP 7j/7'
+        ]
     }
 ];
 
@@ -105,7 +122,6 @@ export default function RegisterPage() {
     const [step, setStep] = useState(isGoogleSignup ? 3 : 1);
     const [showPassword, setShowPassword] = useState(false);
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-    const [activeLegalModal, setActiveLegalModal] = useState(null);
     const passwordInputRef = useRef(null);
 
     // Toast System
@@ -837,29 +853,25 @@ export default function RegisterPage() {
                                     />
                                     <span className="terms-checkbox-text">
                                         J'accepte les{' '}
-                                        <button
-                                            type="button"
+                                        <a
+                                            href="/cgu"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="terms-link-btn"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setActiveLegalModal('cgu');
-                                            }}
+                                            onClick={(e) => e.stopPropagation()}
                                         >
                                             Conditions Générales d'Utilisation
-                                        </button>{' '}
+                                        </a>{' '}
                                         et les{' '}
-                                        <button
-                                            type="button"
+                                        <a
+                                            href="/confidentialite"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="terms-link-btn"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setActiveLegalModal('rgpd');
-                                            }}
+                                            onClick={(e) => e.stopPropagation()}
                                         >
                                             Politiques de Confidentialité
-                                        </button>
+                                        </a>
                                     </span>
                                 </label>
                             </div>
@@ -1080,15 +1092,15 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="input-group">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                    <label style={{ margin: 0 }}>Formule choisie</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <label style={{ margin: 0, fontWeight: 600 }}>Formule choisie *</label>
                                     {promoInfo?.valid ? (
-                                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#16a34a', backgroundColor: 'rgba(34, 197, 94, 0.12)', padding: '3px 10px', borderRadius: '50px', border: '1px solid rgba(34, 197, 94, 0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <Sparkles size={13} /> 30 jours offerts (Offre Parrainage)
+                                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#0F172A', backgroundColor: '#F1F5F9', padding: '3px 10px', borderRadius: '6px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Check size={13} /> 30 jours offerts (Parrainage)
                                         </span>
                                     ) : (
-                                        <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>
-                                            14 jours d'essai gratuits
+                                        <span style={{ fontSize: '12px', color: '#64748B' }}>
+                                            14 jours d'essai gratuits sans engagement
                                         </span>
                                     )}
                                 </div>
@@ -1100,22 +1112,29 @@ export default function RegisterPage() {
                                                 key={plan.id}
                                                 className={`plan-card ${isSelected ? 'selected' : ''}`}
                                                 onClick={() => setFormData(prev => ({ ...prev, planName: plan.id }))}
-                                                style={{ position: 'relative' }}
                                             >
                                                 {promoInfo?.valid ? (
-                                                    <span className="pop-tag" style={{ background: '#16a34a', color: '#fff', fontSize: '10px', fontWeight: 800 }}>1 mois offert</span>
+                                                    <span className="pop-tag">1 mois offert</span>
                                                 ) : (
                                                     plan.popular && <span className="pop-tag">Recommandé</span>
                                                 )}
-                                                <div className="plan-name">{plan.name}</div>
+
+                                                <div className="plan-header">
+                                                    <div>
+                                                        <div className="plan-name">{plan.name}</div>
+                                                        <div className="plan-subtitle">{plan.subtitle}</div>
+                                                    </div>
+                                                    <div className={`plan-radio ${isSelected ? 'checked' : ''}`}>
+                                                        {isSelected && <Check size={11} strokeWidth={3} />}
+                                                    </div>
+                                                </div>
+
                                                 <div className="plan-price">
                                                     {promoInfo?.valid ? (
-                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                            <div>
-                                                                <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8em', marginRight: '4px' }}>{plan.price}</span>
-                                                                <span style={{ color: '#16a34a', fontWeight: 800 }}>0€</span>
-                                                            </div>
-                                                            <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, marginTop: '2px' }}>pendant 30 jours</span>
+                                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                                            <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.85em' }}>{plan.price}</span>
+                                                            <span style={{ color: '#0F172A', fontWeight: 800 }}>0€</span>
+                                                            <span style={{ fontSize: '0.76rem', color: '#64748B' }}>/ 30 jours</span>
                                                         </div>
                                                     ) : (
                                                         <>
@@ -1123,6 +1142,15 @@ export default function RegisterPage() {
                                                         </>
                                                     )}
                                                 </div>
+
+                                                <ul className="plan-features-list">
+                                                    {plan.features.map((feat, idx) => (
+                                                        <li key={idx} className="plan-feature-item">
+                                                            <Check size={12} className="plan-feature-icon" strokeWidth={2.5} />
+                                                            <span>{feat}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </div>
                                         );
                                     })}
@@ -1130,9 +1158,9 @@ export default function RegisterPage() {
                             </div>
 
                             {/* Code Promo & Parrainage */}
-                            <div className="input-group" style={{ marginTop: '4px' }}>
+                            <div className="input-group" style={{ marginTop: '10px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <label style={{ margin: 0, fontSize: '0.85rem' }}>Code promo ou de parrainage</label>
+                                    <label style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>Code promo ou de parrainage</label>
                                     {!showPromoInput && !formData.referralCode && (
                                         <button
                                             type="button"
@@ -1140,11 +1168,12 @@ export default function RegisterPage() {
                                             style={{
                                                 background: 'transparent',
                                                 border: 'none',
-                                                color: 'var(--sidebar-primary)',
+                                                color: '#0F172A',
                                                 fontSize: '12px',
-                                                fontWeight: 700,
+                                                fontWeight: 600,
                                                 cursor: 'pointer',
-                                                padding: 0
+                                                padding: 0,
+                                                textDecoration: 'underline'
                                             }}
                                         >
                                             + Ajouter un code
@@ -1156,7 +1185,7 @@ export default function RegisterPage() {
                                     <div style={{ marginTop: '6px' }}>
                                         <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
                                             <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
-                                                <Gift size={16} style={{ position: 'absolute', left: '12px', color: promoInfo?.valid ? '#22c55e' : 'var(--muted-foreground)' }} />
+                                                <Gift size={16} style={{ position: 'absolute', left: '12px', color: '#64748B' }} />
                                                 <input
                                                     type="text"
                                                     name="referralCode"
@@ -1176,17 +1205,17 @@ export default function RegisterPage() {
                                                     style={{
                                                         width: '100%',
                                                         padding: '10px 12px 10px 38px',
-                                                        backgroundColor: 'var(--background)',
-                                                        border: `1px solid ${promoInfo?.valid ? '#22c55e' : promoInfo?.valid === false ? '#ef4444' : 'var(--border)'}`,
+                                                        backgroundColor: '#FFFFFF',
+                                                        border: `1px solid ${promoInfo?.valid ? '#0F172A' : promoInfo?.valid === false ? '#EF4444' : '#E2E8F0'}`,
                                                         borderRadius: '8px',
                                                         fontSize: '13px',
-                                                        fontWeight: 700,
-                                                        color: 'var(--foreground)',
+                                                        fontWeight: 600,
+                                                        color: '#0F172A',
                                                         textTransform: 'uppercase'
                                                     }}
                                                 />
                                                 {promoInfo?.valid && (
-                                                    <CheckCircle2 size={16} style={{ position: 'absolute', right: '12px', color: '#22c55e' }} />
+                                                    <CheckCircle2 size={16} style={{ position: 'absolute', right: '12px', color: '#0F172A' }} />
                                                 )}
                                             </div>
                                             <button
@@ -1196,13 +1225,13 @@ export default function RegisterPage() {
                                                 style={{
                                                     padding: '0 16px',
                                                     borderRadius: '8px',
-                                                    backgroundColor: promoInfo?.valid ? '#16a34a' : 'var(--sidebar-primary)',
-                                                    color: '#fff',
+                                                    backgroundColor: '#0F172A',
+                                                    color: '#FFFFFF',
                                                     border: 'none',
-                                                    fontWeight: 700,
+                                                    fontWeight: 600,
                                                     fontSize: '12.5px',
                                                     cursor: (isCheckingPromo || !formData.referralCode.trim()) ? 'not-allowed' : 'pointer',
-                                                    opacity: (isCheckingPromo || !formData.referralCode.trim()) ? 0.6 : 1,
+                                                    opacity: (isCheckingPromo || !formData.referralCode.trim()) ? 0.5 : 1,
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     gap: '6px',
@@ -1214,7 +1243,7 @@ export default function RegisterPage() {
                                                 ) : promoInfo?.valid ? (
                                                     'Validé ✓'
                                                 ) : (
-                                                    'Vérifier'
+                                                    'Appliquer'
                                                 )}
                                             </button>
                                         </div>
@@ -1222,25 +1251,25 @@ export default function RegisterPage() {
                                         {promoInfo ? (
                                             <div style={{
                                                 marginTop: '8px',
-                                                padding: '8px 12px',
+                                                padding: '9px 12px',
                                                 borderRadius: '8px',
-                                                backgroundColor: promoInfo.valid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                                border: `1px solid ${promoInfo.valid ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                                                backgroundColor: '#F8FAFC',
+                                                border: `1px solid ${promoInfo.valid ? '#CBD5E1' : '#FECACA'}`,
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '8px'
                                             }}>
                                                 {promoInfo.valid ? (
-                                                    <Sparkles size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
+                                                    <CheckCircle2 size={16} style={{ color: '#0F172A', flexShrink: 0 }} />
                                                 ) : (
-                                                    <span style={{ color: '#ef4444', fontWeight: 800 }}>✕</span>
+                                                    <AlertCircle size={16} style={{ color: '#EF4444', flexShrink: 0 }} />
                                                 )}
-                                                <span style={{ fontSize: '12px', color: promoInfo.valid ? '#16a34a' : '#ef4444', fontWeight: 700 }}>
-                                                    {promoInfo.valid ? `✓ Code validé : Vous bénéficiez de 30 jours gratuits (1 mois offert) !` : promoInfo.message}
+                                                <span style={{ fontSize: '12px', color: promoInfo.valid ? '#0F172A' : '#EF4444', fontWeight: 600 }}>
+                                                    {promoInfo.valid ? `Code validé : Vous bénéficiez de 30 jours d'essai offerts (1 mois gratuit) !` : promoInfo.message}
                                                 </span>
                                             </div>
                                         ) : (
-                                            <p style={{ margin: '5px 0 0 0', fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
+                                            <p style={{ margin: '5px 0 0 0', fontSize: '11.5px', color: '#64748B' }}>
                                                 Entrez le code d'un confrère pour bénéficier d'un mois offert (30 jours d'essai).
                                             </p>
                                         )}
@@ -1294,13 +1323,6 @@ export default function RegisterPage() {
                     </div>
                 </div>
             </div>
-
-            {activeLegalModal && (
-                <LegalModal
-                    type={activeLegalModal}
-                    onClose={() => setActiveLegalModal(null)}
-                />
-            )}
         </div>
     );
 }

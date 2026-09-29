@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
-import LegalModal, { LegalHelpTooltip } from "../components/LegalHelpModal";
+import { LegalHelpTooltip } from "../components/LegalHelpModal";
 import PhoneInput from "../components/PhoneInput";
 import PullToRefresh from "../components/PullToRefresh";
 import { apiFetch } from "../utils/api";
@@ -50,7 +50,8 @@ import {
     Palette,
     Check,
     Scale,
-    ShieldCheck
+    ShieldCheck,
+    Cookie
 } from "lucide-react";
 
 // Import Tab Components
@@ -533,7 +534,8 @@ function SettingsPage() {
                     items: [
                         { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
                         { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
-                        { id: "confidentialite", label: "Confidentialité", icon: ShieldCheck, subtitle: "Politique de confidentialité" }
+                        { id: "confidentialite", label: "Confidentialité", icon: ShieldCheck, subtitle: "Politique de confidentialité" },
+                        { id: "cookies", label: "Cookies", icon: Cookie, subtitle: "Gestion & politique des cookies" }
                     ]
                 }
             ];
@@ -583,7 +585,8 @@ function SettingsPage() {
                 items: [
                     { id: "mentions", label: "Mentions", icon: FileText, subtitle: "Mentions légales" },
                     { id: "cgu", label: "CGU", icon: BookOpen, subtitle: "Conditions Générales d'Utilisation" },
-                    { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" }
+                    { id: "confidentialite", label: "Confidentialité", icon: Lock, subtitle: "Politique de confidentialité" },
+                    { id: "cookies", label: "Cookies", icon: Cookie, subtitle: "Gestion & politique des cookies" }
                 ]
             }
         ];
@@ -814,6 +817,23 @@ function SettingsPage() {
 
     // Helper to change tab
     const handleTabSelect = useCallback((itemId) => {
+        if (itemId === "mentions") {
+            navigate("/mentions-legales");
+            return;
+        }
+        if (itemId === "cgu") {
+            navigate("/cgu");
+            return;
+        }
+        if (itemId === "confidentialite") {
+            navigate("/confidentialite");
+            return;
+        }
+        if (itemId === "cookies") {
+            navigate("/cookies");
+            return;
+        }
+
         if (mobileScrollRef.current) {
             scrollYRef.current = mobileScrollRef.current.scrollTop;
         }

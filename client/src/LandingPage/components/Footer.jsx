@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import "./Footer.css";
-import LegalModal from "../../components/LegalHelpModal";
 
 const staggerContainer = {
     hidden: { opacity: 0 },
@@ -39,13 +39,12 @@ function Footer() {
     const brandName = "GestArt";
     const description = "Optimisez vos interventions, fidélisez vos clients et automatisez votre facturation en toute simplicité.";
     const email = "support.gestart@gmail.com";
-    const [activeLegalModal, setActiveLegalModal] = useState(null);
 
     const legalLinks = [
-        { label: "Mentions légales", id: "mentions" },
-        { label: "CGU / CGV", id: "cgu" },
-        { label: "Politique de confidentialité", id: "rgpd" },
-        { label: "Gestion des cookies", id: "cookies" }
+        { label: "Mentions légales", path: "/mentions-legales" },
+        { label: "CGU / CGV", path: "/cgu" },
+        { label: "Politique de confidentialité", path: "/confidentialite" },
+        { label: "Gestion des cookies", path: "/cookies" }
     ];
 
     const links = {
@@ -121,22 +120,14 @@ function Footer() {
                         <motion.div variants={riseItem} className="links-col">
                             <h4 className="links-col-title">Légal & RGPD</h4>
                             <ul className="links-list">
-                                {legalLinks.map((link) => (
-                                    <li key={link.id}>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (link.id === 'cookies') {
-                                                    window.dispatchEvent(new Event("openCookieConsent"));
-                                                } else {
-                                                    setActiveLegalModal(link.id);
-                                                }
-                                            }}
+                                {legalLinks.map((link, idx) => (
+                                    <li key={idx}>
+                                        <Link
+                                            to={link.path}
                                             className="footer-nav-link"
-                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
                                         >
                                             {link.label}
-                                        </button>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>
@@ -181,13 +172,6 @@ function Footer() {
                 </div>
 
             </div>
-
-            {activeLegalModal && (
-                <LegalModal
-                    type={activeLegalModal}
-                    onClose={() => setActiveLegalModal(null)}
-                />
-            )}
         </motion.footer>
     );
 }

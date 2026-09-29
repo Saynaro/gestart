@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cookie, ShieldCheck, Settings, Check, X, Sliders, ChevronRight, Lock, BarChart3, MessageSquare } from "lucide-react";
 import "./CookieConsentBanner.css";
-import LegalModal from "./LegalHelpModal";
 
 const CONSENT_KEY = "gestart_cookie_consent";
 const THIRTEEN_MONTHS_MS = 13 * 30 * 24 * 60 * 60 * 1000; // ~33,696,000,000 ms (Conforme CNIL)
@@ -10,7 +10,6 @@ const THIRTEEN_MONTHS_MS = 13 * 30 * 24 * 60 * 60 * 1000; // ~33,696,000,000 ms 
 export default function CookieConsentBanner() {
     const [isVisible, setIsVisible] = useState(false);
     const [showCustomizeModal, setShowCustomizeModal] = useState(false);
-    const [activeLegalModal, setActiveLegalModal] = useState(null);
 
     // Toggle states for customization
     const [analyticsConsent, setAnalyticsConsent] = useState(true);
@@ -95,7 +94,7 @@ export default function CookieConsentBanner() {
                                     <span>GestArt</span>
                                 </div>
                                 <h3 className="cookie-banner-modal-title">
-                                    Vos préférences sur les cookies 🍪
+                                    Vos préférences sur les cookies
                                 </h3>
                             </div>
 
@@ -108,21 +107,19 @@ export default function CookieConsentBanner() {
                                 </p>
                                 <div className="cookie-policy-links">
                                     <span>Pour en savoir plus, consultez notre </span>
-                                    <button
-                                        type="button"
+                                    <Link
+                                        to="/cookies"
                                         className="cookie-policy-btn-link"
-                                        onClick={() => setActiveLegalModal('cookies')}
                                     >
                                         Politique des cookies
-                                    </button>
+                                    </Link>
                                     <span> et notre </span>
-                                    <button
-                                        type="button"
+                                    <Link
+                                        to="/confidentialite"
                                         className="cookie-policy-btn-link"
-                                        onClick={() => setActiveLegalModal('rgpd')}
                                     >
                                         Politique de confidentialité
-                                    </button>
+                                    </Link>
                                     <span>.</span>
                                 </div>
                             </div>
@@ -264,13 +261,12 @@ export default function CookieConsentBanner() {
                                 {/* Legal Links Footer Note */}
                                 <div className="cookie-modal-legal-link">
                                     <span>Pour plus d'informations, reportez-vous à notre </span>
-                                    <button
-                                        type="button"
+                                    <Link
+                                        to="/cookies"
                                         className="legal-text-link"
-                                        onClick={() => setActiveLegalModal('cookies')}
                                     >
                                         Politique des cookies &amp; RGPD →
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
 
@@ -289,14 +285,6 @@ export default function CookieConsentBanner() {
                     </div>
                 )}
             </AnimatePresence>
-
-            {/* Legal Modal Trigger */}
-            {activeLegalModal && (
-                <LegalModal
-                    type={activeLegalModal}
-                    onClose={() => setActiveLegalModal(null)}
-                />
-            )}
         </>
     );
 }

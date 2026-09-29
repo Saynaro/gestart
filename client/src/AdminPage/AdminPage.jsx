@@ -59,6 +59,7 @@ export default function AdminPage() {
     // Modal States
     const [editingCompany, setEditingCompany] = useState(null);
     const [deletingCompany, setDeletingCompany] = useState(null);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     // Live Database State
     const [companies, setCompanies] = useState([]);
@@ -175,8 +176,8 @@ export default function AdminPage() {
                 const totalUnread = res.data.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
                 setTotalSupportUnread(totalUnread);
 
-                // Auto select first company if none selected
-                if (!selectedSupportCompanyIdRef.current && res.data.length > 0) {
+                // Auto select first company on wide desktop screens only (never auto-open on mobile)
+                if (!selectedSupportCompanyIdRef.current && res.data.length > 0 && typeof window !== "undefined" && window.innerWidth > 992) {
                     const firstCompanyId = res.data[0].companyId;
                     setSelectedSupportCompanyId(firstCompanyId);
                     if (activeTabRef.current === "messages") {
@@ -769,7 +770,7 @@ export default function AdminPage() {
                             <span className="admin-role">Super Admin</span>
                         </div>
                     </div>
-                    <button className="admin-logout-btn" onClick={() => handleLogout(navigate)} title="Déconnexion">
+                    <button className="admin-logout-btn" onClick={() => setShowLogoutConfirm(true)} title="Déconnexion">
                         <LogOut size={16} />
                     </button>
                 </div>
@@ -800,11 +801,12 @@ export default function AdminPage() {
                         className={`tab-btn ${activeTab === "messages" ? "active" : ""}`}
                         onClick={() => {
                             setActiveTab("messages");
-                            if (selectedSupportCompanyId) {
+                            if (typeof window !== "undefined" && window.innerWidth <= 992) {
+                                setSelectedSupportCompanyId(null);
+                            } else if (selectedSupportCompanyId) {
                                 fetchSupportMessages(selectedSupportCompanyId, true);
-                            } else {
-                                fetchSupportConversations();
                             }
+                            fetchSupportConversations();
                         }}
                     >
                         <MessageSquare size={15} /> 
@@ -844,48 +846,48 @@ export default function AdminPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Global KPI Cards (Shown on all tabs) */}
-                        <div className="admin-kpi-grid">
-                            <div className="kpi-card">
-                                <div className="kpi-icon-badge blue"><Users size={20} /></div>
-                                <div className="kpi-info">
-                                    <span className="kpi-title">Entreprises & Users</span>
-                                    <span className="kpi-number">{totalUsers}</span>
-                                    <span className="kpi-sub">{totalTechnicians} techniciens connectés</span>
-                                </div>
-                            </div>
-
-                            <div className="kpi-card">
-                                <div className="kpi-icon-badge green"><DollarSign size={20} /></div>
-                                <div className="kpi-info">
-                                    <span className="kpi-title">MRR SaaS (Mensuel)</span>
-                                    <span className="kpi-number">{mrrSaaS.toLocaleString('fr-FR')} €</span>
-                                    <span className="kpi-sub">{activeSubscriptions} abonnements payants</span>
-                                </div>
-                            </div>
-
-                            <div className="kpi-card">
-                                <div className="kpi-icon-badge amber"><TrendingUp size={20} /></div>
-                                <div className="kpi-info">
-                                    <span className="kpi-title">Essais Gratuits (Trials)</span>
-                                    <span className="kpi-number">{trialSubscriptions}</span>
-                                    <span className="kpi-sub">Entreprises en période d'essai</span>
-                                </div>
-                            </div>
-
-                            <div className="kpi-card">
-                                <div className="kpi-icon-badge purple"><FileText size={20} /></div>
-                                <div className="kpi-info">
-                                    <span className="kpi-title">Volume Total CRM</span>
-                                    <span className="kpi-number">{totalClients} clients</span>
-                                    <span className="kpi-sub">{totalDevis} devis · {totalFactures} factures</span>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* TAB 1: VUE GLOBALE & STATS */}
                         {activeTab === "vue_globale" && (
                             <div className="tab-section-stack">
+                                {/* Global KPI Cards (Shown on Vue Globale tab only) */}
+                                <div className="admin-kpi-grid">
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon-badge blue"><Users size={20} /></div>
+                                        <div className="kpi-info">
+                                            <span className="kpi-title">Entreprises & Users</span>
+                                            <span className="kpi-number">{totalUsers}</span>
+                                            <span className="kpi-sub">{totalTechnicians} techniciens connectés</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon-badge green"><DollarSign size={20} /></div>
+                                        <div className="kpi-info">
+                                            <span className="kpi-title">MRR SaaS (Mensuel)</span>
+                                            <span className="kpi-number">{mrrSaaS.toLocaleString('fr-FR')} €</span>
+                                            <span className="kpi-sub">{activeSubscriptions} abonnements payants</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon-badge amber"><TrendingUp size={20} /></div>
+                                        <div className="kpi-info">
+                                            <span className="kpi-title">Essais Gratuits (Trials)</span>
+                                            <span className="kpi-number">{trialSubscriptions}</span>
+                                            <span className="kpi-sub">Entreprises en période d'essai</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon-badge purple"><FileText size={20} /></div>
+                                        <div className="kpi-info">
+                                            <span className="kpi-title">Volume Total CRM</span>
+                                            <span className="kpi-number">{totalClients} clients</span>
+                                            <span className="kpi-sub">{totalDevis} devis · {totalFactures} factures</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div className="admin-split-layout">
                                     {/* Monthly SaaS Revenue Chart */}
                                     <div className="admin-card">
@@ -1078,9 +1080,13 @@ export default function AdminPage() {
                                                 {filteredCompanies.map((c) => (
                                                     <div key={c.id} className="mobile-admin-company-card">
                                                         <div className="m-card-header">
-                                                            <div>
+                                                            <div className="m-card-title-box">
                                                                 <h4>{c.name}</h4>
-                                                                <span className="m-sub">{c.ownerName} · {c.ownerEmail || c.email}</span>
+                                                                <div className="m-sub">
+                                                                    {c.ownerName && <span className="m-owner-name">{c.ownerName}</span>}
+                                                                    {c.ownerName && (c.ownerEmail || c.email) && <span className="m-sub-sep"> · </span>}
+                                                                    {(c.ownerEmail || c.email) && <span className="m-email">{c.ownerEmail || c.email}</span>}
+                                                                </div>
                                                             </div>
                                                             <span className={`plan-pill ${(c.plan || '').toLowerCase()}`}>{c.plan}</span>
                                                         </div>
@@ -1139,7 +1145,7 @@ export default function AdminPage() {
                                     {/* Monthly SaaS Payments */}
                                     <div className="admin-card">
                                         <h3>Encaissements Mensuels SaaS</h3>
-                                        <div className="table-responsive">
+                                        <div className="table-responsive desktop-only">
                                             <table className="admin-table">
                                                 <thead>
                                                     <tr>
@@ -1160,6 +1166,28 @@ export default function AdminPage() {
                                                     ))}
                                                 </tbody>
                                             </table>
+                                        </div>
+
+                                        {/* Mobile Monthly Revenue Cards */}
+                                        <div className="mobile-only-cards monthly-revenue-mobile-list">
+                                            {monthlyIncomeData.map((m, idx) => (
+                                                <div key={idx} className="monthly-revenue-card">
+                                                    <div className="m-rev-header">
+                                                        <span className="m-rev-month">{m.month}</span>
+                                                        <span className="m-rev-badge">{m.paidUsers} {m.paidUsers > 1 ? 'abonnés' : 'abonné'}</span>
+                                                    </div>
+                                                    <div className="m-rev-body">
+                                                        <div className="m-rev-row">
+                                                            <span>Encaissé Brut :</span>
+                                                            <strong style={{ color: '#556B2F' }}>{m.total.toLocaleString('fr-FR')} €</strong>
+                                                        </div>
+                                                        <div className="m-rev-row">
+                                                            <span>Cotisation URSSAF (21.1%) :</span>
+                                                            <span>{Math.round(m.total * 0.211).toLocaleString('fr-FR')} €</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -1339,27 +1367,32 @@ export default function AdminPage() {
                                             <>
                                                 {/* Chat Header */}
                                                 <div className="admin-chat-header">
-                                                    <div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                             <button 
                                                                 type="button"
                                                                 className="admin-back-convo-btn show-on-mobile-flex"
                                                                 onClick={() => setSelectedSupportCompanyId(null)}
-                                                                title="Retour à la liste"
+                                                                title="Retour aux discussions"
                                                             >
                                                                 <ArrowLeft size={16} />
                                                             </button>
-                                                            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>
-                                                                {activeConvo.companyName}
-                                                            </h3>
-                                                            <span className="admin-tag">{activeConvo.plan}</span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-                                                            <span>👤 {activeConvo.owner?.name} ({activeConvo.owner?.email})</span>
-                                                            {activeConvo.owner?.phone && <span>📞 {activeConvo.owner?.phone}</span>}
+                                                            <div style={{ minWidth: 0, flex: 1 }}>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>
+                                                                        {activeConvo.companyName}
+                                                                    </h3>
+                                                                    <span className="admin-tag">{activeConvo.plan}</span>
+                                                                </div>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: 'var(--muted-foreground)', marginTop: '2px', flexWrap: 'wrap' }}>
+                                                                    <span>👤 {activeConvo.owner?.name || "Dirigeant"}</span>
+                                                                    {activeConvo.owner?.email && <span>· {activeConvo.owner?.email}</span>}
+                                                                    {activeConvo.owner?.phone && <span>· 📞 {activeConvo.owner?.phone}</span>}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                                                         <button 
                                                             className="admin-refresh-btn" 
                                                             onClick={() => fetchSupportMessages(activeConvo.companyId)}
@@ -1854,6 +1887,41 @@ export default function AdminPage() {
                             </button>
                             <button className="btn-danger" onClick={handleDeleteCompanyConfirm} disabled={actionLoading}>
                                 {actionLoading ? "Suppression..." : "Supprimer définitivement"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* LOGOUT CONFIRMATION MODAL */}
+            {showLogoutConfirm && (
+                <div className="admin-modal-overlay" onClick={() => setShowLogoutConfirm(false)}>
+                    <div className="admin-modal-card danger" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+                        <div className="modal-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <LogOut size={20} style={{ color: '#ef4444' }} />
+                                <h3 style={{ color: '#ef4444', margin: 0 }}>Déconnexion</h3>
+                            </div>
+                            <button className="modal-close" onClick={() => setShowLogoutConfirm(false)}><X size={18} /></button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', margin: 0 }}>
+                                Êtes-vous sûr de vouloir vous déconnecter de votre session Super Admin ?
+                            </p>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn-secondary" onClick={() => setShowLogoutConfirm(false)}>
+                                Annuler
+                            </button>
+                            <button 
+                                className="btn-danger" 
+                                onClick={() => {
+                                    setShowLogoutConfirm(false);
+                                    handleLogout(navigate);
+                                }}
+                            >
+                                <LogOut size={15} style={{ marginRight: '6px' }} />
+                                Se déconnecter
                             </button>
                         </div>
                     </div>

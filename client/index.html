@@ -87,6 +87,8 @@
   <title>GestArt</title>
   <meta name="description"
     content="GestArt est le meilleur logiciel CRM pour les entreprises de maintenance. Automatisez les rappels SMS, planifiez les interventions de vos techniciens et facturez en 1 clic." />
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
 
   <!-- Early theme & PWA splash control to prevent flash on reload & back navigation -->
   <script>
@@ -99,7 +101,15 @@
         } else {
           isDark = mode === 'dark';
         }
-        if (isDark && window.location.pathname !== '/') {
+        var isAlwaysLight = window.location.pathname === '/' ||
+          window.location.pathname.startsWith('/login') ||
+          window.location.pathname.startsWith('/register') ||
+          window.location.pathname.startsWith('/forgot-password') ||
+          window.location.pathname.startsWith('/reset-password') ||
+          window.location.pathname.startsWith('/verify-email') ||
+          window.location.pathname.startsWith('/auth');
+
+        if (isDark && !isAlwaysLight) {
           document.documentElement.classList.add('dark');
         } else {
           document.documentElement.classList.remove('dark');

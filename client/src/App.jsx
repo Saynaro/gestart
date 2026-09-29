@@ -213,9 +213,18 @@ function App() {
     initTheme();
   }, []);
 
-  // Ensure theme applies correctly across page navigation (ignoring public landing page '/')
+  // Ensure theme applies correctly across page navigation (always light for landing & auth pages)
   useEffect(() => {
-    if (location.pathname === "/") {
+    const isAlwaysLight =
+      location.pathname === "/" ||
+      location.pathname.startsWith("/login") ||
+      location.pathname.startsWith("/register") ||
+      location.pathname.startsWith("/forgot-password") ||
+      location.pathname.startsWith("/reset-password") ||
+      location.pathname.startsWith("/verify-email") ||
+      location.pathname.startsWith("/auth");
+
+    if (isAlwaysLight) {
       document.documentElement.classList.remove("dark");
     } else {
       const mode = localStorage.getItem("theme_mode") || (localStorage.getItem("theme") === "dark" ? "dark" : (localStorage.getItem("theme") === "light" ? "light" : "system"));

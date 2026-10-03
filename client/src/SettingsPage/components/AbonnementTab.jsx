@@ -257,8 +257,8 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
     const plans = [
         {
             name: "Starter",
-            priceMonthly: 1,
-            priceAnnual: 1,
+            priceMonthly: 34.90,
+            priceAnnual: 27.00,
             summary: "1 utilisateur · 100 clients · 100 SMS",
             clientsLimit: 100,
             techsLimit: 1,
@@ -270,14 +270,15 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 "Devis, Factures & Signature électronique",
                 "Facturation électronique & Chorus Pro",
                 "Planning & Suivi des chantiers",
-                "Rappels automatiques des entretiens"
+                "Rappels automatiques des entretiens",
+                "Rapprochement bancaire manuel"
             ]
         },
         {
             name: "Pro",
-            priceMonthly: 1,
-            priceAnnual: 1,
-            summary: "5 techniciens · 500 clients · 500 SMS · App mobile",
+            priceMonthly: 69.90,
+            priceAnnual: 55.00,
+            summary: "5 techniciens · 500 clients · 500 SMS · 1 banque incluse",
             clientsLimit: 500,
             techsLimit: 5,
             smsLimit: 500,
@@ -287,16 +288,18 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 "Jusqu'à 5 techniciens inclus",
                 "Jusqu'à 500 clients",
                 "500 SMS / mois inclus",
+                "1 compte bancaire synchronisé inclus (DSP2)",
+                "Rapprochement bancaire automatique",
+                "Option 2e compte : +7 €/mois",
                 "Application mobile techniciens",
-                "Facturation électronique & Chorus Pro",
                 "Support prioritaire 7j/7"
             ]
         },
         {
             name: "Unlimited",
-            priceMonthly: 1,
-            priceAnnual: 1,
-            summary: "Illimité clients & techniciens · 1 500 SMS",
+            priceMonthly: 119.90,
+            priceAnnual: 95.92,
+            summary: "Illimité clients & techs · 1 500 SMS · 3 banques incluses",
             clientsLimit: "Illimité",
             techsLimit: "Illimité",
             smsLimit: 1500,
@@ -304,6 +307,9 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 "Toutes les fonctions Pro",
                 "Techniciens & Clients 100% Illimités",
                 "1 500 SMS / mois inclus",
+                "Jusqu'à 3 comptes bancaires synchronisés inclus",
+                "Rapprochement bancaire automatique",
+                "Option compte supp. : +7 €/mois",
                 "Facturation électronique intégrale",
                 "Gestion multi-activités & Export comptable",
                 "Support VIP prioritaire 7j/7"
@@ -732,6 +738,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                 <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))', gap: isMobileView ? '12px' : '18px', alignItems: 'stretch' }}>
                     {plans.map((plan) => {
                         const price = billingCycle === "annuel" ? plan.priceAnnual : plan.priceMonthly;
+                        const formattedPrice = Number(price).toFixed(2).replace(".", ",");
                         const isCurrent = !isExpired && currentPlan.toLowerCase() === plan.name.toLowerCase();
                         const isExpanded = expandedPlan === plan.name;
 
@@ -789,7 +796,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
 
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-                                                <span style={{ fontSize: '18px', fontWeight: 800 }}>{price} €</span>
+                                                <span style={{ fontSize: '18px', fontWeight: 800 }}>{formattedPrice} €</span>
                                                 <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>HT/m</span>
                                             </div>
                                             <div style={{
@@ -927,7 +934,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                                         )}
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '16px' }}>
-                                        <span style={{ fontSize: '26px', fontWeight: 800 }}>{price} €</span>
+                                        <span style={{ fontSize: '26px', fontWeight: 800 }}>{formattedPrice} €</span>
                                         <span style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>HT / mois</span>
                                     </div>
 

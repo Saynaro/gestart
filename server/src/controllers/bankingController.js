@@ -16,8 +16,82 @@ export const connectBanking = async (req, res) => {
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
     try {
+        // 1. Check company subscription and plan limits
+        const subscription = await prisma.subscription.findUnique({
+            where: { companyId },
+            include: { plan: true }
+        });
+
+        const now = new Date();
+        const isTrialValid = subscription?.status === "TRIALING" && subscription?.trialEndsAt && new Date(subscription.trialEndsAt) > now;
+        const isActivePeriod = subscription?.status === "ACTIVE" && (!subscription?.currentPeriodEnd || new Date(subscription.currentPeriodEnd) > now);
+        const isLifetime = subscription?.status === "LIFETIME" || subscription?.status === "ACTIVE_TRIAL";
+
+        if (!isTrialValid && !isActivePeriod && !isLifetime && (subscription?.status === "EXPIRED" || subscription?.status === "CANCELED" || (subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) <= now))) {
+            return res.status(403).json({
+                success: false,
+                code: "SUBSCRIPTION_EXPIRED",
+                message: "Votre abonnement a expiré. Veuillez renouveler votre offre pour connecter votre compte bancaire."
+            });
+        }
+
+        const planName = (subscription?.plan?.name || "STARTER").toUpperCase();
+
+        if (planName === "STARTER") {
+            return res.status(403).json({
+                success: false,
+                code: "STARTER_LOCK",
+                message: "La synchronisation bancaire automatique requiert le forfait Pro ou Unlimited."
+            });
+        }
+
+        // 2. Count existing connected bank accounts
+        const existingAccountsCount = await prisma.bankAccount.count({
+            where: { companyId }
+        });
+
+        // Pro / Premium: 1 bank included. 2nd bank requires extra bank addon (+7€/mo)
+        if (planName === "PRO" || planName === "PREMIUM") {
+            const hasExtraAddon = Boolean(subscription?.stripeExtraBankSubscriptionItemId);
+            if (existingAccountsCount >= 1 && !hasExtraAddon) {
+                return res.status(403).json({
+                    success: false,
+                    code: "EXTRA_BANK_REQUIRED",
+                    message: "Votre forfait Pro inclut 1 compte bancaire synchronisé. Pour connecter un deuxième compte, activez l'option à 7 €/mois ou passez au forfait Unlimited.",
+                    currentAccounts: existingAccountsCount,
+                    maxAccounts: 1,
+                    planName: "Pro"
+                });
+            }
+
+            if (existingAccountsCount >= 2) {
+                return res.status(403).json({
+                    success: false,
+                    code: "LIMIT_REACHED",
+                    message: "Limite maximale de 2 comptes bancaires atteinte pour le forfait Pro. Passez au forfait Unlimited pour connecter davantage de comptes.",
+                    currentAccounts: existingAccountsCount,
+                    maxAccounts: 2
+                });
+            }
+        }
+
+        // Unlimited: 3 banks included. 4th bank requires extra bank addon (+7€/mo)
+        if (planName === "UNLIMITED") {
+            const hasExtraAddon = Boolean(subscription?.stripeExtraBankSubscriptionItemId);
+            if (existingAccountsCount >= 3 && !hasExtraAddon) {
+                return res.status(403).json({
+                    success: false,
+                    code: "EXTRA_BANK_REQUIRED",
+                    message: "Votre forfait Unlimited inclut 3 comptes bancaires synchronisés. Activez l'option à 7 €/mois pour connecter un compte supplémentaire.",
+                    currentAccounts: existingAccountsCount,
+                    maxAccounts: 3,
+                    planName: "Unlimited"
+                });
+            }
+        }
+
         const provider = getBankingProvider();
-        const callbackUrl = redirectUrl || `${frontendUrl}/settings`;
+        const callbackUrl = redirectUrl || `${frontendUrl}/settings?tab=banques`;
         const result = await provider.connectBankAccount(companyId, callbackUrl);
 
         return res.status(200).json({
@@ -131,7 +205,7 @@ export const handleBankingCallback = async (req, res) => {
                         amount: typeof tx.value === "number" ? tx.value : 0,
                         currency: "EUR",
                         label: tx.original_wording || tx.simplified_wording || "Virement",
-                        reference: tx.id ? `POWENS_${tx.id}` : null,
+                        reference: tx.reference || (tx.id ? `DISTYRA_${tx.id}` : null),
                         transactionDate: tx.date ? new Date(tx.date) : new Date(),
                         reconciliationStatus: "PENDING"
                     }
@@ -336,7 +410,7 @@ export const refreshBankingTransactions = async (req, res) => {
                             amount: typeof tx.value === "number" ? tx.value : 0,
                             currency: "EUR",
                             label: tx.original_wording || tx.simplified_wording || "Virement",
-                            reference: tx.id ? `POWENS_${tx.id}` : null,
+                            reference: tx.reference || (tx.id ? `DISTYRA_${tx.id}` : null),
                             transactionDate: tx.date ? new Date(tx.date) : new Date(),
                             reconciliationStatus: "PENDING"
                         }

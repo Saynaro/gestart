@@ -365,7 +365,15 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                     <button
                                         className="mobile-action-btn"
                                         style={{ padding: '4px 10px', fontSize: '0.75rem', height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '6px' }}
-                                        onClick={() => navigate('/premium')}
+                                        onClick={() => {
+                                            if (isExpired) {
+                                                window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                    detail: { message: "Votre abonnement a expiré. Pour configurer et gérer les rappels automatiques, veuillez renouveler votre abonnement." }
+                                                }));
+                                                return;
+                                            }
+                                            navigate('/premium');
+                                        }}
                                     >
                                         Gérer dans Auto Rappel
                                     </button>
@@ -378,7 +386,15 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                         <button
                                             className="mobile-action-btn planifier"
                                             style={{ margin: '0 auto', fontSize: '0.8rem', padding: '6px 14px' }}
-                                            onClick={() => navigate('/premium')}
+                                            onClick={() => {
+                                                if (isExpired) {
+                                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                        detail: { message: "Votre abonnement a expiré. Pour configurer et gérer les rappels automatiques, veuillez renouveler votre abonnement." }
+                                                    }));
+                                                    return;
+                                                }
+                                                navigate('/premium');
+                                            }}
                                         >
                                             + Configurer un rappel
                                         </button>

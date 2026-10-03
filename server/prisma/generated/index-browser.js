@@ -208,6 +208,7 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
+  stripeExtraBankSubscriptionItemId: 'stripeExtraBankSubscriptionItemId',
   smsUsedThisMonth: 'smsUsedThisMonth',
   smsResetAt: 'smsResetAt',
   createdAt: 'createdAt',
@@ -222,6 +223,7 @@ exports.Prisma.PaymentScalarFieldEnum = {
   status: 'status',
   method: 'method',
   stripePaymentIntentId: 'stripePaymentIntentId',
+  stripeInvoiceId: 'stripeInvoiceId',
   stripeInvoiceUrl: 'stripeInvoiceUrl',
   paidAt: 'paidAt',
   createdAt: 'createdAt'

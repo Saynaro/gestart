@@ -378,7 +378,15 @@ function ClientMobileDetailView({ selectedClient, setSelectedClient, getClientDe
                                         <button
                                             className="mobile-action-btn"
                                             style={{ padding: '6px 14px', fontSize: '0.85rem', fontWeight: 600, height: 'auto', backgroundColor: '#556B2F', color: '#ffffff', borderRadius: '8px' }}
-                                            onClick={() => navigate('/premium')}
+                                            onClick={() => {
+                                                if (isExpired) {
+                                                    window.dispatchEvent(new CustomEvent('subscription_expired', {
+                                                        detail: { message: "Votre abonnement a expiré. Pour gérer vos cycles de rappel automatique, veuillez renouveler votre abonnement." }
+                                                    }));
+                                                    return;
+                                                }
+                                                navigate('/premium');
+                                            }}
                                         >
                                             Gérer
                                         </button>

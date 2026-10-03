@@ -894,6 +894,7 @@ export const sendTrialExpiringSoonEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences de paiement ou gérer votre offre, rendez-vous dans vos <a href="${plansUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>
@@ -969,6 +970,7 @@ export const sendTrialExpiredEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences de paiement ou choisir une offre, rendez-vous dans vos <a href="${plansUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>
@@ -999,6 +1001,7 @@ export const sendSubscriptionActivatedEmail = async ({
     try {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const dashboardUrl = `${frontendUrl}/`;
+        const billingUrl = `${frontendUrl}/settings?tab=abonnement`;
         const subject = `🎉 Bienvenue ! Votre abonnement GestArt ${planName} est activé`;
 
         const nextDateFormatted = nextBillingDate ? new Date(nextBillingDate).toLocaleDateString("fr-FR", {
@@ -1059,6 +1062,7 @@ export const sendSubscriptionActivatedEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences de paiement ou résilier, rendez-vous dans vos <a href="${billingUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>
@@ -1142,6 +1146,7 @@ export const sendSubscriptionRenewedEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences de paiement ou résilier, rendez-vous dans vos <a href="${billingUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>
@@ -1228,6 +1233,7 @@ export const sendSubscriptionCancelledEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences ou réactiver votre offre, rendez-vous dans vos <a href="${reactivateUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>
@@ -1304,6 +1310,7 @@ export const sendSubscriptionPaymentFailedEmail = async ({
 
                     <!-- Footer -->
                     <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+                        <p style="margin: 0 0 6px 0;">Vous recevez cet email car vous disposez d'un compte sur GestArt. Il s'agit d'une notification de facturation liée à votre abonnement. Pour modifier vos préférences de paiement ou régulariser votre compte, rendez-vous dans vos <a href="${updatePaymentUrl}" style="color: #556B2F; text-decoration: underline;">Paramètres</a>.</p>
                         <p style="margin: 0;">© ${new Date().getFullYear()} GestArt CRM. Tous droits réservés.</p>
                     </div>
                 </div>

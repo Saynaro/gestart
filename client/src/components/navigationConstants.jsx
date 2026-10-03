@@ -160,7 +160,7 @@ export const getMenuSections = (role) => {
                 { title: "Techniciens", path: "/techniciens", iconKey: "techniciens", proOnly: true },
                 { title: "Messages", path: "/messages", iconKey: "messages" },
                 { title: "Factures", path: "/factures", iconKey: "factures" },
-                { title: "Paiements", path: "/payments", iconKey: "paiements" },
+                { title: "Paiements", path: "/payments", iconKey: "paiements", proOnly: true },
                 { title: "Devis", path: "/devis", iconKey: "devis" },
                 { title: "Rapports", path: "/rapports", iconKey: "rapports" },
                 { title: "Comptabilité", path: "/comptabilite", iconKey: "comptabilite" },
@@ -204,7 +204,7 @@ export const getSection1Items = (role) => {
     return [
         { title: "Techniciens", path: "/techniciens", icon: Wrench, proOnly: true },
         { title: "Factures", path: "/factures", icon: FileText },
-        { title: "Paiements", path: "/payments", icon: FileText },
+        { title: "Paiements", path: "/payments", icon: FileText, proOnly: true },
         { title: "Devis", path: "/devis", icon: FileSpreadsheet },
         { title: "Rapports", path: "/rapports", icon: BarChart2 },
         { title: "Catalogue", path: "/catalogue", icon: Package },

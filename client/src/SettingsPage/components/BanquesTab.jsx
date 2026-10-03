@@ -13,14 +13,17 @@ import {
     Trash2,
     ExternalLink,
     Landmark,
-    Lock
+    Lock,
+    Plus,
+    Crown,
+    X
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { useSubscription } from "../../utils/useSubscription";
 import { FRENCH_BANKS, formatIBAN, formatBIC, validateIBAN, validateBIC } from "../../utils/bankValidator";
 
 export default function BanquesTab({ isMobileView, triggerToast }) {
-    const { isExpired } = useSubscription();
+    const { isStarter, isPro, isUnlimited, isExpired, refreshSubscription } = useSubscription();
 
     // Form States
     const [selectedBankId, setSelectedBankId] = useState("bourso");
@@ -35,7 +38,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     const [saving, setSaving] = useState(false);
     const [loadingInitial, setLoadingInitial] = useState(true);
 
-    // Powens Open Banking State
+    // Open Banking State
     const [bankingStatus, setBankingStatus] = useState({
         isConnected: false,
         connection: null,
@@ -43,6 +46,8 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
     });
     const [syncingBanking, setSyncingBanking] = useState(false);
     const [disconnectingBanking, setDisconnectingBanking] = useState(false);
+    const [showExtraBankModal, setShowExtraBankModal] = useState(false);
+    const [extraBankLoading, setExtraBankLoading] = useState(false);
 
     const loadBankingStatus = useCallback(async () => {
         try {
@@ -54,6 +59,59 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
             console.warn("Could not fetch banking status:", err.message);
         }
     }, []);
+
+    const handleConnectBanking = async () => {
+        if (isExpired) {
+            window.dispatchEvent(new CustomEvent('subscription_expired', {
+                detail: { message: "Abonnement expiré. Renouvelez votre offre pour connecter votre compte bancaire." }
+            }));
+            if (triggerToast) triggerToast("Abonnement expiré. Veuillez renouveler votre offre.", true);
+            return;
+        }
+        if (isStarter) {
+            if (triggerToast) triggerToast("La synchronisation bancaire automatique est réservée aux forfaits Pro et Unlimited.", true);
+            return;
+        }
+        try {
+            const res = await apiFetch("/v1/banking/connect", { method: "POST" });
+            if (res.data?.connectUrl) {
+                window.location.href = res.data.connectUrl;
+            } else {
+                if (triggerToast) triggerToast(res.data?.message || "Module Open Banking prêt.", false);
+            }
+        } catch (e) {
+            if (e.code === "EXTRA_BANK_REQUIRED") {
+                setShowExtraBankModal(true);
+            } else if (e.code === "STARTER_LOCK") {
+                if (triggerToast) triggerToast(e.message, true);
+            } else if (e.code === "SUBSCRIPTION_EXPIRED") {
+                window.dispatchEvent(new CustomEvent('subscription_expired', {
+                    detail: { message: e.message || "Abonnement expiré. Veuillez renouveler votre offre." }
+                }));
+                if (triggerToast) triggerToast(e.message || "Abonnement expiré.", true);
+            } else {
+                if (triggerToast) triggerToast(e.message || "Erreur Open Banking.", true);
+            }
+        }
+    };
+
+    const handleConfirmExtraBankAddon = async () => {
+        setExtraBankLoading(true);
+        try {
+            await apiFetch("/v1/subscription/extra-bank", { method: "POST" });
+            if (triggerToast) triggerToast("Option compte bancaire supplémentaire activée (+7,00 € HT/mois) !");
+            setShowExtraBankModal(false);
+            if (refreshSubscription) refreshSubscription();
+            const res = await apiFetch("/v1/banking/connect", { method: "POST" });
+            if (res.data?.connectUrl) {
+                window.location.href = res.data.connectUrl;
+            }
+        } catch (err) {
+            if (triggerToast) triggerToast(err.message || "Erreur lors de l'activation de l'option.", true);
+        } finally {
+            setExtraBankLoading(false);
+        }
+    };
 
     // Fetch initial company bank settings & banking status
     useEffect(() => {
@@ -98,15 +156,15 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
         fetchSettings();
     }, []);
 
-    // Handle Powens Callback redirect params if present
+    // Handle Banking Callback redirect params if present
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const bankingCode = params.get("code");
-        const connectionId = params.get("connection_id");
-        const bankingErr = params.get("error");
+        const bankingCode = params.get("code") || params.get("token");
+        const connectionId = params.get("connection_id") || params.get("connectionId") || params.get("id");
+        const bankingErr = params.get("error") || params.get("detail");
 
         if (bankingErr) {
-            if (triggerToast) triggerToast(`Erreur Powens: ${params.get("error_description") || bankingErr}`, true);
+            if (triggerToast) triggerToast(`Erreur bancaire: ${params.get("error_description") || bankingErr}`, true);
             window.history.replaceState({}, document.title, window.location.pathname);
         } else if (bankingCode || connectionId) {
             const finishConnect = async () => {
@@ -119,11 +177,11 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                             state: params.get("state")
                         })
                     });
-                    if (triggerToast) triggerToast(res?.message || "Connexion bancaire Powens établie avec succès !");
+                    if (triggerToast) triggerToast(res?.message || "Connexion bancaire DSP2 établie avec succès !");
                     await loadBankingStatus();
                 } catch (e) {
                     console.error("Banking callback error:", e);
-                    if (triggerToast) triggerToast(e.message || "Erreur lors de la synchronisation Powens", true);
+                    if (triggerToast) triggerToast(e.message || "Erreur lors de la synchronisation bancaire", true);
                 } finally {
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
@@ -157,17 +215,9 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
         );
     }, [bankSearch]);
 
-    // Keep and display only the active bank account
+    // Display all active synchronized bank accounts
     const displayAccounts = useMemo(() => {
-        const list = bankingStatus.accounts || [];
-        if (list.length <= 1) return list;
-        const sorted = [...list].sort((a, b) => {
-            const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-            const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
-            if (timeB !== timeA) return timeB - timeA;
-            return (Number(b.balance) || 0) - (Number(a.balance) || 0);
-        });
-        return [sorted[0]];
+        return bankingStatus.accounts || [];
     }, [bankingStatus.accounts]);
 
     // Handle bank selection from list
@@ -587,7 +637,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                 </div>
             </form>
 
-            {/* Rapprochement bancaire automatique (Open Banking Powens) */}
+            {/* Rapprochement bancaire automatique (Open Banking DSP2) */}
             <div style={{
                 border: "1px solid var(--border)",
                 borderRadius: isMobileView ? "14px" : "16px",
@@ -620,7 +670,7 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                                 color: "var(--primary)",
                                 border: "1px solid rgba(85, 107, 47, 0.3)"
                             }}>
-                                Powens
+                                DSP2
                             </span>
                         </h3>
                         <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "12px" : "13px", margin: "4px 0 0 0", lineHeight: 1.35 }}>
@@ -629,215 +679,412 @@ export default function BanquesTab({ isMobileView, triggerToast }) {
                     </div>
                 </div>
 
+                {isStarter || isExpired ? (
+                    <div style={{
+                        padding: isMobileView ? "16px" : "20px",
+                        borderRadius: "10px",
+                        backgroundColor: "rgba(85, 107, 47, 0.06)",
+                        border: "1px dashed rgba(85, 107, 47, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: "14px"
+                    }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", maxWidth: "550px" }}>
+                            <div style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "10px",
+                                backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                color: "#556B2F",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0
+                            }}>
+                                <Lock size={20} />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--foreground)" }}>
+                                    {isExpired ? "Abonnement expiré" : "Synchronisation automatique réservée à l'offre Pro"}
+                                </div>
+                                <div style={{ fontSize: "12.5px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+                                    {isExpired
+                                        ? "Renouvelez votre abonnement pour synchroniser vos comptes bancaires et automatiser le lettrage de vos factures."
+                                        : "Connectez vos comptes bancaires et automatisez le lettrage de vos factures avec le forfait Pro (69,90 €/mois)."}
+                                </div>
+                            </div>
+                        </div>
+                        <a
+                            href="/settings?tab=abonnement"
+                            style={{
+                                padding: "9px 18px",
+                                backgroundColor: "#556B2F",
+                                color: "#FFFFFF",
+                                borderRadius: "8px",
+                                fontSize: "13px",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px"
+                            }}
+                        >
+                            <Crown size={14} /> {isExpired ? "Renouveler mon offre" : "Passer à l'offre Pro"}
+                        </a>
+                    </div>
+                ) : (
+                    <>
+                        <div style={{
+                            border: "1px solid var(--border)",
+                            borderRadius: "10px",
+                            padding: isMobileView ? "14px" : "16px",
+                            backgroundColor: "var(--background)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: isMobileView ? "12px" : "12px"
+                        }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div style={{
+                                    width: isMobileView ? "36px" : "38px",
+                                    height: isMobileView ? "36px" : "38px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "rgba(85, 107, 47, 0.15)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "var(--primary)",
+                                    flexShrink: 0
+                                }}>
+                                    <ShieldCheck size={isMobileView ? 19 : 20} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: isMobileView ? "13.5px" : "14px", fontWeight: 700, color: "var(--foreground)" }}>
+                                        {bankingStatus.isConnected ? `${displayAccounts.length} compte(s) bancaire(s) synchronisé(s)` : "Aucun compte synchronisé"}
+                                    </div>
+                                    <div style={{ fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)" }}>
+                                        Connexion DSP2 chiffrée et sécurisée.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", width: isMobileView ? "100%" : "auto", flexWrap: "wrap" }}>
+                                {bankingStatus.isConnected ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={handleConnectBanking}
+                                            style={{
+                                                flex: isMobileView ? 1 : undefined,
+                                                justifyContent: 'center',
+                                                padding: isMobileView ? "9px 14px" : "8px 14px",
+                                                borderRadius: "8px",
+                                                border: "1px solid var(--border)",
+                                                backgroundColor: "var(--card)",
+                                                color: "var(--foreground)",
+                                                fontSize: isMobileView ? "13px" : "12.5px",
+                                                fontWeight: 600,
+                                                cursor: "pointer",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                gap: "6px"
+                                            }}
+                                        >
+                                            <Plus size={14} />
+                                            Ajouter un compte
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            disabled={syncingBanking}
+                                            onClick={async () => {
+                                                setSyncingBanking(true);
+                                                try {
+                                                    const res = await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
+                                                    if (triggerToast) triggerToast(res?.message || "Synchronisation bancaire terminée.", false);
+                                                    await loadBankingStatus();
+                                                } catch (e) {
+                                                    if (triggerToast) triggerToast(e.message || "Erreur de synchronisation", true);
+                                                } finally {
+                                                    setSyncingBanking(false);
+                                                }
+                                            }}
+                                            style={{
+                                                flex: isMobileView ? 1 : undefined,
+                                                justifyContent: 'center',
+                                                padding: isMobileView ? "9px 14px" : "8px 14px",
+                                                borderRadius: "8px",
+                                                border: "1px solid var(--border)",
+                                                backgroundColor: "var(--card)",
+                                                color: "var(--foreground)",
+                                                fontSize: isMobileView ? "13px" : "12.5px",
+                                                fontWeight: 600,
+                                                cursor: syncingBanking ? "not-allowed" : "pointer",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                gap: "6px"
+                                            }}
+                                        >
+                                            <RefreshCw size={14} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
+                                            {syncingBanking ? "Sync..." : "Synchroniser"}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            disabled={disconnectingBanking}
+                                            onClick={async () => {
+                                                if (!window.confirm("Voulez-vous vraiment déconnecter votre compte bancaire ?")) return;
+                                                setDisconnectingBanking(true);
+                                                try {
+                                                    await apiFetch("/v1/banking/disconnect", { method: "POST" });
+                                                    if (triggerToast) triggerToast("Compte bancaire déconnecté.", false);
+                                                    await loadBankingStatus();
+                                                } catch (e) {
+                                                    if (triggerToast) triggerToast(e.message || "Erreur lors de la déconnexion", true);
+                                                } finally {
+                                                    setDisconnectingBanking(false);
+                                                }
+                                            }}
+                                            style={{
+                                                flex: isMobileView ? 1 : undefined,
+                                                justifyContent: 'center',
+                                                padding: isMobileView ? "9px 14px" : "8px 14px",
+                                                borderRadius: "8px",
+                                                border: "1px solid var(--border)",
+                                                backgroundColor: "var(--card)",
+                                                color: "#ef4444",
+                                                fontSize: isMobileView ? "13px" : "12.5px",
+                                                fontWeight: 600,
+                                                cursor: disconnectingBanking ? "not-allowed" : "pointer",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                gap: "6px"
+                                            }}
+                                        >
+                                            <Trash2 size={14} />
+                                            {disconnectingBanking ? "Déconnexion..." : "Déconnecter"}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleConnectBanking}
+                                        style={{
+                                            width: isMobileView ? "100%" : "auto",
+                                            justifyContent: "center",
+                                            padding: isMobileView ? "10px 16px" : "9px 18px",
+                                            borderRadius: "8px",
+                                            border: "1px solid var(--border)",
+                                            backgroundColor: "var(--card)",
+                                            color: "var(--foreground)",
+                                            fontSize: isMobileView ? "13.5px" : "13px",
+                                            fontWeight: 600,
+                                            cursor: "pointer",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "8px"
+                                        }}
+                                    >
+                                        <ExternalLink size={15} />
+                                        Connecter mon compte bancaire
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Liste des comptes bancaires synchronisés */}
+                        {bankingStatus.isConnected && displayAccounts.length > 0 && (
+                            <div style={{ marginTop: "12px", display: "grid", gap: "10px" }}>
+                                {displayAccounts.map((acc) => (
+                                    <div
+                                        key={acc.id}
+                                        style={{
+                                            border: "1px solid var(--border)",
+                                            borderRadius: "10px",
+                                            padding: isMobileView ? "12px 14px" : "14px 16px",
+                                            backgroundColor: "var(--card)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            flexWrap: "wrap",
+                                            gap: "10px"
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                            <div style={{
+                                                width: isMobileView ? "32px" : "34px",
+                                                height: isMobileView ? "32px" : "34px",
+                                                borderRadius: "6px",
+                                                backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                color: "var(--primary)",
+                                                flexShrink: 0
+                                            }}>
+                                                <Landmark size={isMobileView ? 16 : 18} />
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: isMobileView ? "13.5px" : "13.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                                                    {acc.accountName || "Compte principal"}
+                                                </div>
+                                                <div style={{ fontSize: isMobileView ? "12px" : "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
+                                                    {acc.iban ? formatIBAN(acc.iban) : `ID: ${acc.externalId}`}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ textAlign: "right" }}>
+                                            <div style={{ fontSize: isMobileView ? "14.5px" : "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                                                {typeof acc.balance === "number" ? `${acc.balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "—"}
+                                            </div>
+                                            <span style={{
+                                                fontSize: "11px",
+                                                color: "#16a34a",
+                                                fontWeight: 600,
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                gap: "3px"
+                                            }}>
+                                                <CheckCircle2 size={12} /> Synchronisé
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Modal Option Compte Bancaire Supplémentaire (+7 € / mois) */}
+            {showExtraBankModal && (
                 <div style={{
-                    border: "1px solid var(--border)",
-                    borderRadius: "10px",
-                    padding: isMobileView ? "14px" : "16px",
-                    backgroundColor: "var(--background)",
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.65)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: isMobileView ? "12px" : "12px"
+                    justifyContent: "center",
+                    zIndex: 9999,
+                    padding: "16px"
                 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{
+                        maxWidth: "480px",
+                        width: "100%",
+                        backgroundColor: "var(--card)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "16px",
+                        padding: "24px",
+                        boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
+                        position: "relative"
+                    }}>
+                        <button
+                            type="button"
+                            onClick={() => setShowExtraBankModal(false)}
+                            style={{
+                                position: "absolute",
+                                top: "16px",
+                                right: "16px",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "var(--muted-foreground)"
+                            }}
+                        >
+                            <X size={18} />
+                        </button>
+
                         <div style={{
-                            width: isMobileView ? "36px" : "38px",
-                            height: isMobileView ? "36px" : "38px",
-                            borderRadius: "8px",
-                            backgroundColor: "rgba(85, 107, 47, 0.15)",
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgba(85, 107, 47, 0.12)",
+                            color: "#556B2F",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: "var(--primary)",
-                            flexShrink: 0
+                            marginBottom: "16px"
                         }}>
-                            <ShieldCheck size={isMobileView ? 19 : 20} />
+                            <Building2 size={22} />
                         </div>
-                        <div>
-                            <div style={{ fontSize: isMobileView ? "13.5px" : "14px", fontWeight: 700, color: "var(--foreground)" }}>
-                                {bankingStatus.isConnected ? "Compte bancaire synchronisé" : "Aucun compte synchronisé"}
-                            </div>
-                            <div style={{ fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)" }}>
-                                Connexion DSP2 sécurisée via l'API Powens.
-                            </div>
-                        </div>
-                    </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: isMobileView ? "100%" : "auto" }}>
-                        {bankingStatus.isConnected ? (
-                            <>
-                                <button
-                                    type="button"
-                                    disabled={syncingBanking}
-                                    onClick={async () => {
-                                        setSyncingBanking(true);
-                                        try {
-                                            const res = await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
-                                            if (triggerToast) triggerToast(res?.message || "Synchronisation bancaire terminée.", false);
-                                            await loadBankingStatus();
-                                        } catch (e) {
-                                            if (triggerToast) triggerToast(e.message || "Erreur de synchronisation", true);
-                                        } finally {
-                                            setSyncingBanking(false);
-                                        }
-                                    }}
-                                    style={{
-                                        flex: isMobileView ? 1 : undefined,
-                                        justifyContent: 'center',
-                                        padding: isMobileView ? "9px 14px" : "8px 14px",
-                                        borderRadius: "8px",
-                                        border: "1px solid var(--border)",
-                                        backgroundColor: "var(--card)",
-                                        color: "var(--foreground)",
-                                        fontSize: isMobileView ? "13px" : "12.5px",
-                                        fontWeight: 600,
-                                        cursor: syncingBanking ? "not-allowed" : "pointer",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "6px"
-                                    }}
-                                >
-                                    <RefreshCw size={14} style={{ animation: syncingBanking ? "spin 1s linear infinite" : "none" }} />
-                                    {syncingBanking ? "Sync..." : "Synchroniser"}
-                                </button>
+                        <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 8px 0", color: "var(--foreground)" }}>
+                            Compte bancaire supplémentaire
+                        </h3>
 
-                                <button
-                                    type="button"
-                                    disabled={disconnectingBanking}
-                                    onClick={async () => {
-                                        if (!window.confirm("Voulez-vous vraiment déconnecter votre compte bancaire ?")) return;
-                                        setDisconnectingBanking(true);
-                                        try {
-                                            await apiFetch("/v1/banking/disconnect", { method: "POST" });
-                                            if (triggerToast) triggerToast("Compte bancaire déconnecté.", false);
-                                            await loadBankingStatus();
-                                        } catch (e) {
-                                            if (triggerToast) triggerToast(e.message || "Erreur lors de la déconnexion", true);
-                                        } finally {
-                                            setDisconnectingBanking(false);
-                                        }
-                                    }}
-                                    style={{
-                                        flex: isMobileView ? 1 : undefined,
-                                        justifyContent: 'center',
-                                        padding: isMobileView ? "9px 14px" : "8px 14px",
-                                        borderRadius: "8px",
-                                        border: "1px solid var(--border)",
-                                        backgroundColor: "var(--card)",
-                                        color: "#ef4444",
-                                        fontSize: isMobileView ? "13px" : "12.5px",
-                                        fontWeight: 600,
-                                        cursor: disconnectingBanking ? "not-allowed" : "pointer",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "6px"
-                                    }}
-                                >
-                                    <Trash2 size={14} />
-                                    {disconnectingBanking ? "Déconnexion..." : "Déconnecter"}
-                                </button>
-                            </>
-                        ) : (
+                        <p style={{ fontSize: "13.5px", color: "var(--muted-foreground)", lineHeight: 1.5, margin: "0 0 20px 0" }}>
+                            {isPro
+                                ? "Votre forfait Pro inclut 1 compte bancaire synchronisé. L'ajout d'un 2ème compte coûte +7,00 € HT / mois (facturé directement sur votre abonnement Stripe), ou vous pouvez passer au forfait Unlimited (3 comptes inclus)."
+                                : "Votre forfait Unlimited inclut 3 comptes bancaires synchronisés. L'ajout d'un compte supplémentaire coûte +7,00 € HT / mois (facturé directement sur votre abonnement Stripe)."}
+                        </p>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                             <button
                                 type="button"
-                                onClick={async () => {
-                                    try {
-                                        const res = await apiFetch("/v1/banking/connect", { method: "POST" });
-                                        if (res.data?.connectUrl) {
-                                            window.location.href = res.data.connectUrl;
-                                        } else {
-                                            if (triggerToast) triggerToast(res.data?.message || "Module Open Banking prêt. En attente de configuration des clés Powens Sandbox.", false);
-                                        }
-                                    } catch (e) {
-                                        if (triggerToast) triggerToast(e.message || "Erreur Open Banking.", true);
-                                    }
-                                }}
+                                disabled={extraBankLoading}
+                                onClick={handleConfirmExtraBankAddon}
                                 style={{
-                                    width: isMobileView ? "100%" : "auto",
-                                    justifyContent: "center",
-                                    padding: isMobileView ? "10px 16px" : "9px 18px",
-                                    borderRadius: "8px",
-                                    border: "1px solid var(--border)",
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    fontSize: isMobileView ? "13.5px" : "13px",
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                    display: "inline-flex",
+                                    padding: "12px 18px",
+                                    backgroundColor: "#556B2F",
+                                    color: "#FFFFFF",
+                                    border: "none",
+                                    borderRadius: "10px",
+                                    fontWeight: 700,
+                                    fontSize: "13.5px",
+                                    cursor: extraBankLoading ? "not-allowed" : "pointer",
+                                    display: "flex",
                                     alignItems: "center",
+                                    justifyContent: "center",
                                     gap: "8px"
                                 }}
                             >
-                                <ExternalLink size={15} />
-                                Connecter mon compte bancaire
+                                {extraBankLoading ? <><Loader2 size={16} className="spin-loader" /> Activation...</> : "Activer l'option (+7,00 € HT / mois)"}
                             </button>
-                        )}
-                    </div>
-                </div>
 
-                {/* Liste des comptes bancaires synchronisés */}
-                {bankingStatus.isConnected && displayAccounts.length > 0 && (
-                    <div style={{ marginTop: "12px", display: "grid", gap: "10px" }}>
-                        {displayAccounts.map((acc) => (
-                            <div
-                                key={acc.id}
+                            {isPro && (
+                                <a
+                                    href="/settings?tab=abonnement"
+                                    style={{
+                                        padding: "10px 16px",
+                                        backgroundColor: "transparent",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "10px",
+                                        color: "var(--foreground)",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        textDecoration: "none",
+                                        textAlign: "center"
+                                    }}
+                                >
+                                    Passer au forfait Unlimited (3 comptes inclus)
+                                </a>
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={() => setShowExtraBankModal(false)}
                                 style={{
-                                    border: "1px solid var(--border)",
-                                    borderRadius: "10px",
-                                    padding: isMobileView ? "12px 14px" : "14px 16px",
-                                    backgroundColor: "var(--card)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    flexWrap: "wrap",
-                                    gap: "10px"
+                                    padding: "8px",
+                                    background: "none",
+                                    border: "none",
+                                    color: "var(--muted-foreground)",
+                                    fontSize: "12.5px",
+                                    cursor: "pointer"
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                    <div style={{
-                                        width: isMobileView ? "32px" : "34px",
-                                        height: isMobileView ? "32px" : "34px",
-                                        borderRadius: "6px",
-                                        backgroundColor: "rgba(85, 107, 47, 0.12)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: "var(--primary)",
-                                        flexShrink: 0
-                                    }}>
-                                        <Landmark size={isMobileView ? 16 : 18} />
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: isMobileView ? "13.5px" : "13.5px", fontWeight: 700, color: "var(--foreground)" }}>
-                                            {acc.accountName || "Compte principal"}
-                                        </div>
-                                        <div style={{ fontSize: isMobileView ? "12px" : "12px", color: "var(--muted-foreground)", fontFamily: "monospace" }}>
-                                            {acc.iban ? formatIBAN(acc.iban) : `ID: ${acc.externalId}`}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div style={{ textAlign: "right" }}>
-                                    <div style={{ fontSize: isMobileView ? "14.5px" : "14.5px", fontWeight: 700, color: "var(--foreground)" }}>
-                                        {typeof acc.balance === "number" ? `${acc.balance.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €` : "—"}
-                                    </div>
-                                    <span style={{
-                                        fontSize: "11px",
-                                        color: "#16a34a",
-                                        fontWeight: 600,
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "3px"
-                                    }}>
-                                        <CheckCircle2 size={12} /> Synchronisé
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
+                                Annuler
+                            </button>
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

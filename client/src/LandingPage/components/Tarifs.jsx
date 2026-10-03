@@ -13,8 +13,9 @@ function Tarifs() {
     const plans = [
         {
             name: "STARTER",
-            priceMonthly: 34,
-            priceAnnual: 27,
+            priceMonthly: "34,90",
+            priceAnnual: "27,00",
+            annualTotal: "324",
             badge: "Idéal pour débuter",
             features: [
                 { text: "1 utilisateur (le patron lui-même)", highlight: true, included: true },
@@ -24,26 +25,30 @@ function Tarifs() {
                 { text: "Facturation électronique & Chorus Pro", highlight: true, included: true },
                 { text: "Planning & Suivi des chantiers", included: true },
                 { text: "Rappels automatiques des entretiens", highlight: true, included: true },
+                { text: "Rapprochement bancaire manuel", included: true },
 
                 // Excluded items (✗)
-                { text: "App mobile techniciens", included: false },
-                { text: "Multi-techniciens", included: false }
+                { text: "Synchronisation bancaire automatique", included: false },
+                { text: "App mobile techniciens", included: false }
             ],
             cta: "Commencer l'essai 14j",
             popular: false
         },
         {
             name: "PRO",
-            priceMonthly: 69,
-            priceAnnual: 55,
+            priceMonthly: "69,90",
+            priceAnnual: "55,00",
+            annualTotal: "660",
             badge: "Pour les équipes en développement",
             features: [
                 { text: "Tout le forfait Starter inclus", included: true },
                 { text: "Jusqu'à 5 techniciens inclus", highlight: true, included: true },
                 { text: "Jusqu'à 500 clients", highlight: true, included: true },
                 { text: "500 SMS / mois inclus", highlight: true, included: true },
+                { text: "1 compte bancaire synchronisé inclus (DSP2)", highlight: true, included: true },
+                { text: "Rapprochement automatique des paiements", highlight: true, included: true },
                 { text: "Application mobile techniciens", highlight: true, included: true },
-                { text: "Facturation électronique & Chorus Pro", included: true },
+                { text: "Compte bancaire supplémentaire : +7 €/mois", included: true },
                 { text: "Support prioritaire 7j/7", highlight: true, included: true },
 
                 // Excluded items (✗)
@@ -54,13 +59,16 @@ function Tarifs() {
         },
         {
             name: "UNLIMITED",
-            priceMonthly: 129,
-            priceAnnual: 103,
+            priceMonthly: "119,90",
+            priceAnnual: "95,92",
+            annualTotal: "1 151",
             badge: "Pour les grandes structures",
             features: [
                 { text: "Tout le forfait Pro inclus", included: true },
                 { text: "Techniciens & Clients 100% Illimités", highlight: true, included: true },
                 { text: "1 500 SMS / mois inclus", highlight: true, included: true },
+                { text: "Jusqu'à 3 comptes bancaires synchronisés inclus", highlight: true, included: true },
+                { text: "Rapprochement bancaire automatique", highlight: true, included: true },
                 { text: "Facturation électronique intégrale", included: true },
                 { text: "Gestion multi-activités & Export comptable", included: true },
                 { text: "Support VIP prioritaire 7j/7", highlight: true, included: true }
@@ -130,7 +138,7 @@ function Tarifs() {
                                 </div>
                                 {isAnnual && (
                                     <div className="annual-save-text">
-                                        Soit {price * 12} € / an ({plan.priceMonthly - plan.priceAnnual} € d'économie / mois)
+                                        Soit {plan.annualTotal} € / an ({plan.name === "STARTER" ? "7,90" : plan.name === "PRO" ? "14,90" : "23,98"} € d'économie / mois)
                                     </div>
                                 )}
                             </div>

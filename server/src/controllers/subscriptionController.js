@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { prisma } from "../config/db.js";
-import { stripe } from "../config/stripe.js";
+import { stripe, getStripePriceId, STRIPE_PRICES } from "../config/stripe.js";
 import { generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
 import {
     sendSubscriptionActivatedEmail,
@@ -24,7 +24,7 @@ export const getSubscription = async (req, res) => {
             }
         });
 
-        // Si aucune souscription n'existe, création automatique du Plan STARTER Trial
+        // Si aucune souscription n'existe, création automatique du Plan STARTER Trial 14 jours
         if (!subscription) {
             const starterPlan = await prisma.plan.findFirst({
                 where: { name: "STARTER" }
@@ -53,8 +53,10 @@ export const getSubscription = async (req, res) => {
             const now = new Date();
             const periodEnd = subscription.status === "TRIALING" ? subscription.trialEndsAt : subscription.currentPeriodEnd;
             const isPeriodEnded = Boolean(periodEnd && new Date(periodEnd) < now);
+
             if (isPeriodEnded) {
-                if (subscription.status !== "EXPIRED") {
+                // Si la période est terminée et pas de renouvellement Stripe actif
+                if (subscription.status !== "EXPIRED" && !subscription.stripeSubscriptionId) {
                     subscription = await prisma.subscription.update({
                         where: { id: subscription.id },
                         data: { status: "EXPIRED" },
@@ -69,7 +71,7 @@ export const getSubscription = async (req, res) => {
             data: { subscription }
         });
     } catch (error) {
-        console.error("GET SUBSCRIPTION ERROR:", error.message);
+        console.error("[GET SUBSCRIPTION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la récupération de l'abonnement"
@@ -77,70 +79,7 @@ export const getSubscription = async (req, res) => {
     }
 };
 
-////// CREATE PAYMENT INTENT (Stripe Elements) //////
-export const createPaymentIntent = async (req, res) => {
-    const companyId = req.user.companyId;
-    const { planName, cycle = "MONTHLY" } = req.body;
-
-    if (!planName) {
-        return res.status(400).json({ success: false, message: "Plan requis" });
-    }
-
-    try {
-        const targetPlan = await prisma.plan.findFirst({
-            where: { name: planName.toUpperCase() }
-        });
-
-        if (!targetPlan) {
-            return res.status(404).json({ success: false, message: "Plan introuvable" });
-        }
-
-        if (!stripe) {
-            return res.status(503).json({ success: false, message: "Stripe non configuré" });
-        }
-
-        const amount = cycle === "ANNUAL"
-            ? Math.round(targetPlan.priceAnnual * 12 * 100)
-            : Math.round(targetPlan.priceMonthly * 100);
-
-        // Get or create Stripe customer
-        let subscription = await prisma.subscription.findUnique({ where: { companyId } });
-        let customerId = subscription?.stripeCustomerId;
-
-        if (!customerId) {
-            const customer = await stripe.customers.create({
-                email: req.user.email,
-                metadata: { companyId }
-            });
-            customerId = customer.id;
-        }
-
-        // Create PaymentIntent with automatic_payment_methods for 3DS support
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount,
-            currency: 'eur',
-            customer: customerId,
-            setup_future_usage: 'off_session',
-            automatic_payment_methods: { enabled: true },
-            metadata: { companyId, planName: targetPlan.name, cycle }
-        });
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                clientSecret: paymentIntent.client_secret,
-                amount,
-                planDisplayName: targetPlan.displayName
-            }
-        });
-
-    } catch (error) {
-        console.error("CREATE PAYMENT INTENT ERROR:", error.message);
-        return res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-////// CREATE CHECKOUT SESSION //////
+////// CREATE CHECKOUT SESSION (OFFICIAL STRIPE PRICES) //////
 export const createCheckoutSession = async (req, res) => {
     const companyId = req.user.companyId;
     const { planName, cycle = "MONTHLY" } = req.body;
@@ -152,9 +91,16 @@ export const createCheckoutSession = async (req, res) => {
         });
     }
 
+    const normalizedPlan = planName.toUpperCase().trim();
+    const normalizedCycle = (cycle || "MONTHLY").toUpperCase().trim();
+
     try {
         const targetPlan = await prisma.plan.findFirst({
-            where: { name: planName.toUpperCase() }
+            where: {
+                name: (normalizedPlan === "PREMIUM" || normalizedPlan === "PRO")
+                    ? { in: ["PRO", "PREMIUM"] }
+                    : normalizedPlan
+            }
         });
 
         if (!targetPlan) {
@@ -164,70 +110,92 @@ export const createCheckoutSession = async (req, res) => {
             });
         }
 
-        if (stripe) {
-            const amount = cycle === "ANNUAL"
-                ? Math.round(targetPlan.priceAnnual * 12 * 100)
-                : Math.round(targetPlan.priceMonthly * 100);
-
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                payment_method_options: {
-                    card: {
-                        request_three_d_secure: 'any',
-                    },
-                },
-                line_items: [{
-                    price_data: {
-                        currency: 'eur',
-                        product_data: {
-                            name: `Abonnement GestArt CRM — ${targetPlan.displayName} (${cycle === "ANNUAL" ? 'Annuel' : 'Mensuel'})`,
-                            description: `Accès complet au plan ${targetPlan.displayName}`
-                        },
-                        unit_amount: amount,
-                        recurring: {
-                            interval: cycle === "ANNUAL" ? "year" : "month"
-                        }
-                    },
-                    quantity: 1,
-                }],
-                mode: 'subscription',
-                client_reference_id: companyId,
-                customer_email: req.user.email,
-                metadata: {
-                    companyId,
-                    planName: targetPlan.name,
-                    cycle
-                },
-                success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&success=true&session_id={CHECKOUT_SESSION_ID}&plan=${targetPlan.name}&cycle=${cycle}`,
-                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&canceled=true`,
-            });
-
-            return res.status(200).json({
-                success: true,
-                message: "Session de paiement créée avec succès",
-                data: {
-                    checkoutUrl: session.url
-                }
+        if (!stripe) {
+            return res.status(503).json({
+                success: false,
+                message: "Stripe n'est pas configuré sur le serveur"
             });
         }
 
+        const stripePriceId = getStripePriceId(targetPlan.name, normalizedCycle);
+        if (!stripePriceId) {
+            console.error(`[STRIPE ERROR] Aucun Price ID trouvé pour plan=${targetPlan.name} cycle=${normalizedCycle}`);
+            return res.status(500).json({
+                success: false,
+                message: `Configuration de prix Stripe manquante pour le plan ${targetPlan.displayName} (${normalizedCycle})`
+            });
+        }
+
+        // 1. Get or create single Stripe Customer for this Company
+        let subscription = await prisma.subscription.findUnique({ where: { companyId } });
+        let customerId = subscription?.stripeCustomerId;
+
+        if (!customerId) {
+            const customer = await stripe.customers.create({
+                email: req.user.email,
+                name: req.user.firstName ? `${req.user.firstName} ${req.user.lastName || ''}`.trim() : undefined,
+                metadata: { companyId }
+            });
+            customerId = customer.id;
+
+            if (subscription) {
+                await prisma.subscription.update({
+                    where: { companyId },
+                    data: { stripeCustomerId: customerId }
+                });
+            }
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+        // 2. Create Stripe Checkout Session using fixed Stripe Price ID
+        const session = await stripe.checkout.sessions.create({
+            customer: customerId,
+            payment_method_types: ['card'],
+            payment_method_options: {
+                card: {
+                    request_three_d_secure: 'any',
+                },
+            },
+            line_items: [{
+                price: stripePriceId,
+                quantity: 1,
+            }],
+            mode: 'subscription',
+            client_reference_id: companyId,
+            subscription_data: {
+                metadata: {
+                    companyId,
+                    planName: targetPlan.name,
+                    cycle: normalizedCycle
+                }
+            },
+            metadata: {
+                companyId,
+                planName: targetPlan.name,
+                cycle: normalizedCycle
+            },
+            success_url: `${frontendUrl}/settings?tab=abonnement&success=true&session_id={CHECKOUT_SESSION_ID}&plan=${targetPlan.name}&cycle=${normalizedCycle}`,
+            cancel_url: `${frontendUrl}/settings?tab=abonnement&canceled=true`,
+        });
+
         return res.status(200).json({
             success: true,
-            message: "Session de démonstration (Stripe non configuré)",
+            message: "Session de paiement créée avec succès",
             data: {
-                checkoutUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&plan=${targetPlan.name.toLowerCase()}`
+                checkoutUrl: session.url
             }
         });
     } catch (error) {
-        console.error("CHECKOUT SESSION ERROR:", error.message);
+        console.error("[CHECKOUT SESSION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la création de la session de paiement"
+            message: "Erreur lors de la création de la session de paiement: " + error.message
         });
     }
 };
 
-////// VERIFY CHECKOUT SESSION (ONLY UPGRADES IF STRIPE CONFIRMS PAYMENT WAS MADE) //////
+////// VERIFY CHECKOUT SESSION (IDEMPOTENT & AUTHORITATIVE) //////
 export const verifyCheckoutSession = async (req, res) => {
     const companyId = req.user.companyId;
     const { sessionId } = req.body;
@@ -241,14 +209,14 @@ export const verifyCheckoutSession = async (req, res) => {
 
     try {
         if (!stripe) {
-            return res.status(400).json({
+            return res.status(503).json({
                 success: false,
                 message: "Stripe n'est pas configuré"
             });
         }
 
         const session = await stripe.checkout.sessions.retrieve(sessionId, {
-            expand: ['subscription', 'payment_intent']
+            expand: ['subscription', 'payment_intent', 'invoice']
         });
 
         if (!session) {
@@ -258,15 +226,15 @@ export const verifyCheckoutSession = async (req, res) => {
             });
         }
 
-        // Strict verification: only upgrade if Stripe confirms payment
+        // Strict verification: only accept completed sessions
         if (session.payment_status !== 'paid' && session.status !== 'complete') {
             return res.status(400).json({
                 success: false,
-                message: "Le paiement n'a pas été validé par Stripe"
+                message: "Le paiement n'a pas encore été validé par Stripe"
             });
         }
 
-        // Verify the session belongs to this user/company
+        // Verify company ownership
         if (session.metadata?.companyId && session.metadata.companyId !== companyId && session.client_reference_id !== companyId) {
             return res.status(403).json({
                 success: false,
@@ -278,7 +246,9 @@ export const verifyCheckoutSession = async (req, res) => {
         const cycle = session.metadata?.cycle || "MONTHLY";
 
         const targetPlan = await prisma.plan.findFirst({
-            where: { name: planName.toUpperCase() }
+            where: {
+                name: (planName === "PREMIUM" || planName === "PRO") ? { in: ["PRO", "PREMIUM"] } : planName
+            }
         });
 
         if (!targetPlan) {
@@ -288,33 +258,26 @@ export const verifyCheckoutSession = async (req, res) => {
             });
         }
 
-        // Check if this session was already processed
-        const existingPayment = await prisma.payment.findFirst({
-            where: { stripePaymentIntentId: session.id }
-        });
+        const stripeSubId = typeof session.subscription === 'string'
+            ? session.subscription
+            : session.subscription?.id;
 
-        if (existingPayment) {
-            const currentSub = await prisma.subscription.findUnique({
-                where: { companyId },
-                include: { plan: true }
-            });
-            return res.status(200).json({
-                success: true,
-                message: "Abonnement déjà activé pour cette session",
-                data: { subscription: currentSub }
-            });
+        const stripeCustId = typeof session.customer === 'string'
+            ? session.customer
+            : session.customer?.id;
+
+        // Retrieve real billing period from Stripe subscription object
+        let periodStart = new Date();
+        let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        if (session.subscription && typeof session.subscription === 'object') {
+            if (session.subscription.current_period_start) {
+                periodStart = new Date(session.subscription.current_period_start * 1000);
+            }
+            if (session.subscription.current_period_end) {
+                periodEnd = new Date(session.subscription.current_period_end * 1000);
+            }
         }
-
-        const now = new Date();
-        const nextPeriodEnd = new Date();
-        if (cycle === "ANNUAL") {
-            nextPeriodEnd.setFullYear(nextPeriodEnd.getFullYear() + 1);
-        } else {
-            nextPeriodEnd.setMonth(nextPeriodEnd.getMonth() + 1);
-        }
-
-        const stripeSubId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id || `sub_${session.id}`;
-        const stripeCustId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
         const updatedSubscription = await prisma.subscription.upsert({
             where: { companyId },
@@ -322,10 +285,10 @@ export const verifyCheckoutSession = async (req, res) => {
                 planId: targetPlan.id,
                 status: "ACTIVE",
                 cycle: cycle.toUpperCase(),
-                currentPeriodStart: now,
-                currentPeriodEnd: nextPeriodEnd,
+                currentPeriodStart: periodStart,
+                currentPeriodEnd: periodEnd,
                 cancelledAt: null,
-                stripeSubscriptionId: stripeSubId,
+                ...(stripeSubId ? { stripeSubscriptionId: stripeSubId } : {}),
                 ...(stripeCustId ? { stripeCustomerId: stripeCustId } : {})
             },
             create: {
@@ -333,36 +296,47 @@ export const verifyCheckoutSession = async (req, res) => {
                 planId: targetPlan.id,
                 status: "ACTIVE",
                 cycle: cycle.toUpperCase(),
-                currentPeriodStart: now,
-                currentPeriodEnd: nextPeriodEnd,
-                stripeSubscriptionId: stripeSubId,
-                ...(stripeCustId ? { stripeCustomerId: stripeCustId } : {})
+                currentPeriodStart: periodStart,
+                currentPeriodEnd: periodEnd,
+                stripeSubscriptionId: stripeSubId || null,
+                stripeCustomerId: stripeCustId || null
             },
             include: { plan: true }
         });
 
-        const priceAmount = cycle === "ANNUAL" ? targetPlan.priceAnnual : targetPlan.priceMonthly;
-        await prisma.payment.create({
-            data: {
-                subscriptionId: updatedSubscription.id,
-                amount: priceAmount,
-                currency: "EUR",
-                status: "succeeded",
-                method: "CARD",
-                stripePaymentIntentId: session.id,
-                paidAt: new Date()
-            }
-        });
+        // Record payment history idempotently if invoice or payment intent available
+        const stripeInvoice = typeof session.invoice === 'object' ? session.invoice : null;
+        const invoiceId = stripeInvoice?.id || (typeof session.invoice === 'string' ? session.invoice : null);
+        const paymentIntentId = session.payment_intent
+            ? (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent.id)
+            : null;
 
-        if (req.user?.email) {
-            sendSubscriptionActivatedEmail({
-                to: req.user.email,
-                firstName: req.user.firstName || "Cher client",
-                planName: targetPlan.displayName || targetPlan.name,
-                amount: priceAmount ? priceAmount.toFixed(2) : undefined,
-                billingCycle: cycle === "ANNUAL" ? "annuel" : "mensuel",
-                nextBillingDate: updatedSubscription.currentPeriodEnd
-            }).catch(err => console.error("[VERIFY_SESSION EMAIL ERR]", err.message));
+        if (paymentIntentId || invoiceId) {
+            const existingPayment = await prisma.payment.findFirst({
+                where: {
+                    OR: [
+                        ...(paymentIntentId ? [{ stripePaymentIntentId: paymentIntentId }] : []),
+                        ...(invoiceId ? [{ stripeInvoiceId: invoiceId }] : [])
+                    ]
+                }
+            });
+
+            if (!existingPayment) {
+                const amountPaid = session.amount_total ? session.amount_total / 100 : targetPlan.priceMonthly;
+                await prisma.payment.create({
+                    data: {
+                        subscriptionId: updatedSubscription.id,
+                        amount: amountPaid,
+                        currency: (session.currency || "EUR").toUpperCase(),
+                        status: "succeeded",
+                        method: "CARD",
+                        stripePaymentIntentId: paymentIntentId,
+                        stripeInvoiceId: invoiceId,
+                        stripeInvoiceUrl: stripeInvoice?.hosted_invoice_url || null,
+                        paidAt: new Date()
+                    }
+                }).catch(err => console.warn("[VERIFY_SESSION PAYMENT RECORD WARNING]:", err.message));
+            }
         }
 
         return res.status(200).json({
@@ -370,9 +344,8 @@ export const verifyCheckoutSession = async (req, res) => {
             message: `Abonnement ${targetPlan.displayName} activé avec succès !`,
             data: { subscription: updatedSubscription }
         });
-
     } catch (error) {
-        console.error("VERIFY SESSION ERROR:", error.message);
+        console.error("[VERIFY SESSION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
             message: "Erreur lors de la vérification de la session: " + error.message
@@ -380,10 +353,10 @@ export const verifyCheckoutSession = async (req, res) => {
     }
 };
 
-////// UPGRADE SUBSCRIPTION IMMEDIATELY //////
+////// UPGRADE / PLAN CHANGE (FOR EXISTING ACTIVE SUBSCRIPTION) //////
 export const upgradeSubscription = async (req, res) => {
     const companyId = req.user.companyId;
-    const { planName, cycle = "MONTHLY", cardHolder, cardNumber, cardExpiry, cardCvc } = req.body;
+    const { planName, cycle = "MONTHLY" } = req.body;
 
     if (!planName) {
         return res.status(400).json({
@@ -392,9 +365,14 @@ export const upgradeSubscription = async (req, res) => {
         });
     }
 
+    const normalizedPlan = planName.toUpperCase().trim();
+    const normalizedCycle = (cycle || "MONTHLY").toUpperCase().trim();
+
     try {
         const newPlan = await prisma.plan.findFirst({
-            where: { name: planName.toUpperCase() }
+            where: {
+                name: (normalizedPlan === "PREMIUM" || normalizedPlan === "PRO") ? { in: ["PRO", "PREMIUM"] } : normalizedPlan
+            }
         });
 
         if (!newPlan) {
@@ -404,132 +382,77 @@ export const upgradeSubscription = async (req, res) => {
             });
         }
 
-        // If Stripe keys are configured and card data was provided in the modal, process Stripe PaymentMethod & PaymentIntent
-        if (stripe && cardNumber && cardExpiry && cardCvc) {
-            const cleanNum = cardNumber.replace(/\s/g, "");
-            const [expMonthStr, expYearStr] = cardExpiry.split("/");
-
-            if (cleanNum.length >= 15 && expMonthStr && expYearStr) {
-                try {
-                    const expMonth = parseInt(expMonthStr, 10);
-                    const expYear = parseInt(expYearStr.length === 2 ? `20${expYearStr}` : expYearStr, 10);
-
-                    // 1. Create Payment Method in Stripe from entered card details
-                    const paymentMethod = await stripe.paymentMethods.create({
-                        type: 'card',
-                        card: {
-                            number: cleanNum,
-                            exp_month: expMonth,
-                            exp_year: expYear,
-                            cvc: cardCvc,
-                        },
-                        billing_details: {
-                            name: cardHolder || req.user.email,
-                            email: req.user.email,
-                        }
-                    });
-
-                    const amountInCents = Math.round((cycle === "ANNUAL" ? newPlan.priceAnnual : newPlan.priceMonthly) * 100);
-
-                    // 2. Create and confirm PaymentIntent
-                    const paymentIntent = await stripe.paymentIntents.create({
-                        amount: amountInCents,
-                        currency: 'eur',
-                        payment_method: paymentMethod.id,
-                        confirm: true,
-                        automatic_payment_methods: {
-                            enabled: true,
-                            allow_redirects: 'always'
-                        },
-                        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement&success=true&plan=${newPlan.name}&cycle=${cycle}`,
-                        metadata: { companyId, planName: newPlan.name, cycle }
-                    });
-
-                    // 3. Check if 3D Secure bank verification challenge is required
-                    if (paymentIntent.status === 'requires_action' && paymentIntent.next_action?.redirect_to_url?.url) {
-                        return res.status(200).json({
-                            success: true,
-                            requires3DS: true,
-                            redirectUrl: paymentIntent.next_action.redirect_to_url.url
-                        });
-                    }
-                } catch (stripeError) {
-                    console.warn("Stripe Direct PaymentMethod processing warning:", stripeError.message);
-                }
-            }
-        }
-
-        const now = new Date();
-        const nextPeriodEnd = new Date();
-        if (cycle === "ANNUAL") {
-            nextPeriodEnd.setFullYear(nextPeriodEnd.getFullYear() + 1);
-        } else {
-            nextPeriodEnd.setMonth(nextPeriodEnd.getMonth() + 1);
-        }
-
-        const updatedSubscription = await prisma.subscription.upsert({
+        const sub = await prisma.subscription.findUnique({
             where: { companyId },
-            update: {
-                planId: newPlan.id,
-                status: "ACTIVE",
-                cycle: cycle.toUpperCase(),
-                currentPeriodStart: now,
-                currentPeriodEnd: nextPeriodEnd,
-                cancelledAt: null,
-                stripeSubscriptionId: `sub_${Date.now()}`
-            },
-            create: {
-                companyId,
-                planId: newPlan.id,
-                status: "ACTIVE",
-                cycle: cycle.toUpperCase(),
-                currentPeriodStart: now,
-                currentPeriodEnd: nextPeriodEnd,
-                stripeSubscriptionId: `sub_${Date.now()}`
-            },
             include: { plan: true }
         });
 
-        // Record payment in database history
-        const priceAmount = cycle === "ANNUAL" ? newPlan.priceAnnual : newPlan.priceMonthly;
-        await prisma.payment.create({
-            data: {
-                subscriptionId: updatedSubscription.id,
-                amount: priceAmount,
-                currency: "EUR",
-                status: "succeeded",
-                method: "CARD",
-                stripePaymentIntentId: `pi_${Date.now()}`,
-                paidAt: new Date()
+        // If active Stripe Subscription exists, update the item in Stripe with proration
+        if (sub?.stripeSubscriptionId && stripe) {
+            const newStripePriceId = getStripePriceId(newPlan.name, normalizedCycle);
+            if (!newStripePriceId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Identifiant de tarif Stripe introuvable pour cette formule"
+                });
             }
-        }).catch(err => console.warn("Payment history creation skip:", err.message));
 
-        if (req.user?.email) {
-            sendSubscriptionActivatedEmail({
-                to: req.user.email,
-                firstName: req.user.firstName || "Cher client",
-                planName: newPlan.displayName || newPlan.name,
-                amount: priceAmount ? priceAmount.toFixed(2) : undefined,
-                billingCycle: cycle === "ANNUAL" ? "annuel" : "mensuel",
-                nextBillingDate: updatedSubscription.currentPeriodEnd
-            }).catch(err => console.error("[UPGRADE_SUB EMAIL ERR]", err.message));
+            const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
+
+            // Find main plan item (the item that is not the extra bank add-on)
+            const mainItem = stripeSub.items.data.find(
+                item => item.price.id !== STRIPE_PRICES.EXTRA_BANK
+            ) || stripeSub.items.data[0];
+
+            if (mainItem) {
+                const updatedStripeSub = await stripe.subscriptions.update(sub.stripeSubscriptionId, {
+                    items: [
+                        {
+                            id: mainItem.id,
+                            price: newStripePriceId
+                        }
+                    ],
+                    proration_behavior: 'always_invoice',
+                    metadata: {
+                        companyId,
+                        planName: newPlan.name,
+                        cycle: normalizedCycle
+                    }
+                });
+
+                const updatedSubscription = await prisma.subscription.update({
+                    where: { companyId },
+                    data: {
+                        planId: newPlan.id,
+                        cycle: normalizedCycle,
+                        currentPeriodStart: new Date(updatedStripeSub.current_period_start * 1000),
+                        currentPeriodEnd: new Date(updatedStripeSub.current_period_end * 1000),
+                        cancelledAt: null,
+                        status: "ACTIVE"
+                    },
+                    include: { plan: true }
+                });
+
+                return res.status(200).json({
+                    success: true,
+                    message: `Abonnement mis à niveau vers l'offre ${newPlan.displayName}`,
+                    data: { subscription: updatedSubscription }
+                });
+            }
         }
 
-        return res.status(200).json({
-            success: true,
-            message: `Abonnement mis à jour vers l'offre ${newPlan.displayName}`,
-            data: { subscription: updatedSubscription }
-        });
+        // If no active Stripe subscription exists yet, delegate to createCheckoutSession flow
+        return createCheckoutSession(req, res);
     } catch (error) {
-        console.error("UPGRADE ERROR:", error.message);
+        console.error("[UPGRADE SUBSCRIPTION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la mise à niveau de l'abonnement"
+            message: "Erreur lors de la mise à niveau: " + error.message
         });
     }
 };
 
-////// CANCEL SUBSCRIPTION //////
+////// CANCEL SUBSCRIPTION (AT PERIOD END — NO IMMEDIATE LOSS OF ACCESS) //////
 export const cancelSubscription = async (req, res) => {
     const companyId = req.user.companyId;
 
@@ -539,21 +462,20 @@ export const cancelSubscription = async (req, res) => {
             include: { plan: true }
         });
 
-        // If active Stripe Subscription exists, tell Stripe to cancel at end of period (no further charges)
         if (sub?.stripeSubscriptionId && stripe) {
             try {
                 await stripe.subscriptions.update(sub.stripeSubscriptionId, {
                     cancel_at_period_end: true
                 });
             } catch (stripeErr) {
-                console.warn("Stripe subscription cancel_at_period_end warning:", stripeErr.message);
+                console.warn("[STRIPE CANCEL WARNING]:", stripeErr.message);
             }
         }
 
+        // Keep status ACTIVE until currentPeriodEnd expires, but record cancelledAt
         const updatedSubscription = await prisma.subscription.update({
             where: { companyId },
             data: {
-                status: "CANCELLED",
                 cancelledAt: new Date()
             },
             include: { plan: true }
@@ -565,19 +487,19 @@ export const cancelSubscription = async (req, res) => {
                 firstName: req.user.firstName || "Cher client",
                 planName: sub?.plan?.displayName || sub?.plan?.name || "Pro",
                 accessUntilDate: sub?.currentPeriodEnd || new Date()
-            }).catch(err => console.error("[CANCEL_SUB EMAIL ERR]", err.message));
+            }).catch(err => console.error("[CANCEL_SUB EMAIL ERR]:", err.message));
         }
 
         return res.status(200).json({
             success: true,
-            message: "Votre abonnement a été résilié avec succès. Aucun prélèvement ne sera effectué le mois prochain.",
+            message: "Le renouvellement automatique a été désactivé. Vous conservez votre accès jusqu'à la fin de la période en cours.",
             data: { subscription: updatedSubscription }
         });
     } catch (error) {
-        console.error("CANCEL SUBSCRIPTION ERROR:", error.message);
+        console.error("[CANCEL SUBSCRIPTION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Erreur serveur lors de la résiliation de l'abonnement"
+            message: "Erreur serveur lors de la désactivation du renouvellement"
         });
     }
 };
@@ -595,7 +517,7 @@ export const reactivateSubscription = async (req, res) => {
                     cancel_at_period_end: false
                 });
             } catch (stripeErr) {
-                console.warn("Stripe subscription reactivate warning:", stripeErr.message);
+                console.warn("[STRIPE REACTIVATE WARNING]:", stripeErr.message);
             }
         }
 
@@ -614,7 +536,7 @@ export const reactivateSubscription = async (req, res) => {
             data: { subscription: updatedSubscription }
         });
     } catch (error) {
-        console.error("REACTIVATE SUBSCRIPTION ERROR:", error.message);
+        console.error("[REACTIVATE SUBSCRIPTION ERROR]:", error.message);
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la réactivation de l'abonnement"
@@ -622,7 +544,125 @@ export const reactivateSubscription = async (req, res) => {
     }
 };
 
-////// GET STRIPE PORTAL URL //////
+////// ADD EXTRA BANK ACCOUNT ADD-ON (+7 €/MO) //////
+export const addExtraBankAddon = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        if (!stripe) {
+            return res.status(503).json({ success: false, message: "Stripe n'est pas configuré" });
+        }
+
+        const extraBankPriceId = STRIPE_PRICES.EXTRA_BANK;
+        if (!extraBankPriceId) {
+            return res.status(500).json({ success: false, message: "STRIPE_EXTRA_BANK_PRICE_ID non configuré sur le serveur" });
+        }
+
+        const sub = await prisma.subscription.findUnique({
+            where: { companyId },
+            include: { plan: true }
+        });
+
+        if (!sub || !sub.stripeSubscriptionId) {
+            return res.status(400).json({
+                success: false,
+                message: "Vous devez avoir un abonnement actif pour ajouter une option bancaire"
+            });
+        }
+
+        const planName = (sub.plan?.name || "").toUpperCase();
+        if (planName === "STARTER") {
+            return res.status(403).json({
+                success: false,
+                message: "La synchronisation bancaire n'est pas disponible sur le forfait Starter. Passez au forfait Pro ou Unlimited."
+            });
+        }
+
+        // For PRO: 1 bank is included. Max 1 extra bank addon (total 2 banks).
+        if ((planName === "PRO" || planName === "PREMIUM") && sub.stripeExtraBankSubscriptionItemId) {
+            return res.status(400).json({
+                success: false,
+                message: "Vous avez déjà atteint la limite maximale de 2 comptes bancaires sur le forfait Pro. Passez au forfait Unlimited."
+            });
+        }
+
+        // Add subscription item in Stripe
+        const item = await stripe.subscriptionItems.create({
+            subscription: sub.stripeSubscriptionId,
+            price: extraBankPriceId,
+            quantity: 1,
+            proration_behavior: 'always_invoice'
+        });
+
+        const updatedSub = await prisma.subscription.update({
+            where: { companyId },
+            data: {
+                stripeExtraBankSubscriptionItemId: item.id
+            },
+            include: { plan: true }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Option compte bancaire supplémentaire activée (+7 €/mois)",
+            data: { subscription: updatedSub }
+        });
+    } catch (error) {
+        console.error("[ADD EXTRA BANK ADDON ERROR]:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de l'ajout de l'option bancaire: " + error.message
+        });
+    }
+};
+
+////// REMOVE EXTRA BANK ACCOUNT ADD-ON //////
+export const removeExtraBankAddon = async (req, res) => {
+    const companyId = req.user.companyId;
+
+    try {
+        const sub = await prisma.subscription.findUnique({ where: { companyId } });
+
+        if (!sub?.stripeExtraBankSubscriptionItemId) {
+            return res.status(400).json({
+                success: false,
+                message: "Aucune option de compte bancaire supplémentaire active"
+            });
+        }
+
+        if (stripe) {
+            try {
+                await stripe.subscriptionItems.del(sub.stripeExtraBankSubscriptionItemId, {
+                    proration_behavior: 'always_invoice'
+                });
+            } catch (stripeErr) {
+                console.warn("[REMOVE EXTRA BANK STRIPE WARNING]:", stripeErr.message);
+            }
+        }
+
+        const updatedSub = await prisma.subscription.update({
+            where: { companyId },
+            data: {
+                stripeExtraBankSubscriptionItemId: null
+            },
+            include: { plan: true }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Option de compte bancaire supplémentaire retirée avec succès",
+            data: { subscription: updatedSub }
+        });
+    } catch (error) {
+        console.error("[REMOVE EXTRA BANK ADDON ERROR]:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors du retrait de l'option bancaire: " + error.message
+        });
+    }
+};
+
+////// GET STRIPE CUSTOMER PORTAL URL //////
 export const getPortalUrl = async (req, res) => {
     const companyId = req.user.companyId;
     const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/settings?tab=abonnement`;
@@ -635,19 +675,17 @@ export const getPortalUrl = async (req, res) => {
             });
         }
 
-        // Find Stripe customer ID from DB
         const subscription = await prisma.subscription.findUnique({ where: { companyId } });
         let customerId = subscription?.stripeCustomerId;
 
-        // If no customer exists, create one
         if (!customerId) {
             const customer = await stripe.customers.create({
                 email: req.user.email,
+                name: req.user.firstName ? `${req.user.firstName} ${req.user.lastName || ''}`.trim() : undefined,
                 metadata: { companyId }
             });
             customerId = customer.id;
 
-            // Save customer ID to DB
             if (subscription) {
                 await prisma.subscription.update({
                     where: { companyId },
@@ -656,7 +694,6 @@ export const getPortalUrl = async (req, res) => {
             }
         }
 
-        // Create Stripe Customer Portal session
         const portalSession = await stripe.billingPortal.sessions.create({
             customer: customerId,
             return_url: returnUrl,
@@ -668,13 +705,12 @@ export const getPortalUrl = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("PORTAL URL ERROR:", error.message);
+        console.error("[PORTAL URL ERROR]:", error.message);
 
-        // If portal not configured in Stripe Dashboard, return settings page
         if (error.message && error.message.includes('No configuration')) {
             return res.status(200).json({
                 success: true,
-                data: { portalUrl: returnUrl, warning: "Portail Stripe non configuré dans le Dashboard" }
+                data: { portalUrl: returnUrl, warning: "Portail Stripe non configuré dans le Dashboard Stripe" }
             });
         }
 
@@ -705,11 +741,20 @@ export const getSubscriptionUsage = async (req, res) => {
 
         const plan = subscription?.plan;
 
-        const maxClients = plan?.maxClients ?? 20;
+        const maxClients = plan?.maxClients ?? 100;
         const maxTechnicians = plan?.maxTechnicians ?? 1;
-        const maxSmsPerMonth = plan?.maxSmsPerMonth ?? 50;
+        const maxSmsPerMonth = plan?.maxSmsPerMonth ?? 100;
 
         const smsUsed = subscription?.smsUsedThisMonth || 0;
+
+        // Calculate allowed connected bank accounts based on plan and extra bank add-on
+        let maxBankAccounts = 0;
+        const planName = (plan?.name || "").toUpperCase();
+        if (planName === "PRO" || planName === "PREMIUM") {
+            maxBankAccounts = subscription?.stripeExtraBankSubscriptionItemId ? 2 : 1;
+        } else if (planName === "UNLIMITED") {
+            maxBankAccounts = subscription?.stripeExtraBankSubscriptionItemId ? 4 : 3;
+        }
 
         return res.status(200).json({
             success: true,
@@ -729,12 +774,16 @@ export const getSubscriptionUsage = async (req, res) => {
                         current: smsUsed,
                         max: maxSmsPerMonth,
                         isLimitReached: maxSmsPerMonth !== -1 && smsUsed >= maxSmsPerMonth
+                    },
+                    banks: {
+                        max: maxBankAccounts,
+                        hasExtraAddon: Boolean(subscription?.stripeExtraBankSubscriptionItemId)
                     }
                 }
             }
         });
     } catch (error) {
-        console.error("GET USAGE ERROR:", error.message);
+        console.error("[GET USAGE ERROR]:", error.message);
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors du calcul des limites d'utilisation"
@@ -742,7 +791,7 @@ export const getSubscriptionUsage = async (req, res) => {
     }
 };
 
-////// GET SUBSCRIPTION INVOICES (STRIPE PAYMENTS) //////
+////// GET SUBSCRIPTION INVOICES //////
 export const getSubscriptionInvoices = async (req, res) => {
     const companyId = req.user.companyId;
 
@@ -768,7 +817,7 @@ export const getSubscriptionInvoices = async (req, res) => {
             data: { invoices }
         });
     } catch (error) {
-        console.error("GET INVOICES ERROR:", error.message);
+        console.error("[GET INVOICES ERROR]:", error.message);
         return res.status(500).json({
             success: false,
             message: "Erreur serveur lors de la récupération de l'historique des factures"
@@ -806,12 +855,12 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
         const clientAddress = company.address ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ''} ${company.city || ''}` : ''}` : "";
         const clientSiret = company.siret || "";
         const clientEmail = req.user.email || company.email || "";
-        const planName = payment.subscription?.plan?.displayName || payment.subscription?.plan?.name || "Unlimited";
+        const planName = payment.subscription?.plan?.displayName || payment.subscription?.plan?.name || "Pro";
         const displayId = `REC-${payment.id.slice(-6).toUpperCase()}`;
 
-        const rawAmountTtc = Number(payment.amount || 1);
-        const rawAmountHt = rawAmountTtc / 1.2;
-        const rawTva = rawAmountTtc - rawAmountHt;
+        const rawAmountTtc = Number(payment.amount || 0);
+        const rawAmountHt = rawAmountTtc;
+        const rawTva = 0; // Art. 293 B CGI (Franchise en base de TVA)
 
         const paymentData = {
             type: "SUBSCRIPTION",
@@ -819,7 +868,7 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
             amountTTC: rawAmountTtc,
             amountHT: rawAmountHt,
             tvaAmount: rawTva,
-            tvaRate: 20,
+            tvaRate: 0,
             companyName: "KHALID SAINARO EI (GestArt)",
             companyAddress: "23 Rue Paganini, 06000 Nice, France",
             companySiret: "944 087 725 00015",
@@ -832,7 +881,7 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
             clientSiret,
             cardBrand: "CARTE BANCAIRE (STRIPE)",
             cardLast4: "",
-            transactionId: payment.stripePaymentIntentId || displayId,
+            transactionId: payment.stripePaymentIntentId || payment.stripeInvoiceId || displayId,
             paidAt: payment.paidAt || payment.createdAt
         };
 
@@ -876,7 +925,7 @@ export const getSubscriptionReceiptPdf = async (req, res) => {
         res.setHeader("Content-Disposition", `attachment; filename="Recu_Paiement_${displayId}.pdf"`);
         return res.send(pdfBuffer);
     } catch (error) {
-        console.error("GET SUBSCRIPTION RECEIPT PDF ERROR:", error);
+        console.error("[GET SUBSCRIPTION RECEIPT PDF ERROR]:", error);
         return res.status(500).json({ success: false, message: "Erreur lors de la génération du reçu PDF" });
     }
 };

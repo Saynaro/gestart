@@ -147,17 +147,128 @@ export const handleStripeWebhook = async (req, res) => {
                 // 3. SaaS Subscription Payment (Platform CRM)
                 const companyId = session.client_reference_id || session.metadata?.companyId;
                 const customerId = session.customer;
-                const subscriptionId = session.subscription;
+                const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
 
                 if (companyId && subscriptionId) {
-                    const updatedSub = await prisma.subscription.update({
-                        where: { companyId },
-                        data: {
-                            status: "ACTIVE",
-                            stripeCustomerId: customerId,
-                            stripeSubscriptionId: subscriptionId,
-                            currentPeriodStart: new Date(),
-                            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                    try {
+                        const planName = session.metadata?.planName || "PRO";
+                        const cycle = (session.metadata?.cycle || "MONTHLY").toUpperCase();
+
+                        const targetPlan = await prisma.plan.findFirst({
+                            where: {
+                                name: (planName === "PREMIUM" || planName === "PRO") ? { in: ["PRO", "PREMIUM"] } : planName
+                            }
+                        });
+
+                        // Retrieve real dates from Stripe subscription if available
+                        let periodStart = new Date();
+                        let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+                        if (stripe) {
+                            try {
+                                const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
+                                if (stripeSub.current_period_start) periodStart = new Date(stripeSub.current_period_start * 1000);
+                                if (stripeSub.current_period_end) periodEnd = new Date(stripeSub.current_period_end * 1000);
+                            } catch (e) {
+                                console.warn("[WEBHOOK] Impossible de récupérer les dates Stripe Sub:", e.message);
+                            }
+                        }
+
+                        const updatedSub = await prisma.subscription.upsert({
+                            where: { companyId },
+                            update: {
+                                status: "ACTIVE",
+                                cycle,
+                                ...(targetPlan ? { planId: targetPlan.id } : {}),
+                                stripeCustomerId: customerId,
+                                stripeSubscriptionId: subscriptionId,
+                                currentPeriodStart: periodStart,
+                                currentPeriodEnd: periodEnd,
+                                cancelledAt: null
+                            },
+                            create: {
+                                companyId,
+                                planId: targetPlan?.id || (await prisma.plan.findFirst({ where: { name: "STARTER" } }))?.id,
+                                status: "ACTIVE",
+                                cycle,
+                                stripeCustomerId: customerId,
+                                stripeSubscriptionId: subscriptionId,
+                                currentPeriodStart: periodStart,
+                                currentPeriodEnd: periodEnd
+                            },
+                            include: {
+                                plan: true,
+                                company: {
+                                    include: {
+                                        users: {
+                                            where: { role: "OWNER", isActive: true }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Record initial payment idempotently
+                        const invoiceId = session.invoice ? (typeof session.invoice === 'string' ? session.invoice : session.invoice?.id) : null;
+                        const paymentIntentId = session.payment_intent ? (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id) : null;
+
+                        if (invoiceId || paymentIntentId) {
+                            const existingPayment = await prisma.payment.findFirst({
+                                where: {
+                                    OR: [
+                                        ...(invoiceId ? [{ stripeInvoiceId: invoiceId }] : []),
+                                        ...(paymentIntentId ? [{ stripePaymentIntentId: paymentIntentId }] : [])
+                                    ]
+                                }
+                            });
+
+                            if (!existingPayment) {
+                                await prisma.payment.create({
+                                    data: {
+                                        subscriptionId: updatedSub.id,
+                                        amount: session.amount_total ? session.amount_total / 100 : (targetPlan?.priceMonthly || 34.9),
+                                        currency: (session.currency || "EUR").toUpperCase(),
+                                        status: "succeeded",
+                                        method: "CARD",
+                                        stripePaymentIntentId: paymentIntentId,
+                                        stripeInvoiceId: invoiceId,
+                                        paidAt: new Date()
+                                    }
+                                }).catch(err => console.warn("[WEBHOOK PAYMENT RECORD SKIP]:", err.message));
+                            }
+                        }
+
+                        const owner = updatedSub.company?.users?.[0];
+                        if (owner?.email) {
+                            sendSubscriptionActivatedEmail({
+                                to: owner.email,
+                                firstName: owner.firstName || "Cher client",
+                                planName: updatedSub.plan?.displayName || updatedSub.plan?.name || "Pro",
+                                amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : undefined,
+                                billingCycle: updatedSub.cycle === "ANNUAL" ? "annuel" : "mensuel",
+                                nextBillingDate: updatedSub.currentPeriodEnd
+                            }).catch(err => console.error("[WEBHOOK SUB ACTIVATED EMAIL ERROR]", err.message));
+                        }
+                    } catch (subErr) {
+                        console.error("[WEBHOOK CHECKOUT SESSION ERROR]:", subErr.message);
+                    }
+                }
+                break;
+            }
+
+            case "invoice.paid":
+            case "invoice.payment_succeeded": {
+                const invoice = dataObject;
+                const customerId = invoice.customer;
+                const subscriptionId = invoice.subscription;
+
+                if (customerId || subscriptionId) {
+                    const sub = await prisma.subscription.findFirst({
+                        where: {
+                            OR: [
+                                ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : []),
+                                ...(customerId ? [{ stripeCustomerId: customerId }] : [])
+                            ]
                         },
                         include: {
                             plan: true,
@@ -171,54 +282,47 @@ export const handleStripeWebhook = async (req, res) => {
                         }
                     });
 
-                    const owner = updatedSub.company?.users?.[0];
-                    if (owner?.email) {
-                        sendSubscriptionActivatedEmail({
-                            to: owner.email,
-                            firstName: owner.firstName || "Cher client",
-                            planName: updatedSub.plan?.displayName || updatedSub.plan?.name || "Pro",
-                            amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : undefined,
-                            billingCycle: updatedSub.cycle === "ANNUAL" ? "annuel" : "mensuel",
-                            nextBillingDate: updatedSub.currentPeriodEnd
-                        }).catch(err => console.error("[WEBHOOK SUB ACTIVATED EMAIL ERROR]", err.message));
-                    }
-                }
-                break;
-            }
-
-            case "invoice.payment_succeeded": {
-                const invoice = dataObject;
-                const customerId = invoice.customer;
-
-                if (customerId) {
-                    const sub = await prisma.subscription.findFirst({
-                        where: { stripeCustomerId: customerId },
-                        include: {
-                            plan: true,
-                            company: {
-                                include: {
-                                    users: {
-                                        where: { role: "OWNER", isActive: true }
-                                    }
-                                }
-                            }
-                        }
-                    });
-
                     if (sub) {
-                        const nextPeriodEnd = invoice.lines?.data?.[0]?.period?.end
-                            ? new Date(invoice.lines.data[0].period.end * 1000)
+                        const linePeriod = invoice.lines?.data?.[0]?.period;
+                        const nextPeriodStart = linePeriod?.start ? new Date(linePeriod.start * 1000) : sub.currentPeriodStart;
+                        const nextPeriodEnd = linePeriod?.end
+                            ? new Date(linePeriod.end * 1000)
                             : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
                         await prisma.subscription.update({
                             where: { id: sub.id },
                             data: {
                                 status: "ACTIVE",
-                                currentPeriodEnd: nextPeriodEnd
+                                currentPeriodStart: nextPeriodStart,
+                                currentPeriodEnd: nextPeriodEnd,
+                                cancelledAt: null
                             }
                         });
 
-                        // Only send renewal email on automatic recurring invoice cycles
+                        // Idempotent payment history creation
+                        if (invoice.id) {
+                            const existingPayment = await prisma.payment.findUnique({
+                                where: { stripeInvoiceId: invoice.id }
+                            });
+
+                            if (!existingPayment) {
+                                await prisma.payment.create({
+                                    data: {
+                                        subscriptionId: sub.id,
+                                        amount: invoice.amount_paid ? invoice.amount_paid / 100 : (sub.plan?.priceMonthly || 0),
+                                        currency: (invoice.currency || "EUR").toUpperCase(),
+                                        status: "succeeded",
+                                        method: "CARD",
+                                        stripePaymentIntentId: typeof invoice.payment_intent === 'string' ? invoice.payment_intent : invoice.payment_intent?.id,
+                                        stripeInvoiceId: invoice.id,
+                                        stripeInvoiceUrl: invoice.hosted_invoice_url || null,
+                                        paidAt: new Date()
+                                    }
+                                }).catch(err => console.warn("[WEBHOOK INVOICE PAYMENT RECORD SKIP]:", err.message));
+                            }
+                        }
+
+                        // Send renewal email on automatic recurring cycles
                         if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update") {
                             const owner = sub.company?.users?.[0];
                             if (owner?.email) {
@@ -239,10 +343,16 @@ export const handleStripeWebhook = async (req, res) => {
             case "invoice.payment_failed": {
                 const invoice = dataObject;
                 const customerId = invoice.customer;
+                const subscriptionId = invoice.subscription;
 
-                if (customerId) {
+                if (customerId || subscriptionId) {
                     const sub = await prisma.subscription.findFirst({
-                        where: { stripeCustomerId: customerId },
+                        where: {
+                            OR: [
+                                ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : []),
+                                ...(customerId ? [{ stripeCustomerId: customerId }] : [])
+                            ]
+                        },
                         include: {
                             plan: true,
                             company: {
@@ -275,6 +385,51 @@ export const handleStripeWebhook = async (req, res) => {
                 break;
             }
 
+            case "customer.subscription.updated": {
+                const subscription = dataObject;
+                const subscriptionId = subscription.id;
+                const customerId = subscription.customer;
+
+                const sub = await prisma.subscription.findFirst({
+                    where: {
+                        OR: [
+                            { stripeSubscriptionId: subscriptionId },
+                            { stripeCustomerId: customerId }
+                        ]
+                    },
+                    include: { plan: true }
+                });
+
+                if (sub) {
+                    const periodStart = subscription.current_period_start ? new Date(subscription.current_period_start * 1000) : sub.currentPeriodStart;
+                    const periodEnd = subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : sub.currentPeriodEnd;
+
+                    // Map Stripe status to Prisma PlanStatus
+                    let mappedStatus = sub.status;
+                    if (subscription.status === "active") mappedStatus = "ACTIVE";
+                    else if (subscription.status === "trialing") mappedStatus = "TRIALING";
+                    else if (subscription.status === "past_due") mappedStatus = "PAST_DUE";
+                    else if (subscription.status === "canceled") mappedStatus = "CANCELLED";
+
+                    // Detect extra bank subscription item
+                    const extraBankItem = subscription.items?.data?.find(
+                        item => item.price?.id === process.env.STRIPE_EXTRA_BANK_PRICE_ID
+                    );
+
+                    await prisma.subscription.update({
+                        where: { id: sub.id },
+                        data: {
+                            status: mappedStatus,
+                            currentPeriodStart: periodStart,
+                            currentPeriodEnd: periodEnd,
+                            cancelledAt: subscription.cancel_at_period_end ? (sub.cancelledAt || new Date()) : null,
+                            stripeExtraBankSubscriptionItemId: extraBankItem ? extraBankItem.id : null
+                        }
+                    });
+                }
+                break;
+            }
+
             case "customer.subscription.deleted": {
                 const subscription = dataObject;
                 const subscriptionId = subscription.id;
@@ -298,7 +453,7 @@ export const handleStripeWebhook = async (req, res) => {
                         where: { id: sub.id },
                         data: {
                             status: "CANCELLED",
-                            canceledAt: new Date()
+                            cancelledAt: new Date()
                         }
                     });
 

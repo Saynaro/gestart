@@ -19,6 +19,9 @@ export default function CguPage() {
             <p>
                 L'accès au service requiert la création d'un compte utilisateur protégé par un mot de passe sécurisé et, le cas échéant, un mécanisme d'authentification à deux facteurs (2FA).
             </p>
+            <p>
+                <strong>Capacité juridique & Majorité :</strong> L'accès au service est réservé aux personnes physiques majeures (âgées d'au moins 18 ans) disposant de la pleine capacité juridique de contracter, ou aux personnes morales valablement représentées. En cochant la case d'acceptation lors de l'inscription, l'utilisateur déclare et garantit sur l'honneur remplir ces conditions.
+            </p>
 
             <h2>Article 2 — Période d'Essai Gratuit & Souscription</h2>
             <ul>

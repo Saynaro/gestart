@@ -9,8 +9,8 @@ async function main() {
         {
             name: "STARTER",
             displayName: "Starter",
-            priceMonthly: 34,
-            priceAnnual: 27,
+            priceMonthly: 34.90,
+            priceAnnual: 27.00,
             maxClients: 100,
             maxTechnicians: 1,
             maxSmsPerMonth: 100,
@@ -27,8 +27,8 @@ async function main() {
         {
             name: "PRO",
             displayName: "Pro",
-            priceMonthly: 69,
-            priceAnnual: 55.20,
+            priceMonthly: 69.90,
+            priceAnnual: 55.00,
             maxClients: 500,
             maxTechnicians: 5,
             maxSmsPerMonth: 500,
@@ -45,8 +45,8 @@ async function main() {
         {
             name: "UNLIMITED",
             displayName: "Unlimited",
-            priceMonthly: 129,
-            priceAnnual: 103.20,
+            priceMonthly: 119.90,
+            priceAnnual: 95.92,
             maxClients: -1, // illimité
             maxTechnicians: -1, // illimité
             maxSmsPerMonth: 1500,

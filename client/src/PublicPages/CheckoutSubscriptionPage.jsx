@@ -39,8 +39,8 @@ export default function CheckoutSubscriptionPage() {
         STARTER: {
             name: "STARTER",
             displayName: "Starter",
-            priceMonthly: 34,
-            priceAnnual: 27,
+            priceMonthly: 34.90,
+            priceAnnual: 27.00,
             description: "Idéal pour débuter votre activité d'installation & maintenance",
             features: [
                 "1 utilisateur (le patron lui-même)",
@@ -49,36 +49,42 @@ export default function CheckoutSubscriptionPage() {
                 "Devis, Factures & Signature électronique",
                 "Facturation électronique & Chorus Pro",
                 "Planning & Suivi des chantiers",
-                "Rappels automatiques des entretiens"
+                "Rappels automatiques des entretiens",
+                "Rapprochement bancaire manuel"
             ]
         },
         PRO: {
             name: "PRO",
             displayName: "Pro",
             popular: true,
-            priceMonthly: 69,
-            priceAnnual: 55,
+            priceMonthly: 69.90,
+            priceAnnual: 55.00,
             description: "Pour les entreprises en croissance et équipes sur le terrain",
             features: [
                 "Toutes les fonctions Starter",
                 "Jusqu'à 5 techniciens inclus",
                 "Jusqu'à 500 clients",
                 "500 SMS / mois inclus",
+                "1 compte bancaire synchronisé inclus (DSP2)",
+                "Rapprochement bancaire automatique",
+                "Option 2e compte : +7 €/mois",
                 "Application mobile techniciens",
-                "Facturation électronique & Chorus Pro",
                 "Support prioritaire 7j/7"
             ]
         },
         UNLIMITED: {
             name: "UNLIMITED",
             displayName: "Unlimited",
-            priceMonthly: 129,
-            priceAnnual: 103,
+            priceMonthly: 119.90,
+            priceAnnual: 95.92,
             description: "Accès illimité sans aucune restriction pour grandes structures",
             features: [
                 "Toutes les fonctions Pro",
                 "Techniciens & Clients 100% Illimités",
                 "1 500 SMS / mois inclus",
+                "Jusqu'à 3 comptes bancaires synchronisés inclus",
+                "Rapprochement bancaire automatique",
+                "Option compte supp. : +7 €/mois",
                 "Facturation électronique intégrale",
                 "Gestion multi-activités & Export comptable",
                 "Support VIP prioritaire 7j/7"
@@ -344,7 +350,7 @@ export default function CheckoutSubscriptionPage() {
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                                         <span style={{ fontSize: "18px", fontWeight: 800 }}>{plan.displayName}</span>
                                         <div style={{ textAlign: "right" }}>
-                                            <span style={{ fontSize: "22px", fontWeight: 800 }}>{currentPrice} €</span>
+                                            <span style={{ fontSize: "22px", fontWeight: 800 }}>{Number(currentPrice).toFixed(2).replace(".", ",")} €</span>
                                             <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94A3B8)" }}> / mois</span>
                                         </div>
                                     </div>
@@ -513,7 +519,7 @@ export default function CheckoutSubscriptionPage() {
                             }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "6px" }}>
                                     <span>Formule {activePlanObj.displayName} ({billingCycle === "ANNUAL" ? "Annuel" : "Mensuel"})</span>
-                                    <span style={{ fontWeight: 700 }}>{totalPrice} €</span>
+                                    <span style={{ fontWeight: 700 }}>{Number(totalPrice).toFixed(2).replace(".", ",")} €</span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#22C55E" }}>
                                     <span>TVA (20%) incluse</span>
@@ -521,7 +527,7 @@ export default function CheckoutSubscriptionPage() {
                                 </div>
                                 <div style={{ borderTop: "1px dashed rgba(255,255,255,0.1)", marginTop: "10px", paddingTop: "10px", display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: "15px" }}>
                                     <span>Total à régler</span>
-                                    <span style={{ color: "var(--sidebar-primary, #5B4DDB)" }}>{totalPrice} €</span>
+                                    <span style={{ color: "var(--sidebar-primary, #5B4DDB)" }}>{Number(totalPrice).toFixed(2).replace(".", ",")} €</span>
                                 </div>
                             </div>
 

@@ -8,26 +8,26 @@ const PLANS_INFO = {
     STARTER: { 
         name: "STARTER", 
         displayName: "Starter", 
-        priceMonthly: 1, 
-        priceAnnual: 1, 
+        priceMonthly: "34,90", 
+        priceAnnual: "27,00", 
         description: "1 utilisateur, 100 clients max, facturation & rappels auto", 
-        features: ["1 utilisateur (patron)", "100 clients max", "100 SMS / mois inclus", "Devis, Factures & Chorus Pro", "Rappels automatiques"] 
+        features: ["1 utilisateur (patron)", "100 clients max", "100 SMS / mois inclus", "Devis, Factures & Chorus Pro", "Rappels automatiques", "Rapprochement bancaire manuel"] 
     },
     PRO: { 
         name: "PRO", 
         displayName: "Pro", 
-        priceMonthly: 1, 
-        priceAnnual: 1, 
-        description: "5 techniciens, 500 clients, App mobile & support 7j/7", 
-        features: ["Jusqu'à 5 techniciens inclus", "500 clients max", "500 SMS / mois inclus", "Application mobile techniciens", "Facturation électronique & Chorus Pro", "Support prioritaire 7j/7"] 
+        priceMonthly: "69,90", 
+        priceAnnual: "55,00", 
+        description: "5 techniciens, 500 clients, 1 banque incluse & support 7j/7", 
+        features: ["Jusqu'à 5 techniciens inclus", "500 clients max", "500 SMS / mois inclus", "1 compte bancaire inclus (DSP2)", "Rapprochement bancaire auto", "Option 2e compte : +7 €/m", "Application mobile techniciens"] 
     },
     UNLIMITED: { 
         name: "UNLIMITED", 
         displayName: "Unlimited", 
-        priceMonthly: 1, 
-        priceAnnual: 1, 
-        description: "Clients & techniciens illimités, 1500 SMS & Support VIP", 
-        features: ["Clients & Techniciens illimités", "1 500 SMS / mois inclus", "Facturation électronique intégrale", "Multi-activités & Export comptable", "Support VIP prioritaire 7j/7"] 
+        priceMonthly: "119,90", 
+        priceAnnual: "95,92", 
+        description: "Clients & techniciens illimités, 3 banques incluses & Support VIP", 
+        features: ["Clients & Techniciens illimités", "1 500 SMS / mois inclus", "3 comptes bancaires inclus (DSP2)", "Rapprochement bancaire auto", "Facturation électronique intégrale", "Support VIP prioritaire 7j/7"] 
     }
 };
 

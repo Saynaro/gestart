@@ -61,20 +61,21 @@ const PLANS_LIST = [
     {
         id: 'STARTER',
         name: 'Starter',
-        price: '34€',
+        price: '34,90€',
         period: '/mois',
         subtitle: 'Artisan seul',
         features: [
             '1 patron / gérant',
             '100 clients max',
             '100 SMS/mois inclus',
-            'Devis & Facturation conformes'
+            'Devis & Facturation conformes',
+            'Rapprochement bancaire manuel'
         ]
     },
     {
         id: 'PRO',
         name: 'Pro',
-        price: '69€',
+        price: '69,90€',
         period: '/mois',
         popular: true,
         subtitle: 'Équipe (1 à 5 techs)',
@@ -82,19 +83,22 @@ const PLANS_LIST = [
             'Jusqu\'à 5 techniciens',
             '500 clients max',
             '500 SMS/mois inclus',
-            'Planning & App Mobile Tech'
+            '1 compte bancaire inclus (DSP2)',
+            'Rapprochement auto (+7€/m supp.)',
+            'App Mobile Techs'
         ]
     },
     {
         id: 'UNLIMITED',
         name: 'Unlimited',
-        price: '129€',
+        price: '119,90€',
         period: '/mois',
         subtitle: 'Croissance & Grands comptes',
         features: [
             'Techs & clients illimités',
             '1 500 SMS/mois inclus',
-            'Facturation B2B Chorus Pro',
+            '3 comptes bancaires inclus (DSP2)',
+            'Rapprochement bancaire auto',
             'Support VIP 7j/7'
         ]
     }

@@ -12939,6 +12939,7 @@ export namespace Prisma {
     cancelledAt: Date | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    stripeExtraBankSubscriptionItemId: string | null
     smsUsedThisMonth: number | null
     smsResetAt: Date | null
     createdAt: Date | null
@@ -12957,6 +12958,7 @@ export namespace Prisma {
     cancelledAt: Date | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    stripeExtraBankSubscriptionItemId: string | null
     smsUsedThisMonth: number | null
     smsResetAt: Date | null
     createdAt: Date | null
@@ -12975,6 +12977,7 @@ export namespace Prisma {
     cancelledAt: number
     stripeCustomerId: number
     stripeSubscriptionId: number
+    stripeExtraBankSubscriptionItemId: number
     smsUsedThisMonth: number
     smsResetAt: number
     createdAt: number
@@ -13003,6 +13006,7 @@ export namespace Prisma {
     cancelledAt?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    stripeExtraBankSubscriptionItemId?: true
     smsUsedThisMonth?: true
     smsResetAt?: true
     createdAt?: true
@@ -13021,6 +13025,7 @@ export namespace Prisma {
     cancelledAt?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    stripeExtraBankSubscriptionItemId?: true
     smsUsedThisMonth?: true
     smsResetAt?: true
     createdAt?: true
@@ -13039,6 +13044,7 @@ export namespace Prisma {
     cancelledAt?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    stripeExtraBankSubscriptionItemId?: true
     smsUsedThisMonth?: true
     smsResetAt?: true
     createdAt?: true
@@ -13144,6 +13150,7 @@ export namespace Prisma {
     cancelledAt: Date | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    stripeExtraBankSubscriptionItemId: string | null
     smsUsedThisMonth: number
     smsResetAt: Date | null
     createdAt: Date
@@ -13181,6 +13188,7 @@ export namespace Prisma {
     cancelledAt?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    stripeExtraBankSubscriptionItemId?: boolean
     smsUsedThisMonth?: boolean
     smsResetAt?: boolean
     createdAt?: boolean
@@ -13203,6 +13211,7 @@ export namespace Prisma {
     cancelledAt?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    stripeExtraBankSubscriptionItemId?: boolean
     smsUsedThisMonth?: boolean
     smsResetAt?: boolean
     createdAt?: boolean
@@ -13223,6 +13232,7 @@ export namespace Prisma {
     cancelledAt?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    stripeExtraBankSubscriptionItemId?: boolean
     smsUsedThisMonth?: boolean
     smsResetAt?: boolean
     createdAt?: boolean
@@ -13243,13 +13253,14 @@ export namespace Prisma {
     cancelledAt?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    stripeExtraBankSubscriptionItemId?: boolean
     smsUsedThisMonth?: boolean
     smsResetAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "cycle" | "trialEndsAt" | "currentPeriodStart" | "currentPeriodEnd" | "cancelledAt" | "stripeCustomerId" | "stripeSubscriptionId" | "smsUsedThisMonth" | "smsResetAt" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "cycle" | "trialEndsAt" | "currentPeriodStart" | "currentPeriodEnd" | "cancelledAt" | "stripeCustomerId" | "stripeSubscriptionId" | "stripeExtraBankSubscriptionItemId" | "smsUsedThisMonth" | "smsResetAt" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -13284,6 +13295,7 @@ export namespace Prisma {
       cancelledAt: Date | null
       stripeCustomerId: string | null
       stripeSubscriptionId: string | null
+      stripeExtraBankSubscriptionItemId: string | null
       smsUsedThisMonth: number
       smsResetAt: Date | null
       createdAt: Date
@@ -13725,6 +13737,7 @@ export namespace Prisma {
     readonly cancelledAt: FieldRef<"Subscription", 'DateTime'>
     readonly stripeCustomerId: FieldRef<"Subscription", 'String'>
     readonly stripeSubscriptionId: FieldRef<"Subscription", 'String'>
+    readonly stripeExtraBankSubscriptionItemId: FieldRef<"Subscription", 'String'>
     readonly smsUsedThisMonth: FieldRef<"Subscription", 'Int'>
     readonly smsResetAt: FieldRef<"Subscription", 'DateTime'>
     readonly createdAt: FieldRef<"Subscription", 'DateTime'>
@@ -14200,6 +14213,7 @@ export namespace Prisma {
     status: string | null
     method: $Enums.PaymentMethod | null
     stripePaymentIntentId: string | null
+    stripeInvoiceId: string | null
     stripeInvoiceUrl: string | null
     paidAt: Date | null
     createdAt: Date | null
@@ -14213,6 +14227,7 @@ export namespace Prisma {
     status: string | null
     method: $Enums.PaymentMethod | null
     stripePaymentIntentId: string | null
+    stripeInvoiceId: string | null
     stripeInvoiceUrl: string | null
     paidAt: Date | null
     createdAt: Date | null
@@ -14226,6 +14241,7 @@ export namespace Prisma {
     status: number
     method: number
     stripePaymentIntentId: number
+    stripeInvoiceId: number
     stripeInvoiceUrl: number
     paidAt: number
     createdAt: number
@@ -14249,6 +14265,7 @@ export namespace Prisma {
     status?: true
     method?: true
     stripePaymentIntentId?: true
+    stripeInvoiceId?: true
     stripeInvoiceUrl?: true
     paidAt?: true
     createdAt?: true
@@ -14262,6 +14279,7 @@ export namespace Prisma {
     status?: true
     method?: true
     stripePaymentIntentId?: true
+    stripeInvoiceId?: true
     stripeInvoiceUrl?: true
     paidAt?: true
     createdAt?: true
@@ -14275,6 +14293,7 @@ export namespace Prisma {
     status?: true
     method?: true
     stripePaymentIntentId?: true
+    stripeInvoiceId?: true
     stripeInvoiceUrl?: true
     paidAt?: true
     createdAt?: true
@@ -14375,6 +14394,7 @@ export namespace Prisma {
     status: string
     method: $Enums.PaymentMethod | null
     stripePaymentIntentId: string | null
+    stripeInvoiceId: string | null
     stripeInvoiceUrl: string | null
     paidAt: Date | null
     createdAt: Date
@@ -14407,6 +14427,7 @@ export namespace Prisma {
     status?: boolean
     method?: boolean
     stripePaymentIntentId?: boolean
+    stripeInvoiceId?: boolean
     stripeInvoiceUrl?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -14421,6 +14442,7 @@ export namespace Prisma {
     status?: boolean
     method?: boolean
     stripePaymentIntentId?: boolean
+    stripeInvoiceId?: boolean
     stripeInvoiceUrl?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -14435,6 +14457,7 @@ export namespace Prisma {
     status?: boolean
     method?: boolean
     stripePaymentIntentId?: boolean
+    stripeInvoiceId?: boolean
     stripeInvoiceUrl?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -14449,12 +14472,13 @@ export namespace Prisma {
     status?: boolean
     method?: boolean
     stripePaymentIntentId?: boolean
+    stripeInvoiceId?: boolean
     stripeInvoiceUrl?: boolean
     paidAt?: boolean
     createdAt?: boolean
   }
 
-  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subscriptionId" | "amount" | "currency" | "status" | "method" | "stripePaymentIntentId" | "stripeInvoiceUrl" | "paidAt" | "createdAt", ExtArgs["result"]["payment"]>
+  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subscriptionId" | "amount" | "currency" | "status" | "method" | "stripePaymentIntentId" | "stripeInvoiceId" | "stripeInvoiceUrl" | "paidAt" | "createdAt", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
   }
@@ -14478,6 +14502,7 @@ export namespace Prisma {
       status: string
       method: $Enums.PaymentMethod | null
       stripePaymentIntentId: string | null
+      stripeInvoiceId: string | null
       stripeInvoiceUrl: string | null
       paidAt: Date | null
       createdAt: Date
@@ -14912,6 +14937,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Payment", 'String'>
     readonly method: FieldRef<"Payment", 'PaymentMethod'>
     readonly stripePaymentIntentId: FieldRef<"Payment", 'String'>
+    readonly stripeInvoiceId: FieldRef<"Payment", 'String'>
     readonly stripeInvoiceUrl: FieldRef<"Payment", 'String'>
     readonly paidAt: FieldRef<"Payment", 'DateTime'>
     readonly createdAt: FieldRef<"Payment", 'DateTime'>
@@ -72924,6 +72950,7 @@ export namespace Prisma {
     cancelledAt: 'cancelledAt',
     stripeCustomerId: 'stripeCustomerId',
     stripeSubscriptionId: 'stripeSubscriptionId',
+    stripeExtraBankSubscriptionItemId: 'stripeExtraBankSubscriptionItemId',
     smsUsedThisMonth: 'smsUsedThisMonth',
     smsResetAt: 'smsResetAt',
     createdAt: 'createdAt',
@@ -72941,6 +72968,7 @@ export namespace Prisma {
     status: 'status',
     method: 'method',
     stripePaymentIntentId: 'stripePaymentIntentId',
+    stripeInvoiceId: 'stripeInvoiceId',
     stripeInvoiceUrl: 'stripeInvoiceUrl',
     paidAt: 'paidAt',
     createdAt: 'createdAt'
@@ -75151,6 +75179,7 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
+    stripeExtraBankSubscriptionItemId?: StringNullableFilter<"Subscription"> | string | null
     smsUsedThisMonth?: IntFilter<"Subscription"> | number
     smsResetAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
@@ -75172,6 +75201,7 @@ export namespace Prisma {
     cancelledAt?: SortOrderInput | SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
+    stripeExtraBankSubscriptionItemId?: SortOrderInput | SortOrder
     smsUsedThisMonth?: SortOrder
     smsResetAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -75196,6 +75226,7 @@ export namespace Prisma {
     currentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    stripeExtraBankSubscriptionItemId?: StringNullableFilter<"Subscription"> | string | null
     smsUsedThisMonth?: IntFilter<"Subscription"> | number
     smsResetAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
@@ -75217,6 +75248,7 @@ export namespace Prisma {
     cancelledAt?: SortOrderInput | SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
+    stripeExtraBankSubscriptionItemId?: SortOrderInput | SortOrder
     smsUsedThisMonth?: SortOrder
     smsResetAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -75243,6 +75275,7 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     stripeCustomerId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    stripeExtraBankSubscriptionItemId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     smsUsedThisMonth?: IntWithAggregatesFilter<"Subscription"> | number
     smsResetAt?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
@@ -75260,6 +75293,7 @@ export namespace Prisma {
     status?: StringFilter<"Payment"> | string
     method?: EnumPaymentMethodNullableFilter<"Payment"> | $Enums.PaymentMethod | null
     stripePaymentIntentId?: StringNullableFilter<"Payment"> | string | null
+    stripeInvoiceId?: StringNullableFilter<"Payment"> | string | null
     stripeInvoiceUrl?: StringNullableFilter<"Payment"> | string | null
     paidAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
@@ -75274,6 +75308,7 @@ export namespace Prisma {
     status?: SortOrder
     method?: SortOrderInput | SortOrder
     stripePaymentIntentId?: SortOrderInput | SortOrder
+    stripeInvoiceId?: SortOrderInput | SortOrder
     stripeInvoiceUrl?: SortOrderInput | SortOrder
     paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -75283,6 +75318,7 @@ export namespace Prisma {
   export type PaymentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     stripePaymentIntentId?: string
+    stripeInvoiceId?: string
     AND?: PaymentWhereInput | PaymentWhereInput[]
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
@@ -75295,7 +75331,7 @@ export namespace Prisma {
     paidAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     subscription?: XOR<SubscriptionScalarRelationFilter, SubscriptionWhereInput>
-  }, "id" | "stripePaymentIntentId">
+  }, "id" | "stripePaymentIntentId" | "stripeInvoiceId">
 
   export type PaymentOrderByWithAggregationInput = {
     id?: SortOrder
@@ -75305,6 +75341,7 @@ export namespace Prisma {
     status?: SortOrder
     method?: SortOrderInput | SortOrder
     stripePaymentIntentId?: SortOrderInput | SortOrder
+    stripeInvoiceId?: SortOrderInput | SortOrder
     stripeInvoiceUrl?: SortOrderInput | SortOrder
     paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -75326,6 +75363,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Payment"> | string
     method?: EnumPaymentMethodNullableWithAggregatesFilter<"Payment"> | $Enums.PaymentMethod | null
     stripePaymentIntentId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
+    stripeInvoiceId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     stripeInvoiceUrl?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     paidAt?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
@@ -81395,6 +81433,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -81416,6 +81455,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -81433,6 +81473,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81454,6 +81495,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81473,6 +81515,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -81489,6 +81532,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81507,6 +81551,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81520,6 +81565,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -81534,6 +81580,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -81546,6 +81593,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81560,6 +81608,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81573,6 +81622,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -81585,6 +81635,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81598,6 +81649,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88749,6 +88801,7 @@ export namespace Prisma {
     cancelledAt?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    stripeExtraBankSubscriptionItemId?: SortOrder
     smsUsedThisMonth?: SortOrder
     smsResetAt?: SortOrder
     createdAt?: SortOrder
@@ -88771,6 +88824,7 @@ export namespace Prisma {
     cancelledAt?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    stripeExtraBankSubscriptionItemId?: SortOrder
     smsUsedThisMonth?: SortOrder
     smsResetAt?: SortOrder
     createdAt?: SortOrder
@@ -88789,6 +88843,7 @@ export namespace Prisma {
     cancelledAt?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    stripeExtraBankSubscriptionItemId?: SortOrder
     smsUsedThisMonth?: SortOrder
     smsResetAt?: SortOrder
     createdAt?: SortOrder
@@ -88839,6 +88894,7 @@ export namespace Prisma {
     status?: SortOrder
     method?: SortOrder
     stripePaymentIntentId?: SortOrder
+    stripeInvoiceId?: SortOrder
     stripeInvoiceUrl?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -88856,6 +88912,7 @@ export namespace Prisma {
     status?: SortOrder
     method?: SortOrder
     stripePaymentIntentId?: SortOrder
+    stripeInvoiceId?: SortOrder
     stripeInvoiceUrl?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -88869,6 +88926,7 @@ export namespace Prisma {
     status?: SortOrder
     method?: SortOrder
     stripePaymentIntentId?: SortOrder
+    stripeInvoiceId?: SortOrder
     stripeInvoiceUrl?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -98606,6 +98664,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -98625,6 +98684,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -98673,6 +98733,7 @@ export namespace Prisma {
     cancelledAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
+    stripeExtraBankSubscriptionItemId?: StringNullableFilter<"Subscription"> | string | null
     smsUsedThisMonth?: IntFilter<"Subscription"> | number
     smsResetAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
@@ -99421,6 +99482,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -99440,6 +99502,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -100999,6 +101062,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -101018,6 +101082,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -102525,6 +102590,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -102537,6 +102603,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -102781,6 +102848,7 @@ export namespace Prisma {
     status?: StringFilter<"Payment"> | string
     method?: EnumPaymentMethodNullableFilter<"Payment"> | $Enums.PaymentMethod | null
     stripePaymentIntentId?: StringNullableFilter<"Payment"> | string | null
+    stripeInvoiceId?: StringNullableFilter<"Payment"> | string | null
     stripeInvoiceUrl?: StringNullableFilter<"Payment"> | string | null
     paidAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
@@ -102796,6 +102864,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -102816,6 +102885,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -102848,6 +102918,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -102868,6 +102939,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -121807,6 +121879,7 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    stripeExtraBankSubscriptionItemId?: string | null
     smsUsedThisMonth?: number
     smsResetAt?: Date | string | null
     createdAt?: Date | string
@@ -121823,6 +121896,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -121842,6 +121916,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -121860,6 +121935,7 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeExtraBankSubscriptionItemId?: NullableStringFieldUpdateOperationsInput | string | null
     smsUsedThisMonth?: IntFieldUpdateOperationsInput | number
     smsResetAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -124311,6 +124387,7 @@ export namespace Prisma {
     status: string
     method?: $Enums.PaymentMethod | null
     stripePaymentIntentId?: string | null
+    stripeInvoiceId?: string | null
     stripeInvoiceUrl?: string | null
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -124323,6 +124400,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -124335,6 +124413,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -124347,6 +124426,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     method?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     stripePaymentIntentId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeInvoiceUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

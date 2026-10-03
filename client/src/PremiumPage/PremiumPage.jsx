@@ -108,7 +108,7 @@ const renderRecommendationBadge = (level) => {
 
 function PremiumPage() {
     const navigate = useNavigate();
-    const { isStarter } = useSubscription();
+    const { isStarter, isExpired } = useSubscription();
     const { company, user } = useUser();
     const companyName = company?.name || user?.companyName || "Mon Entreprise";
     const companyInitials = companyName.split(" ").map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "EP";
@@ -712,8 +712,20 @@ function PremiumPage() {
                         </div>
                     </div>
 
-                    {/* Pro Upgrade Banner for Starter */}
-                    {isStarter && (
+                    {/* Pro Upgrade / Expired Banner */}
+                    {isExpired ? (
+                        <FeatureLockBanner
+                            title="Abonnement expiré — Auto Rappel suspendu"
+                            description="Vos cycles de relances et d'envois automatiques de messages sont suspendus. Renouvelez votre abonnement pour réactiver vos rappels."
+                            features={[
+                                "Reprise immédiate de tous vos cycles de rappels périodiques",
+                                "Envois automatisés par SMS, WhatsApp et Email",
+                                "Suivi en temps réel des réponses clients",
+                                "Historique complet et journaux d'exécution préservés"
+                            ]}
+                            targetPlan="PRO"
+                        />
+                    ) : isStarter ? (
                         <FeatureLockBanner
                             title="Auto Rappel & Relances Clients Automatiques (Offre Pro)"
                             description="Ne perdez plus aucun client. L'automatisation intelligente des rappels périodiques par SMS, WhatsApp et Email nécessite l'offre Pro ou Unlimited."
@@ -726,7 +738,7 @@ function PremiumPage() {
                             ]}
                             targetPlan="PRO"
                         />
-                    )}
+                    ) : null}
 
                     {/* Hero Workflow Card */}
                     <div className="auto-rappel-hero-card">

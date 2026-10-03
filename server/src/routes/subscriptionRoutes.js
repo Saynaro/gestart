@@ -3,10 +3,11 @@ import {
     getSubscription,
     createCheckoutSession,
     verifyCheckoutSession,
-    createPaymentIntent,
     upgradeSubscription,
     cancelSubscription,
     reactivateSubscription,
+    addExtraBankAddon,
+    removeExtraBankAddon,
     getPortalUrl,
     getSubscriptionUsage,
     getSubscriptionInvoices,
@@ -28,12 +29,15 @@ router.use(authMiddleware, requireOwner);
 router.post("/checkout", createCheckoutSession);
 router.post("/create-checkout-session", createCheckoutSession);
 router.post("/verify-session", verifyCheckoutSession);
-router.post("/payment-intent", createPaymentIntent);
 router.post("/upgrade", upgradeSubscription);
 
 // Annulation & Réactivation
 router.post("/cancel", cancelSubscription);
 router.post("/reactivate", reactivateSubscription);
+
+// Options & Add-ons (+7 €/mois extra bank)
+router.post("/extra-bank", addExtraBankAddon);
+router.delete("/extra-bank", removeExtraBankAddon);
 
 // Stripe Portal & Utilisation
 router.get("/portal", getPortalUrl);
@@ -42,3 +46,4 @@ router.get("/invoices", getSubscriptionInvoices);
 router.get("/receipts/:id/pdf", getSubscriptionReceiptPdf);
 
 export default router;
+

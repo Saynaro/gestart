@@ -203,9 +203,9 @@ export default function AboutTab({ activeTab, isMobileView, triggerToast }) {
                     flexDirection: 'column',
                     gap: '6px'
                 }}>
-                    <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800 }}>Article 1 — Objet du Service SaaS</h4>
+                    <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800 }}>Article 1 — Objet du Service SaaS & Capacité</h4>
                     <p style={{ margin: 0, color: 'var(--muted-foreground)', fontSize: '13px' }}>
-                        GestArt fournit aux artisans et entreprises du bâtiment une solution logicielle B2B SaaS accessible 24/7 permettant la gestion de clientèle, planification d'interventions, relances automatiques et facturation électronique conforme.
+                        GestArt fournit aux artisans et entreprises du bâtiment une solution logicielle B2B SaaS accessible 24/7 permettant la gestion de clientèle, planification d'interventions, relances automatiques et facturation électronique conforme. L'accès au service est réservé aux personnes physiques majeures (âgées d'au moins 18 ans) disposant de la pleine capacité juridique de contracter, ou aux personnes morales valablement représentées. En cochant la case d'acceptation lors de l'inscription, l'utilisateur déclare et garantit sur l'honneur remplir ces conditions.
                     </p>
                 </div>
 

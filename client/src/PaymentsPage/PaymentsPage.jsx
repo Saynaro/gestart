@@ -28,15 +28,19 @@ import {
     FileText,
     TrendingUp,
     ShieldCheck,
-    Loader2
+    Loader2,
+    Lock,
+    Crown
 } from "lucide-react";
 import { apiFetch } from "../utils/api";
 import { getAuthToken } from "../utils/auth";
 import { getApiUrl } from "../utils/config";
+import { useSubscription } from "../utils/useSubscription";
 import InvoicePdfView from "../FacturesPage/components/InvoicePdfView";
 
 export default function PaymentsPage() {
     const navigate = useNavigate();
+    const { isStarter, isExpired, loading: subLoading } = useSubscription();
 
     // Toast state
     const [toast, setToast] = useState(null);
@@ -75,6 +79,10 @@ export default function PaymentsPage() {
 
     // Open association modal
     const handleOpenAssociateModal = async (tx) => {
+        if (isExpired) {
+            showToast("Abonnement expiré. Veuillez renouveler votre offre pour associer des factures.", "error");
+            return;
+        }
         setAssociatingTx(tx);
         setInvoiceSearchQuery("");
         setLoadingOpenInvoices(true);
@@ -89,6 +97,10 @@ export default function PaymentsPage() {
     };
 
     const handleConfirmAssociate = async (invoiceId) => {
+        if (isExpired) {
+            showToast("Abonnement expiré. Veuillez renouveler votre offre.", "error");
+            return;
+        }
         if (!associatingTx || !invoiceId) return;
         const txId = associatingTx.id;
         setAssociatingTx(null);
@@ -194,6 +206,10 @@ export default function PaymentsPage() {
     };
 
     const handleRefresh = async () => {
+        if (isExpired) {
+            showToast("Abonnement expiré. Veuillez renouveler votre offre pour synchroniser votre compte bancaire.", "error");
+            return;
+        }
         setRefreshing(true);
         try {
             await apiFetch("/v1/banking/transactions/refresh", { method: "POST" });
@@ -205,6 +221,10 @@ export default function PaymentsPage() {
 
     // Confirmer le rapprochement bancaire
     const handleConfirmReconciliation = async (transactionId, invoiceId, customMsg = null) => {
+        if (isExpired) {
+            showToast("Abonnement expiré. Veuillez renouveler votre offre pour valider les lettrages.", "error");
+            return;
+        }
         setActionLoading(transactionId);
         try {
             const res = await apiFetch(`/v1/banking/reconcile/${transactionId}`, {
@@ -223,6 +243,10 @@ export default function PaymentsPage() {
 
     // Ignorer une transaction bancaire
     const handleIgnoreReconciliation = async (transactionId) => {
+        if (isExpired) {
+            showToast("Abonnement expiré. Veuillez renouveler votre offre.", "error");
+            return;
+        }
         setActionLoading(transactionId);
         try {
             await apiFetch(`/v1/banking/reconcile/${transactionId}`, {
@@ -320,6 +344,102 @@ export default function PaymentsPage() {
     const hasMore = visibleCount < filteredPayments.length;
     const handleLoadMore = () => setVisibleCount(prev => prev + pageSize);
 
+    if (!subLoading && isStarter) {
+        return (
+            <div className="home-page payments-page-wrapper">
+                <SideBar />
+                <div className="main-content">
+                    <Header title="Paiements" />
+                    <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 120px)', padding: '24px' }}>
+                        <div style={{
+                            maxWidth: '560px',
+                            width: '100%',
+                            textAlign: 'center',
+                            padding: '40px 32px',
+                            backgroundColor: 'var(--card)',
+                            borderRadius: '16px',
+                            border: '1px solid var(--border)',
+                            boxShadow: '0 8px 30px rgba(0,0,0,0.06)'
+                        }}>
+                            <div style={{
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '16px',
+                                backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                                color: '#556B2F',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 20px auto'
+                            }}>
+                                <Lock size={32} />
+                            </div>
+                            <span style={{
+                                display: 'inline-block',
+                                padding: '4px 12px',
+                                borderRadius: '20px',
+                                backgroundColor: 'rgba(85, 107, 47, 0.1)',
+                                color: '#556B2F',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                letterSpacing: '0.5px',
+                                textTransform: 'uppercase',
+                                marginBottom: '12px'
+                            }}>
+                                Fonctionnalité Pro & Unlimited
+                            </span>
+                            <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--foreground)', margin: '0 0 12px 0' }}>
+                                Paiements & Rapprochement Bancaire Automatique
+                            </h2>
+                            <p style={{ fontSize: '14px', color: 'var(--muted-foreground)', lineHeight: 1.6, margin: '0 0 28px 0' }}>
+                                Le suivi automatique des règlements en temps réel et le lettrage bancaire intelligent avec vos factures sont réservés aux offres <strong>Pro</strong> (69,90 €/mois) et <strong>Unlimited</strong> (119,90 €/mois).
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '340px', margin: '0 auto' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/settings?tab=abonnement')}
+                                    style={{
+                                        padding: '12px 24px',
+                                        backgroundColor: '#556B2F',
+                                        color: '#FFFFFF',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 14px rgba(85, 107, 47, 0.3)'
+                                    }}
+                                >
+                                    <Crown size={16} /> Passer au forfait Pro
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(-1)}
+                                    style={{
+                                        padding: '10px 20px',
+                                        backgroundColor: 'transparent',
+                                        color: 'var(--muted-foreground)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '10px',
+                                        fontSize: '13px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="home-page payments-page-wrapper">
             <SideBar />
@@ -354,24 +474,72 @@ export default function PaymentsPage() {
                         <div className="payments-header-actions">
                             <button
                                 type="button"
-                                onClick={() => navigate("/settings?tab=paiements")}
+                                onClick={() => navigate("/settings?tab=banques")}
                                 className="payments-settings-btn"
                             >
-                                <CreditCard size={15} style={{ color: "var(--primary)" }} />
-                                <span>Réglages des paiements</span>
+                                <Landmark size={15} style={{ color: "var(--primary)" }} />
+                                <span>Réglages bancaires</span>
                             </button>
 
                             <button
                                 type="button"
                                 onClick={handleRefresh}
-                                disabled={refreshing}
+                                disabled={refreshing || isExpired}
                                 className="payments-refresh-btn"
                                 aria-label="Actualiser"
+                                title={isExpired ? "Abonnement expiré" : "Actualiser"}
+                                style={isExpired ? { opacity: 0.5, cursor: "not-allowed" } : {}}
                             >
                                 <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
                             </button>
                         </div>
                     </div>
+
+                    {isExpired && (
+                        <div style={{
+                            backgroundColor: "rgba(239, 68, 68, 0.08)",
+                            border: "1px solid rgba(239, 68, 68, 0.25)",
+                            borderRadius: "12px",
+                            padding: isMobile ? "12px 14px" : "14px 18px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: "12px",
+                            marginBottom: "20px"
+                        }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <AlertCircle size={20} style={{ color: "#EF4444", flexShrink: 0 }} />
+                                <div>
+                                    <div style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--foreground)" }}>
+                                        Abonnement expiré — Mode consultation uniquement
+                                    </div>
+                                    <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>
+                                        La synchronisation bancaire automatique et les actions de rapprochement sont suspendues.
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/settings?tab=abonnement')}
+                                style={{
+                                    padding: "8px 16px",
+                                    backgroundColor: "#EF4444",
+                                    color: "#FFFFFF",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    fontSize: "12.5px",
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px"
+                                }}
+                            >
+                                <Crown size={14} /> Renouveler mon offre
+                            </button>
+                        </div>
+                    )}
 
                     {/* ─────────────────────────────────────────────────────────────
                         KPI CARDS

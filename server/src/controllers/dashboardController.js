@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { cacheService } from "../services/cacheService.js";
 
 ////// GET ALL-IN-ONE DASHBOARD DATA //////
 export const getDashboardData = async (req, res) => {
@@ -6,7 +7,19 @@ export const getDashboardData = async (req, res) => {
     const isTech = req.user.role === "TECHNICIAN";
     const techId = req.user.id;
 
+    const cacheKey = `cache:dashboard:${companyId}:${isTech ? techId : 'all'}`;
+
     try {
+        // Fast-path: return cached dashboard data if available in Redis (TTL: 3 minutes)
+        const cachedDashboard = await cacheService.get(cacheKey);
+        if (cachedDashboard) {
+            return res.status(200).json({
+                success: true,
+                cached: true,
+                data: cachedDashboard
+            });
+        }
+
         const now = new Date();
         const currentYear = now.getFullYear();
 
@@ -483,106 +496,111 @@ export const getDashboardData = async (req, res) => {
         const formattedPlanned = plannedInterventionsList.map(formatInterventionItem);
         const formattedCompleted = completedInterventionsList.map(formatInterventionItem);
 
+        const dashboardPayload = {
+            stats: {
+                totalClients,
+                interventionsThisMonth,
+                revenueThisMonth: revThisMonth,
+                revenueThisMonthHT: revThisMonthHT,
+                cotisationsThisMonth: cotisationsMonth,
+                resultatThisMonth: resultatMonth,
+                totalCotisationsRate,
+                fiscalProfile,
+                revenueThisYear: revenueThisYearAggregate._sum.amountTTC || 0,
+                revenueThisYearHT: revenueThisYearAggregate._sum.amountHT || 0,
+                pendingQuotes: sentQuotesList.length
+            },
+            fiscalProfile,
+            // Cartes de factures
+            factures: {
+                enRetardCount: overdueInvoicesList.length,
+                enRetardAmount,
+                enAttenteCount: pendingInvoicesList.length,
+                enAttenteAmount,
+                overdueInvoices: overdueInvoicesList.map(inv => ({
+                    id: inv.id,
+                    number: inv.number,
+                    totalTtc: inv.amountTTC,
+                    clientName: inv.client ? (inv.client.companyName || `${inv.client.firstName || ''} ${inv.client.lastName || ''}`.trim()) : 'Client',
+                    dueAt: inv.dueAt
+                })),
+                pendingInvoices: pendingInvoicesList.map(inv => ({
+                    id: inv.id,
+                    number: inv.number,
+                    totalTtc: inv.amountTTC,
+                    clientName: inv.client ? (inv.client.companyName || `${inv.client.firstName || ''} ${inv.client.lastName || ''}`.trim()) : 'Client',
+                    dueAt: inv.dueAt
+                }))
+            },
+            // Cartes de devis
+            devis: {
+                brouillonsCount: draftQuotesList.length,
+                brouillonsAmount,
+                envoyesCount: sentQuotesList.length,
+                envoyesAmount,
+                brouillonsQuotes: draftQuotesList.map(q => ({
+                    id: q.id,
+                    number: q.number,
+                    totalTtc: q.amountTTC,
+                    clientName: q.client ? (q.client.companyName || `${q.client.firstName || ''} ${q.client.lastName || ''}`.trim()) : 'Client'
+                })),
+                sentQuotes: sentQuotesList.map(q => ({
+                    id: q.id,
+                    number: q.number,
+                    totalTtc: q.amountTTC,
+                    clientName: q.client ? (q.client.companyName || `${q.client.firstName || ''} ${q.client.lastName || ''}`.trim()) : 'Client'
+                }))
+            },
+            // Interventions
+            interventions: {
+                plannedCount: formattedPlanned.length,
+                completedCount: formattedCompleted.length,
+                todayCount: todayInterventions.length,
+                completedThisMonth: interventionsCompletedCount,
+                totalCount: totalInterventionsCount,
+                plannedInterventions: formattedPlanned,
+                completedInterventions: formattedCompleted,
+                trackingColumns
+            },
+            // Plafonds (seuils légaux micro-entreprise CGI avec personnalisation)
+            plafonds: {
+                servicesCurrent: revenueThisYearAggregate._sum.amountHT || 0,
+                commercialCurrent: 0,
+                servicesMax: Number(docCustom?.plafonds?.servicesMax ?? 77700),
+                servicesTva: Number(docCustom?.plafonds?.servicesTva ?? 36800),
+                servicesTvaMax: Number(docCustom?.plafonds?.servicesTvaMax ?? 39100),
+                commercialMax: Number(docCustom?.plafonds?.commercialMax ?? 188700),
+                commercialTva: Number(docCustom?.plafonds?.commercialTva ?? 91900),
+                commercialTvaMax: Number(docCustom?.plafonds?.commercialTvaMax ?? 101000)
+            },
+            // Graphique et Statistiques
+            financialChart: monthlyChartData,
+            financialTransactions: (paidInvoicesThisYear || []).map(inv => ({
+                id: inv.id,
+                date: inv.paidAt || inv.createdAt,
+                status: inv.status,
+                amountTTC: Number(inv.amountTTC || 0),
+                amountHT: Number(inv.amountHT || 0),
+                source: (inv.status === "PAID" || inv.status === "paid") ? "factures_encaissees" : "factures_emises"
+            })),
+            cotisationsRate: cotisationsMultiplier,
+            topArticles,
+            topClients,
+            urgentClients: [],
+            todayInterventions,
+            upcomingInterventions,
+            plannedInterventions: formattedPlanned,
+            completedInterventions: formattedCompleted,
+            recentMessages
+        };
+
+        // Asynchronously cache in Redis for 180 seconds (3 mins)
+        cacheService.set(cacheKey, dashboardPayload, 180).catch(() => {});
+
         // Données formatées pour le frontend
         return res.status(200).json({
             success: true,
-            data: {
-                stats: {
-                    totalClients,
-                    interventionsThisMonth,
-                    revenueThisMonth: revThisMonth,
-                    revenueThisMonthHT: revThisMonthHT,
-                    cotisationsThisMonth: cotisationsMonth,
-                    resultatThisMonth: resultatMonth,
-                    totalCotisationsRate,
-                    fiscalProfile,
-                    revenueThisYear: revenueThisYearAggregate._sum.amountTTC || 0,
-                    revenueThisYearHT: revenueThisYearAggregate._sum.amountHT || 0,
-                    pendingQuotes: sentQuotesList.length
-                },
-                fiscalProfile,
-                // Cartes de factures
-                factures: {
-                    enRetardCount: overdueInvoicesList.length,
-                    enRetardAmount,
-                    enAttenteCount: pendingInvoicesList.length,
-                    enAttenteAmount,
-                    overdueInvoices: overdueInvoicesList.map(inv => ({
-                        id: inv.id,
-                        number: inv.number,
-                        totalTtc: inv.amountTTC,
-                        clientName: inv.client ? (inv.client.companyName || `${inv.client.firstName || ''} ${inv.client.lastName || ''}`.trim()) : 'Client',
-                        dueAt: inv.dueAt
-                    })),
-                    pendingInvoices: pendingInvoicesList.map(inv => ({
-                        id: inv.id,
-                        number: inv.number,
-                        totalTtc: inv.amountTTC,
-                        clientName: inv.client ? (inv.client.companyName || `${inv.client.firstName || ''} ${inv.client.lastName || ''}`.trim()) : 'Client',
-                        dueAt: inv.dueAt
-                    }))
-                },
-                // Cartes de devis
-                devis: {
-                    brouillonsCount: draftQuotesList.length,
-                    brouillonsAmount,
-                    envoyesCount: sentQuotesList.length,
-                    envoyesAmount,
-                    brouillonsQuotes: draftQuotesList.map(q => ({
-                        id: q.id,
-                        number: q.number,
-                        totalTtc: q.amountTTC,
-                        clientName: q.client ? (q.client.companyName || `${q.client.firstName || ''} ${q.client.lastName || ''}`.trim()) : 'Client'
-                    })),
-                    sentQuotes: sentQuotesList.map(q => ({
-                        id: q.id,
-                        number: q.number,
-                        totalTtc: q.amountTTC,
-                        clientName: q.client ? (q.client.companyName || `${q.client.firstName || ''} ${q.client.lastName || ''}`.trim()) : 'Client'
-                    }))
-                },
-                // Interventions
-                interventions: {
-                    plannedCount: formattedPlanned.length,
-                    completedCount: formattedCompleted.length,
-                    todayCount: todayInterventions.length,
-                    completedThisMonth: interventionsCompletedCount,
-                    totalCount: totalInterventionsCount,
-                    plannedInterventions: formattedPlanned,
-                    completedInterventions: formattedCompleted,
-                    trackingColumns
-                },
-                // Plafonds (seuils légaux micro-entreprise CGI avec personnalisation)
-                plafonds: {
-                    servicesCurrent: revenueThisYearAggregate._sum.amountHT || 0,
-                    commercialCurrent: 0,
-                    servicesMax: Number(docCustom?.plafonds?.servicesMax ?? 77700),
-                    servicesTva: Number(docCustom?.plafonds?.servicesTva ?? 36800),
-                    servicesTvaMax: Number(docCustom?.plafonds?.servicesTvaMax ?? 39100),
-                    commercialMax: Number(docCustom?.plafonds?.commercialMax ?? 188700),
-                    commercialTva: Number(docCustom?.plafonds?.commercialTva ?? 91900),
-                    commercialTvaMax: Number(docCustom?.plafonds?.commercialTvaMax ?? 101000)
-                },
-                // Graphique et Statistiques
-                financialChart: monthlyChartData,
-                financialTransactions: (paidInvoicesThisYear || []).map(inv => ({
-                    id: inv.id,
-                    date: inv.paidAt || inv.createdAt,
-                    status: inv.status,
-                    amountTTC: Number(inv.amountTTC || 0),
-                    amountHT: Number(inv.amountHT || 0),
-                    source: (inv.status === "PAID" || inv.status === "paid") ? "factures_encaissees" : "factures_emises"
-                })),
-                cotisationsRate: cotisationsMultiplier,
-                topArticles,
-                topClients,
-                urgentClients: [],
-                todayInterventions,
-                upcomingInterventions,
-                plannedInterventions: formattedPlanned,
-                completedInterventions: formattedCompleted,
-                recentMessages
-            }
+            data: dashboardPayload
         });
     } catch (error) {
         console.error("GET DASHBOARD DATA ERROR:", error.message);

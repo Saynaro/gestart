@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { cacheService } from "../services/cacheService.js";
 
 const mapStringToItemUnit = (unitStr) => {
     if (!unitStr) return "UNITE";
@@ -30,6 +31,17 @@ const mapItemUnitToString = (unitEnum) => {
 export const getCatalogItems = async (req, res) => {
     try {
         const companyId = req.user.companyId;
+        const cacheKey = `cache:catalog:${companyId}`;
+
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return res.status(200).json({
+                success: true,
+                cached: true,
+                data: cached
+            });
+        }
+
         let items = await prisma.catalogItem.findMany({
             where: { companyId, isActive: true },
             orderBy: [{ isFavorite: 'desc' }, { usageCount: 'desc' }, { createdAt: 'desc' }]
@@ -105,6 +117,9 @@ export const getCatalogItems = async (req, res) => {
             unit: mapItemUnitToString(item.unit)
         }));
 
+        // Cache in Redis for 1 hour (3600s)
+        cacheService.set(cacheKey, formattedItems, 3600).catch(() => {});
+
         return res.status(200).json({
             success: true,
             data: formattedItems
@@ -157,6 +172,9 @@ export const createCatalogItem = async (req, res) => {
                     unit: itemUnit
                 }
             });
+
+            await cacheService.del(`cache:catalog:${companyId}`);
+
             return res.status(200).json({
                 success: true,
                 message: "Article mis à jour dans le catalogue",
@@ -179,6 +197,8 @@ export const createCatalogItem = async (req, res) => {
                 unit: itemUnit
             }
         });
+
+        await cacheService.del(`cache:catalog:${companyId}`);
 
         return res.status(201).json({
             success: true,
@@ -229,6 +249,8 @@ export const updateCatalogItem = async (req, res) => {
             }
         });
 
+        await cacheService.del(`cache:catalog:${companyId}`);
+
         return res.status(200).json({
             success: true,
             message: "Article mis à jour",
@@ -267,6 +289,8 @@ export const deleteCatalogItem = async (req, res) => {
             where: { id },
             data: { isActive: false }
         });
+
+        await cacheService.del(`cache:catalog:${companyId}`);
 
         return res.status(200).json({
             success: true,

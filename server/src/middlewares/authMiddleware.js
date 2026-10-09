@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "../config/db.js";
+import { cacheService } from "../services/cacheService.js";
 
 export const authMiddleware = async (req, res, next) => {
     let token = null;
@@ -30,20 +31,38 @@ export const authMiddleware = async (req, res, next) => {
             process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'secret'
         );
 
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.id },
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                avatarUrl: true,
-                phone: true,
-                isActive: true,
-                role: true,
-                companyId: true,
+        if (!decoded?.id) {
+            return res.status(401).json({
+                success: false,
+                message: "Accès non autorisé, token invalide"
+            });
+        }
+
+        // Cache user session lookup in Redis to avoid hitting PostgreSQL on every single API call
+        const cacheKey = `user:session:${decoded.id}`;
+        let user = await cacheService.get(cacheKey);
+
+        if (!user) {
+            user = await prisma.user.findUnique({
+                where: { id: decoded.id },
+                select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    avatarUrl: true,
+                    phone: true,
+                    isActive: true,
+                    role: true,
+                    companyId: true,
+                }
+            });
+
+            if (user && user.isActive) {
+                // Cache active user for 5 minutes (300 seconds)
+                await cacheService.set(cacheKey, user, 300);
             }
-        });
+        }
 
         if (!user || !user.isActive) {
             return res.status(401).json({

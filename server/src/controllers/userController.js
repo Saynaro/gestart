@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { cacheService } from "../services/cacheService.js";
 
 ////// GET ME //////
 export const getMe = async (req, res) => {
@@ -90,6 +91,9 @@ export const updateMe = async (req, res) => {
             }
         });
 
+        // Invalidate Redis user session cache so next request picks up updated details
+        await cacheService.del(`user:session:${userId}`);
+
         return res.status(200).json({
             success: true,
             message: "Profil mis à jour avec succès",
@@ -130,6 +134,8 @@ export const uploadAvatar = async (req, res) => {
             }
         });
 
+        await cacheService.del(`user:session:${userId}`);
+
         return res.status(200).json({
             success: true,
             message: "Avatar mis à jour avec succès",
@@ -153,6 +159,8 @@ export const deleteAvatar = async (req, res) => {
             where: { id: userId },
             data: { avatarUrl: null }
         });
+
+        await cacheService.del(`user:session:${userId}`);
 
         return res.status(200).json({
             success: true,

@@ -4,6 +4,7 @@ import { sendInvoiceClientEmail } from "../utils/emailService.js";
 import { generateInvoicePdfBuffer } from "../utils/pdfGenerator.js";
 import { emitToCompany } from "../config/socket.js";
 import { dispatchNotification } from "../services/notificationService.js";
+import { cacheService } from "../services/cacheService.js";
 
 // Helper notification centralisé
 const createNotification = async ({ companyId, userId, type, title, body, entityId, data }) => {
@@ -490,8 +491,9 @@ export const createInvoice = async (req, res) => {
             }
         }
 
-        // Émission temps réel WebSocket
+        // Émission temps réel WebSocket et invalidation du cache Redis Dashboard
         emitToCompany(companyId, "invoice:new", result);
+        cacheService.invalidateDashboard(companyId).catch(() => {});
 
         return res.status(201).json({
             success: true,
@@ -745,8 +747,9 @@ export const updateInvoice = async (req, res) => {
             }
         }
 
-        // Émission temps réel WebSocket
+        // Émission temps réel WebSocket et invalidation du cache Redis Dashboard
         emitToCompany(companyId, "invoice:updated", result);
+        cacheService.invalidateDashboard(companyId).catch(() => {});
 
         return res.status(200).json({
             success: true,
@@ -855,8 +858,9 @@ export const sendInvoice = async (req, res) => {
             }
         });
 
-        // Émission temps réel WebSocket
+        // Émission temps réel WebSocket et invalidation cache Redis Dashboard
         emitToCompany(companyId, "invoice:updated", updatedInvoice);
+        cacheService.invalidateDashboard(companyId).catch(() => {});
 
         return res.status(200).json({
             success: true,
@@ -971,8 +975,9 @@ export const markInvoicePaid = async (req, res) => {
             });
         }
 
-        // Émission temps réel WebSocket
+        // Émission temps réel WebSocket et invalidation cache Redis Dashboard
         emitToCompany(companyId, "invoice:updated", updatedInvoice);
+        cacheService.invalidateDashboard(companyId).catch(() => {});
 
         return res.status(200).json({
             success: true,
@@ -1115,8 +1120,9 @@ export const deleteInvoice = async (req, res) => {
         await prisma.invoiceLine.deleteMany({ where: { invoiceId: id } });
         await prisma.invoice.delete({ where: { id } });
 
-        // Émission temps réel WebSocket
+        // Émission temps réel WebSocket et invalidation du cache Redis Dashboard
         emitToCompany(companyId, "invoice:deleted", { id });
+        cacheService.invalidateDashboard(companyId).catch(() => {});
 
         return res.status(200).json({
             success: true,

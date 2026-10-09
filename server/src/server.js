@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import app from "./app.js";
 import { connectDB, disconnectDB } from "./config/db.js";
+import { connectRedis, disconnectRedis } from "./config/redis.js";
 import { initSocket } from "./config/socket.js";
 
 import { autoRappelScheduler } from "./services/reminders/AutoRappelScheduler.js";
@@ -17,6 +18,7 @@ initSocket(httpServer);
 const startServer = async () => {
     try {
         await connectDB();
+        await connectRedis();
 
         const server = httpServer.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on PORT: ${PORT} : http://localhost:${PORT}`);
@@ -63,12 +65,13 @@ const startServer = async () => {
 
             server.close(async () => {
                 try {
+                    await disconnectRedis();
                     await disconnectDB();
-                    console.log('DB disconnected.');
+                    console.log('DB and Redis disconnected.');
                     clearTimeout(forceExitTimeout);
                     process.exit(0);
                 } catch (err) {
-                    console.error('DB disconnect error:', err);
+                    console.error('Shutdown disconnect error:', err);
                     process.exit(1);
                 }
             });

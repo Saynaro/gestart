@@ -16,6 +16,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
 import { requireActive } from "../middlewares/requireActive.js";
+import { heavyOperationsLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.get("/summary", getInvoicesSummary);
 
 // Détail et PDF
 router.get("/:id", getInvoiceById);
-router.get("/:id/pdf", getInvoicePdf);
+router.get("/:id/pdf", heavyOperationsLimiter, getInvoicePdf);
 
 // Actions et modification factures
 router.post("/", requireActive, createInvoice);
@@ -36,7 +37,7 @@ router.patch("/:id", updateInvoice);
 router.put("/:id", updateInvoice);
 router.post("/:id/send", sendInvoice);
 router.post("/:id/mark-paid", markInvoicePaid);
-router.post("/:id/send-reminder", sendInvoiceReminder);
+router.post("/:id/send-reminder", heavyOperationsLimiter, sendInvoiceReminder);
 router.post("/:id/payment-link", createInvoicePaymentLink);
 
 // Suppression (Brouillon uniquement) réservée au Владелец (OWNER)

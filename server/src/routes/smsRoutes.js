@@ -12,6 +12,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
 import { checkLimits } from "../middlewares/checkLimits.js";
+import { smsLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
@@ -25,9 +26,9 @@ router.get("/unread-count", getUnreadSmsCount);
 router.get("/inbox", getSmsInbox);
 router.get("/inbox/:clientId", getClientSmsHistory);
 
-// Envoi SMS (avec vérification du quota du plan)
-router.post("/send", checkLimits("sms"), sendSms);
-router.post("/send-bulk", requireManager, checkLimits("sms"), sendBulkSms);
+// Envoi SMS (avec vérification du quota du plan et rate limiting Redis)
+router.post("/send", smsLimiter, checkLimits("sms"), sendSms);
+router.post("/send-bulk", requireManager, smsLimiter, checkLimits("sms"), sendBulkSms);
 
 // Lecture
 router.patch("/read/:clientId", markSmsAsRead);

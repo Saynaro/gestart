@@ -33,6 +33,7 @@ import reminderRoutes from "./routes/reminderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
 import referralRoutes from "./routes/referralRoutes.js";
+import { generalApiLimiter } from "./middlewares/rateLimiter.js";
 
 dotenv.config();
 
@@ -81,9 +82,13 @@ app.get("/health", (req, res) => {
 });
 
 // Webhook Routes (Supports /api/v1/webhooks, /api/webhooks, and /webhooks for Twilio / Stripe compatibility)
+// Webhooks are intentionally excluded from rate limiting to prevent dropping external payment/SMS events
 app.use("/api/v1/webhooks", webhookRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/webhooks", webhookRoutes);
+
+// Apply Global Redis Rate Limiter to all API V1 routes
+app.use("/api/v1", generalApiLimiter);
 
 // Routes API V1
 app.use("/api/v1/auth", authRoutes);

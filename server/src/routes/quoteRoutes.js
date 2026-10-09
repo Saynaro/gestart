@@ -14,6 +14,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireOwner, requireManager } from "../middlewares/checkRole.js";
 import { requireActive } from "../middlewares/requireActive.js";
+import { heavyOperationsLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.use(authMiddleware);
 // Lecture devis
 router.get("/", requireManager, getQuotes);
 router.get("/:id", getQuoteById);
-router.get("/:id/pdf", getQuotePdf);
+router.get("/:id/pdf", heavyOperationsLimiter, getQuotePdf);
 
 // Actions et création de devis
 router.post("/", requireManager, requireActive, createQuote);

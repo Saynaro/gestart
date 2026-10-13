@@ -54,6 +54,7 @@ const PaySuccessPage = lazy(() => import('./PublicPages/PaySuccessPage'))
 const MentionsLegalesPage = lazy(() => import('./LegalPages/MentionsLegalesPage'))
 const CguPage = lazy(() => import('./LegalPages/CguPage'))
 const ConfidentialitePage = lazy(() => import('./LegalPages/ConfidentialitePage'))
+const DpaPage = lazy(() => import('./LegalPages/DpaPage'))
 const CookiesPage = lazy(() => import('./LegalPages/CookiesPage'))
 
 // Route Guard for Private Pages (Requires valid Auth Token)
@@ -311,6 +312,8 @@ function App() {
             <Route path="/confidentialite" element={<ConfidentialitePage />} />
             <Route path="/rgpd" element={<ConfidentialitePage />} />
             <Route path="/privacy" element={<ConfidentialitePage />} />
+            <Route path="/dpa" element={<DpaPage />} />
+            <Route path="/accord-sous-traitance" element={<DpaPage />} />
             <Route path="/cookies" element={<CookiesPage />} />
 
             {/* Catch-all Fallback */}

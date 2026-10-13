@@ -40,7 +40,8 @@ import {
   Square,
   Image as ImageIcon,
   Lock,
-  ExternalLink
+  ExternalLink,
+  CornerDownLeft
 } from "lucide-react";
 import "../HomePage/Homepage.css";
 import "./MessagesPage.css";
@@ -55,6 +56,7 @@ import { getApiUrl, BACKEND_URL } from "../utils/config";
 import { getSocket } from "../utils/socket";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../components/ChannelIcons";
 import { useSubscription } from "../utils/useSubscription";
+import { useUser } from "../utils/useUser";
 import PlanLimitBanner from "../components/PlanLimitBanner";
 
 // Clean Email Content Component with Clean Quoted History (No raw > characters)
@@ -182,6 +184,9 @@ function MessagesPage() {
     smsRemaining,
     triggerUpgrade
   } = useSubscription();
+  const { company, user } = useUser();
+  const companyDisplayName = company?.name || "Votre entreprise";
+  const companyEmailAddress = company?.email || user?.email || "votre-email@entreprise.fr";
 
   const [smsUsage, setSmsUsage] = useState(null);
 
@@ -2620,9 +2625,9 @@ function MessagesPage() {
 
                   {/* Email */}
                   <div
-                    className={`channel-option-item ${selectedChannel === "EMAIL" ? "active" : ""} ${channelAvailability.EMAIL?.available === false ? "disabled" : ""}`}
+                    className={`channel-option-item ${selectedChannel === "EMAIL" ? "active" : ""} ${!clientObj.email ? "disabled" : ""}`}
                     onClick={() => {
-                      if (channelAvailability.EMAIL?.available !== false) {
+                      if (clientObj.email) {
                         setSelectedChannel("EMAIL");
                         setIsChannelDropdownOpen(false);
                       }
@@ -2635,7 +2640,7 @@ function MessagesPage() {
                       <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
                         <div style={{ fontWeight: 700, fontSize: "13.5px", color: "var(--foreground)" }}>Email Professionnel</div>
                         <div style={{ fontSize: "11px", color: "var(--muted-foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {channelAvailability.EMAIL?.available === false ? (channelAvailability.EMAIL?.reason || "Sans email") : (clientObj.email || "Email client")}
+                          {clientObj.email ? (isEmailNotConnected ? `${clientObj.email} (Relais GestArt)` : clientObj.email) : "Sans adresse email"}
                         </div>
                       </div>
                     </div>
@@ -2643,14 +2648,14 @@ function MessagesPage() {
                       <button
                         type="button"
                         className="channel-connect-btn"
-                        title="Connecter Google Gmail ou SMTP dans les paramètres"
+                        title="Connecter Google Gmail en 1 clic dans les paramètres"
                         onClick={(e) => {
                           e.stopPropagation();
                           setIsChannelDropdownOpen(false);
                           navigate("/settings?tab=communication");
                         }}
                       >
-                        <span>Connecter</span>
+                        <span>Connecter Google</span>
                         <ExternalLink size={11} />
                       </button>
                     ) : (
@@ -2674,8 +2679,38 @@ function MessagesPage() {
         {/* 1. EMAIL COMPOSER (Rich mode) */}
         {selectedChannel === "EMAIL" ? (
           <form className="email-composer-form" onSubmit={handleSendMessage}>
+            {/* Dynamic GestArt Relay Info Banner with Lucide Icons (No emojis) */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '6px 12px',
+              backgroundColor: 'rgba(59, 130, 246, 0.06)',
+              borderBottom: '1px solid rgba(59, 130, 246, 0.15)',
+              fontSize: '11.5px',
+              color: 'var(--muted-foreground)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Mail size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
+                <span>Expéditeur : <strong style={{ color: 'var(--foreground)' }}>{companyDisplayName} via GestArt</strong> (support.gestart@gmail.com)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <CornerDownLeft size={12} style={{ color: '#2563eb', flexShrink: 0 }} />
+                <span>Réponses redirigées vers : <strong style={{ color: 'var(--foreground)' }}>{companyEmailAddress}</strong></span>
+              </div>
+            </div>
+
             {isEmailMetaExpanded && (
               <div className="email-composer-meta">
+                <div className="email-meta-row">
+                  <span className="email-meta-label">De :</span>
+                  <span className="email-meta-recipient font-mono">{companyDisplayName} via GestArt &lt;support.gestart@gmail.com&gt;</span>
+                </div>
+                <div className="email-meta-row">
+                  <span className="email-meta-label">Réponses :</span>
+                  <span className="email-meta-recipient font-mono">{companyEmailAddress}</span>
+                </div>
                 <div className="email-meta-row">
                   <span className="email-meta-label">À :</span>
                   <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>

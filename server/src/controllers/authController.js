@@ -214,6 +214,31 @@ export const register = async (req, res) => {
                 },
             });
 
+            // Enregistrement de la preuve de consentement légal (CGV/CGU, DPA, Déclaration Pro)
+            try {
+                await tx.auditLog.create({
+                    data: {
+                        companyId: company.id,
+                        userId: user.id,
+                        action: "legal.terms_and_dpa_accepted",
+                        entityType: "UserConsent",
+                        entityId: user.id,
+                        ipAddress: req.ip || req.headers["x-forwarded-for"] || "127.0.0.1",
+                        newData: {
+                            termsAccepted: true,
+                            dpaAccepted: true,
+                            professionalCapacityConfirmed: true,
+                            marketingConsent: Boolean(req.body.acceptMarketing),
+                            termsVersion: "2026-09-15-v1.0",
+                            acceptedAt: new Date().toISOString(),
+                            userAgent: req.headers["user-agent"] || null
+                        }
+                    }
+                });
+            } catch (auditErr) {
+                console.warn("Notice: consent audit log error (non-fatal):", auditErr.message);
+            }
+
             // Traitement du code de parrainage
             const cleanRefCode = (referralCode || "").trim().toUpperCase();
             if (cleanRefCode) {

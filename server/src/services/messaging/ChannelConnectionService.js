@@ -116,7 +116,11 @@ export const ChannelConnectionService = {
             connectionId: defaultEmail?.id || null,
             emailAddress: defaultEmail?.emailAddress || company?.email || null,
             displayName: defaultEmail?.displayName || company?.name || null,
-            allConnections: emailConnections
+            allConnections: emailConnections,
+            relayActive: !defaultEmail && Boolean(process.env.SMTP_USER),
+            relayAddress: process.env.SMTP_USER || "support.gestart@gmail.com",
+            companyEmail: company?.email || null,
+            companyName: company?.name || null
         };
 
         return {

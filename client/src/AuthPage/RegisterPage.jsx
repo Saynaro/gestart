@@ -162,6 +162,9 @@ export default function RegisterPage() {
         planName: initialPlan,
         referralCode: initialRefCode || '',
         acceptTerms: isGoogleSignup ? true : false,
+        acceptProfessionalCapacity: isGoogleSignup ? true : false,
+        acceptDpa: isGoogleSignup ? true : false,
+        acceptMarketing: false,
         isGoogle: isGoogleSignup,
         googleToken: googleToken || '',
         avatarUrl: googleAvatarUrl || ''
@@ -315,8 +318,14 @@ export default function RegisterPage() {
             showToastNotification(msg, 'error');
             return;
         }
-        if (!formData.acceptTerms) {
-            const msg = 'Veuillez accepter les Conditions Générales et les Mentions Légales pour continuer';
+        if (!formData.acceptProfessionalCapacity) {
+            const msg = 'Veuillez certifier que vous souscrivez pour votre activité professionnelle';
+            setError(msg);
+            showToastNotification(msg, 'error');
+            return;
+        }
+        if (!formData.acceptTerms || !formData.acceptDpa) {
+            const msg = 'Veuillez accepter les Conditions Générales (CGU/CGV) et l\'Accord DPA pour continuer';
             setError(msg);
             showToastNotification(msg, 'error');
             return;
@@ -842,14 +851,32 @@ export default function RegisterPage() {
                                 </div>
                             )}
 
-                            <div className="terms-checkbox-group">
+                            <div className="terms-checkbox-group" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label className="terms-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        name="acceptProfessionalCapacity"
+                                        checked={formData.acceptProfessionalCapacity}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({ ...prev, acceptProfessionalCapacity: e.target.checked }));
+                                            setError('');
+                                        }}
+                                        required
+                                        className="terms-checkbox-input"
+                                    />
+                                    <span className="terms-checkbox-text">
+                                        Je souscris pour les besoins de mon activité professionnelle et confirme être habilité(e) à engager mon entreprise.
+                                    </span>
+                                </label>
+
                                 <label className="terms-checkbox-label">
                                     <input
                                         type="checkbox"
                                         name="acceptTerms"
-                                        checked={formData.acceptTerms}
+                                        checked={formData.acceptTerms && formData.acceptDpa}
                                         onChange={(e) => {
-                                            setFormData(prev => ({ ...prev, acceptTerms: e.target.checked }));
+                                            const checked = e.target.checked;
+                                            setFormData(prev => ({ ...prev, acceptTerms: checked, acceptDpa: checked }));
                                             setError('');
                                         }}
                                         required
@@ -864,18 +891,47 @@ export default function RegisterPage() {
                                             className="terms-link-btn"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            Conditions Générales d'Utilisation
+                                            Conditions d'abonnement (CGU / CGV)
                                         </a>{' '}
-                                        et les{' '}
+                                        et l'{' '}
                                         <a
-                                            href="/confidentialite"
+                                            href="/dpa"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="terms-link-btn"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            Politiques de Confidentialité
-                                        </a>
+                                            Accord de sous-traitance des données (DPA)
+                                        </a>.
+                                    </span>
+                                </label>
+
+                                <div style={{ fontSize: '0.80rem', color: '#64748B', paddingLeft: '28px', lineHeight: 1.4 }}>
+                                    Consultez notre{' '}
+                                    <a
+                                        href="/confidentialite"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="terms-link-btn"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        Politique de confidentialité
+                                    </a>{' '}
+                                    pour connaître l'utilisation de vos données personnelles et vos droits (RGPD).
+                                </div>
+
+                                <label className="terms-checkbox-label" style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '8px', marginTop: '2px' }}>
+                                    <input
+                                        type="checkbox"
+                                        name="acceptMarketing"
+                                        checked={formData.acceptMarketing}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({ ...prev, acceptMarketing: e.target.checked }));
+                                        }}
+                                        className="terms-checkbox-input"
+                                    />
+                                    <span className="terms-checkbox-text" style={{ fontSize: '0.82rem', color: '#64748B' }}>
+                                        (Facultatif) Je souhaite recevoir par e-mail les actualités, conseils techniques et offres de GestArt.
                                     </span>
                                 </label>
                             </div>
@@ -1279,6 +1335,25 @@ export default function RegisterPage() {
                                         )}
                                     </div>
                                 )}
+                            </div>
+
+                            <div style={{
+                                margin: '14px 0 10px 0',
+                                padding: '10px 12px',
+                                backgroundColor: '#F8FAFC',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '10px',
+                                fontSize: '0.82rem',
+                                color: '#475569',
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '8px',
+                                lineHeight: 1.45
+                            }}>
+                                <ShieldCheck size={18} style={{ color: '#0F172A', flexShrink: 0, marginTop: '2px' }} />
+                                <span>
+                                    En validant, je certifie sur l'honneur être le représentant légal ou dûment mandaté de cette entreprise pour créer ce compte professionnel et accepter le traitement des données.
+                                </span>
                             </div>
 
                             <div className="button-group">

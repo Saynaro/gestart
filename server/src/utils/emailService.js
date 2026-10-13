@@ -301,20 +301,20 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
         }
     }
 
-    if (!connection) {
-        const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos devis.");
-        error.code = "EMAIL_NOT_CONFIGURED";
-        throw error;
-    }
-
     const { transporter } = await emailProvider.getCompanyTransporter(companyId);
     if (!transporter) {
-        const error = new Error(`EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi depuis votre adresse email connectée (${connection.emailAddress}). Veuillez vérifier votre connexion dans les Paramètres.`);
+        const error = new Error("EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi d'email. Veuillez vérifier la configuration de messagerie.");
         error.code = "EMAIL_NOT_CONFIGURED";
         throw error;
     }
 
-    const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
+    const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
+    const companyEmail = company?.email || relayUser;
+    const fromAddress = connection?.emailAddress
+        ? (connection.displayName ? `"${connection.displayName}" <${connection.emailAddress}>` : `"${companyName}" <${connection.emailAddress}>`)
+        : `"${companyName} via GestArt" <${relayUser}>`;
+    const replyTo = connection?.emailAddress || companyEmail;
+
     const subjectPrefix = isReminder ? "[Rappel] " : "";
     const subject = `${subjectPrefix}Devis ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
@@ -400,10 +400,10 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
         text,
         html,
         attachments,
-        replyTo: connection.emailAddress
+        replyTo
     });
 
-    console.log(`[QUOTE EMAIL SENT] From: ${fromAddress} To: ${to} (MessageId: ${info.messageId})`);
+    console.log(`[QUOTE EMAIL SENT] From: ${fromAddress} To: ${to} (ReplyTo: ${replyTo}, MessageId: ${info.messageId})`);
 
     // Synchronisation automatique dans l'historique de messagerie omnicanale (SmsLog)
     if (quote.clientId) {
@@ -427,7 +427,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
                             total: quote.amountTTC || quote.totalTtc || 0
                         }
                     ],
-                    emailConnectionId: connection.id
+                    emailConnectionId: connection?.id || null
                 }
             });
             emitToCompany(companyId, "message:new", {
@@ -488,20 +488,20 @@ export const sendInvoiceClientEmail = async ({
         }
     }
 
-    if (!connection) {
-        const error = new Error("EMAIL_NOT_CONFIGURED: Aucune adresse email professionnelle n'est connectée pour votre entreprise. Veuillez connecter votre compte Google/Email dans les Paramètres pour envoyer vos factures.");
-        error.code = "EMAIL_NOT_CONFIGURED";
-        throw error;
-    }
-
     const { transporter } = await emailProvider.getCompanyTransporter(companyId);
     if (!transporter) {
-        const error = new Error(`EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi depuis votre adresse email connectée (${connection.emailAddress}). Veuillez vérifier votre connexion dans les Paramètres.`);
+        const error = new Error("EMAIL_NOT_CONFIGURED: Impossible d'initialiser l'envoi d'email. Veuillez vérifier la configuration de messagerie.");
         error.code = "EMAIL_NOT_CONFIGURED";
         throw error;
     }
 
-    const fromAddress = `"${companyName}" <${connection.emailAddress}>`;
+    const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
+    const companyEmail = company?.email || relayUser;
+    const fromAddress = connection?.emailAddress
+        ? (connection.displayName ? `"${connection.displayName}" <${connection.emailAddress}>` : `"${companyName}" <${connection.emailAddress}>`)
+        : `"${companyName} via GestArt" <${relayUser}>`;
+    const replyTo = connection?.emailAddress || companyEmail;
+
     const subjectPrefix = isReminder ? "[Rappel] " : "";
     const subject = `${subjectPrefix}Facture ${docNumber} (${totalTtc} € TTC) — ${companyName}`;
 
@@ -691,10 +691,10 @@ export const sendInvoiceClientEmail = async ({
         text,
         html,
         attachments,
-        replyTo: connection.emailAddress
+        replyTo
     });
 
-    console.log(`[INVOICE EMAIL SENT] From: ${fromAddress} To: ${to} (MessageId: ${info.messageId})`);
+    console.log(`[INVOICE EMAIL SENT] From: ${fromAddress} To: ${to} (ReplyTo: ${replyTo}, MessageId: ${info.messageId})`);
 
     // Synchronisation automatique dans l'historique de messagerie omnicanale (SmsLog)
     if (invoice.clientId) {
@@ -718,7 +718,7 @@ export const sendInvoiceClientEmail = async ({
                             total: invoice.amountTTC || 0
                         }
                     ],
-                    emailConnectionId: connection.id
+                    emailConnectionId: connection?.id || null
                 }
             });
             emitToCompany(companyId, "message:new", {

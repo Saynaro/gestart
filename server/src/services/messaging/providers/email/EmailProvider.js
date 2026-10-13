@@ -212,11 +212,25 @@ export class EmailProvider extends MessageProvider {
                 tls: { rejectUnauthorized: false }
             });
 
-            const fromAddress = process.env.EMAIL_FROM || `"GestArt CRM" <${user}>`;
-            return { transporter, fromAddress, connectionId: null };
+            let companyName = "Artisan";
+            let companyEmail = user;
+            if (companyId) {
+                try {
+                    const comp = await prisma.company.findUnique({
+                        where: { id: companyId },
+                        select: { name: true, email: true }
+                    });
+                    if (comp?.name) companyName = comp.name;
+                    if (comp?.email) companyEmail = comp.email;
+                } catch (e) {}
+            }
+
+            const fromAddress = `"${companyName} via GestArt" <${user}>`;
+            const replyTo = companyEmail;
+            return { transporter, fromAddress, replyTo, connectionId: null, isFallback: true };
         }
 
-        return { transporter: null, fromAddress: process.env.EMAIL_FROM || "contact@climpro.fr", connectionId: null };
+        return { transporter: null, fromAddress: process.env.EMAIL_FROM || "contact@gestart.fr", replyTo: null, connectionId: null };
     }
 
     /**
@@ -269,7 +283,7 @@ export class EmailProvider extends MessageProvider {
             where: { id: companyId }
         });
 
-        const { transporter, fromAddress, connectionId } = await this.getCompanyTransporter(companyId);
+        const { transporter, fromAddress, replyTo, connectionId } = await this.getCompanyTransporter(companyId);
 
         // 3. Préparation des identifiants RFC de threading
         const domain = fromAddress.includes("@") ? fromAddress.split("@")[1].replace(/[>]/g, "") : "climpro.fr";
@@ -431,7 +445,8 @@ ${bodyContent}
                     subject: subject.trim(),
                     text: body.trim(),
                     html: htmlBody,
-                    attachments: preparedAttachments
+                    attachments: preparedAttachments,
+                    replyTo: replyTo || company?.email || (fromAddress.includes("<") ? fromAddress.match(/<([^>]+)>/)?.[1] : fromAddress)
                 };
 
                 if (inReplyTo) mailOptions.inReplyTo = inReplyTo;

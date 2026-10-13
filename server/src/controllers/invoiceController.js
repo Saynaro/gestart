@@ -1191,3 +1191,114 @@ export const createInvoicePaymentLink = async (req, res) => {
     }
 };
 
+////// CREATE CREDIT NOTE (AVOIR) FOR AN ISSUED INVOICE (CGI ART. 289) //////
+export const createCreditNote = async (req, res) => {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const { reason, amount } = req.body;
+
+    try {
+        const originalInvoice = await prisma.invoice.findFirst({
+            where: { id, companyId },
+            include: { lines: true, client: true }
+        });
+
+        if (!originalInvoice) {
+            return res.status(404).json({
+                success: false,
+                message: "Facture d'origine introuvable"
+            });
+        }
+
+        if (originalInvoice.status === "DRAFT") {
+            return res.status(400).json({
+                success: false,
+                message: "Une facture en brouillon ne nécessite pas d'avoir. Vous pouvez directement la modifier ou la supprimer."
+            });
+        }
+
+        const result = await prisma.$transaction(async (tx) => {
+            const settings = await tx.companySettings.upsert({
+                where: { companyId },
+                update: {},
+                create: { companyId }
+            });
+
+            const currentYear = new Date().getFullYear();
+            const nextNumber = settings.invoiceNextNumber || 1;
+            const creditNoteNumber = `AV-${currentYear}-${String(nextNumber).padStart(3, "0")}`;
+
+            await tx.companySettings.update({
+                where: { companyId },
+                data: { invoiceNextNumber: nextNumber + 1 }
+            });
+
+            const creditHT = amount ? parseFloat(amount) : originalInvoice.amountHT;
+            const tvaRate = originalInvoice.tvaRate || 20;
+            const creditTVA = creditHT * (tvaRate / 100);
+            const creditTTC = creditHT + creditTVA;
+
+            const creditNote = await tx.invoice.create({
+                data: {
+                    companyId,
+                    clientId: originalInvoice.clientId,
+                    number: creditNoteNumber,
+                    status: "PAID",
+                    amountHT: -Math.abs(creditHT),
+                    tvaRate,
+                    amountTTC: -Math.abs(creditTTC),
+                    subject: `Avoir sur facture n°${originalInvoice.number}${reason ? ` (${reason})` : ''}`,
+                    notes: `Avoir légal annulant ou rectifiant la facture initiale n°${originalInvoice.number} émise le ${new Date(originalInvoice.createdAt).toLocaleDateString("fr-FR")}.`,
+                    conditions: "Conformément à l'article 289 du CGI, cet avoir vient en annulation ou déduction de la facture initiale.",
+                    dueAt: new Date(),
+                    lines: {
+                        create: originalInvoice.lines.map((line, idx) => ({
+                            description: `Annulation : ${line.description}`,
+                            quantity: line.quantity,
+                            unitPrice: -Math.abs(line.unitPrice),
+                            totalHT: -Math.abs(line.totalHT),
+                            tvaRate: line.tvaRate ?? tvaRate,
+                            sortOrder: idx
+                        }))
+                    }
+                },
+                include: { lines: true, client: true }
+            });
+
+            await tx.auditLog.create({
+                data: {
+                    companyId,
+                    userId: req.user.id,
+                    action: "invoice.credit_note_created",
+                    entityType: "Invoice",
+                    entityId: creditNote.id,
+                    newData: {
+                        creditNoteNumber,
+                        originalInvoiceId: originalInvoice.id,
+                        originalInvoiceNumber: originalInvoice.number,
+                        amountTTC: -Math.abs(creditTTC),
+                        reason: reason || "Annulation / Rectification"
+                    }
+                }
+            });
+
+            return creditNote;
+        });
+
+        emitToCompany(companyId, "invoice:created", result);
+        cacheService.invalidateDashboard(companyId).catch(() => {});
+
+        return res.status(201).json({
+            success: true,
+            message: `Avoir ${result.number} créé avec succès en référence à la facture ${originalInvoice.number}`,
+            data: { invoice: result }
+        });
+    } catch (error) {
+        console.error("CREATE CREDIT NOTE ERROR:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Erreur lors de la génération de l'avoir"
+        });
+    }
+};
+

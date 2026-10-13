@@ -274,12 +274,10 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
             });
         }
 
-        // Calcul dynamique et sécurisé du montant depuis la base de données
-        const { calculateStripeFee } = await import("../services/stripeFeeService.js");
-        const feeBearer = invoice.company?.settings?.stripeFeeBearer || "COMPANY";
-        const feeBreakdown = await calculateStripeFee(invoice.amountTTC, feeBearer);
-
-        const totalToCharge = feeBreakdown.totalAmount;
+        // Conformité article L.112-12 du Code monétaire et financier :
+        // Le bénéficiaire ne peut appliquer de frais pour l'utilisation d'un instrument de paiement (interdiction stricte du surcharging).
+        // Le montant facturé au client est strictement égal au montant TTC de la facture émise.
+        const totalToCharge = Number(invoice.amountTTC);
         const amountInCents = Math.round(totalToCharge * 100);
 
         if (amountInCents < 50) {
@@ -303,26 +301,11 @@ export const createPublicInvoiceCheckoutSession = async (req, res) => {
                             name: `Facture ${invoice.number} - ${invoice.company?.name || 'Prestation'}`,
                             description: invoice.subject || `Règlement facture ${invoice.number}`,
                         },
-                        unit_amount: Math.round(Number(invoice.amountTTC) * 100),
+                        unit_amount: amountInCents,
                     },
                     quantity: 1,
                 }
             ];
-
-            // Si les frais sont à la charge du client, on ajoute une ligne explicite pour les frais
-            if (feeBearer === "CLIENT" && feeBreakdown.feeAmount > 0) {
-                lineItems.push({
-                    price_data: {
-                        currency: "eur",
-                        product_data: {
-                            name: "Frais de traitement bancaire en ligne",
-                            description: "Frais de transaction sécurisée par carte",
-                        },
-                        unit_amount: Math.round(feeBreakdown.feeAmount * 100),
-                    },
-                    quantity: 1,
-                });
-            }
 
             const sessionParams = {
                 payment_method_types: ["card"],
@@ -513,7 +496,30 @@ export const signPublicQuote = async (req, res) => {
             });
         }
 
-        // Mise à jour automatique du statut à ACCEPTED + enregistrement de la signature
+        const { signatureData, signerName, requestImmediateExecution } = req.body; // Image base64 ou signature canvas
+
+        if (!signatureData) {
+            return res.status(400).json({
+                success: false,
+                message: "Veuillez apposer votre signature"
+            });
+        }
+
+        const clientCleanName = signerName?.trim() || (quote.client
+            ? `${quote.client.firstName || ''} ${quote.client.lastName || quote.client.companyName || ''}`.trim()
+            : 'Client');
+
+        const existingCustom = typeof quote.documentCustomization === 'object' && quote.documentCustomization ? quote.documentCustomization : {};
+        const signatureAudit = {
+            signerName: clientCleanName,
+            signedAt: now.toISOString(),
+            ipAddress: req.ip || req.headers["x-forwarded-for"] || "127.0.0.1",
+            userAgent: req.headers["user-agent"] || null,
+            immediateExecutionRequested: Boolean(requestImmediateExecution),
+            legalNotice: "Acceptation électronique avec mention 'Bon pour accord' conforme art. 1367 Code civil"
+        };
+
+        // Mise à jour automatique du statut à ACCEPTED + enregistrement de la signature et preuve légale
         const updatedQuote = await prisma.quote.update({
             where: { id: quote.id },
             data: {
@@ -521,7 +527,11 @@ export const signPublicQuote = async (req, res) => {
                 signedAt: now,
                 acceptedAt: now,
                 signatureUrl: signatureData,
-                signatureIp: req.ip || req.headers["x-forwarded-for"] || "127.0.0.1"
+                signatureIp: req.ip || req.headers["x-forwarded-for"] || "127.0.0.1",
+                documentCustomization: {
+                    ...existingCustom,
+                    signatureAudit
+                }
             }
         });
 

@@ -80,8 +80,9 @@ export default function LegalLayout({ title, subtitle, lastUpdated, children }) 
 
                     <nav className="legal-topbar-links">
                         <Link to="/mentions-legales" className={location.pathname === '/mentions-legales' ? 'active' : ''}>Mentions</Link>
-                        <Link to="/cgu" className={location.pathname === '/cgu' ? 'active' : ''}>CGU</Link>
+                        <Link to="/cgu" className={location.pathname === '/cgu' ? 'active' : ''}>CGU / CGV</Link>
                         <Link to="/confidentialite" className={location.pathname === '/confidentialite' ? 'active' : ''}>Confidentialité</Link>
+                        <Link to="/dpa" className={location.pathname === '/dpa' ? 'active' : ''}>DPA (RGPD)</Link>
                         <Link to="/cookies" className={location.pathname === '/cookies' ? 'active' : ''}>Cookies</Link>
                     </nav>
                 </div>

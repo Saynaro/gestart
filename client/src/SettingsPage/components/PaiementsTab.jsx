@@ -751,6 +751,24 @@ export default function PaiementsTab({ isMobileView, triggerToast }) {
                     <p style={{ color: "var(--muted-foreground)", fontSize: isMobileView ? "12px" : "13px", margin: isMobileView ? "4px 0 0 0" : "4px 0 0 0", lineHeight: 1.35 }}>
                         Choisissez qui prend en charge les frais de traitement bancaire par carte.
                     </p>
+                    <div style={{
+                        marginTop: "10px",
+                        padding: "10px 14px",
+                        backgroundColor: "rgba(245, 158, 11, 0.08)",
+                        border: "1px solid rgba(245, 158, 11, 0.25)",
+                        borderRadius: "10px",
+                        fontSize: isMobileView ? "11.5px" : "12.5px",
+                        color: "#B45309",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "8px",
+                        lineHeight: 1.4
+                    }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0, marginTop: "2px" }} />
+                        <span>
+                            <strong>Information légale (art. L. 112-12 du Code monétaire et financier) :</strong> La loi française interdit formellement d'imposer des frais supplémentaires aux particuliers et consommateurs pour le règlement par carte bancaire. Pour une conformité totale, l'option <em>« À la charge de l'entreprise »</em> est la règle légale recommandée.
+                        </span>
+                    </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: isMobileView ? "1fr" : "1fr 1fr", gap: isMobileView ? "10px" : "14px" }}>

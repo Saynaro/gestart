@@ -20,6 +20,9 @@ function SignatureQuote() {
     const [isPaying, setIsPaying] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [ibanCopied, setIbanCopied] = useState(false);
+    const [signerName, setSignerName] = useState("");
+    const [agreeDevisTerms, setAgreeDevisTerms] = useState(false);
+    const [requestImmediateExecution, setRequestImmediateExecution] = useState(false);
 
     useEffect(() => {
         if (!activeToken) return;
@@ -33,6 +36,10 @@ function SignatureQuote() {
                     setQuote(q);
                     if (q.status === "ACCEPTED" || q.signatureUrl) {
                         setSignatureSaved(true);
+                    }
+                    if (q.client) {
+                        const name = `${q.client.firstName || ''} ${q.client.lastName || q.client.companyName || ''}`.trim();
+                        if (name) setSignerName(name);
                     }
                 } else {
                     setError("Devis introuvable.");
@@ -161,6 +168,14 @@ function SignatureQuote() {
     };
 
     const handleAcceptQuote = async () => {
+        if (!signerName.trim()) {
+            alert("Veuillez renseigner votre nom et prénom en tant que signataire.");
+            return;
+        }
+        if (!agreeDevisTerms) {
+            alert("Veuillez cocher la case d'acceptation du devis et des conditions de l'entreprise.");
+            return;
+        }
         if (!hasSigned) {
             alert("Veuillez apposer votre signature dans le cadre prévu.");
             return;
@@ -173,7 +188,11 @@ function SignatureQuote() {
         try {
             await apiFetch(`/v1/public/sign/quote/${activeToken}/sign`, {
                 method: "POST",
-                body: JSON.stringify({ signatureData })
+                body: JSON.stringify({
+                    signatureData,
+                    signerName: signerName.trim(),
+                    requestImmediateExecution
+                })
             });
             setSignatureSaved(true);
             setQuote(prev => ({
@@ -971,14 +990,82 @@ function SignatureQuote() {
                                 />
                             </div>
 
+                            {/* Signer Identity and Terms Agreement Box */}
+                            <div style={{
+                                backgroundColor: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '12px',
+                                padding: '14px 16px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '12px'
+                            }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#0F172A', marginBottom: '6px' }}>
+                                        Nom & Prénom du signataire habilité *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={signerName}
+                                        onChange={(e) => setSignerName(e.target.value)}
+                                        placeholder="ex: Jean Dupont"
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px 12px',
+                                            border: '1px solid #CBD5E1',
+                                            borderRadius: '8px',
+                                            fontSize: '0.9rem',
+                                            color: '#0F172A',
+                                            backgroundColor: '#F8FAFC'
+                                        }}
+                                        required
+                                    />
+                                </div>
+
+                                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={agreeDevisTerms}
+                                        onChange={(e) => setAgreeDevisTerms(e.target.checked)}
+                                        style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#0F172A', cursor: 'pointer', flexShrink: 0 }}
+                                        required
+                                    />
+                                    <span style={{ fontSize: '0.86rem', color: '#1E293B', lineHeight: 1.45 }}>
+                                        <strong>Bon pour accord :</strong> J'accepte expressément le devis n°{quote?.number || ''} d'un montant total de {totalTtc} € TTC et les conditions d'exécution de l'entreprise <em>{company?.name || ''}</em>.
+                                    </span>
+                                </label>
+
+                                <div style={{
+                                    padding: '10px 12px',
+                                    backgroundColor: '#F1F5F9',
+                                    borderRadius: '8px',
+                                    fontSize: '0.78rem',
+                                    color: '#475569',
+                                    lineHeight: 1.45
+                                }}>
+                                    <strong>Information légale consommateurs (art. L. 221-18 C. conso) :</strong> En cas de contrat conclu à distance ou hors établissement, vous disposez d'un délai légal de rétractation de 14 jours.
+                                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '8px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={requestImmediateExecution}
+                                            onChange={(e) => setRequestImmediateExecution(e.target.checked)}
+                                            style={{ width: '15px', height: '15px', marginTop: '2px', accentColor: '#0F172A', cursor: 'pointer', flexShrink: 0 }}
+                                        />
+                                        <span>
+                                            Je demande expressément le commencement d'exécution des travaux/prestations avant l'expiration du délai de rétractation (art. L. 221-25 C. conso).
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <button
                                 type="button"
                                 className="portal-primary-pay-btn"
                                 onClick={handleAcceptQuote}
-                                disabled={!hasSigned || isSubmitting}
+                                disabled={!hasSigned || !agreeDevisTerms || !signerName.trim() || isSubmitting}
                             >
                                 <Check size={18} />
-                                <span>{isSubmitting ? "Enregistrement..." : "Bon pour accord — Signer le devis"}</span>
+                                <span>{isSubmitting ? "Enregistrement de la signature..." : "Bon pour accord — Signer le devis"}</span>
                             </button>
                         </div>
                     )}

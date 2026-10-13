@@ -10,7 +10,8 @@ import {
     sendInvoiceReminder,
     getInvoicePdf,
     deleteInvoice,
-    createInvoicePaymentLink
+    createInvoicePaymentLink,
+    createCreditNote
 } from "../controllers/invoiceController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -39,6 +40,7 @@ router.post("/:id/send", sendInvoice);
 router.post("/:id/mark-paid", markInvoicePaid);
 router.post("/:id/send-reminder", heavyOperationsLimiter, sendInvoiceReminder);
 router.post("/:id/payment-link", createInvoicePaymentLink);
+router.post("/:id/credit-note", requireActive, createCreditNote);
 
 // Suppression (Brouillon uniquement) réservée au Владелец (OWNER)
 router.delete("/:id", requireOwner, deleteInvoice);

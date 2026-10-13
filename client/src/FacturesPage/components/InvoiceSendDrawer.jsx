@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle, Info, RefreshCw, Loader2 } from "lucide-react";
+import { X, Upload, Send, ArrowLeft, Download, MessageCircle, MessageSquare, Mail, Copy, Check, CheckCircle2, CornerDownLeft, Sparkles, ShieldCheck, CreditCard, Building2, Eye, EyeOff, AlertTriangle, Info, RefreshCw, Loader2 } from "lucide-react";
 import { useUser } from "../../utils/useUser";
 import { apiFetch } from "../../utils/api";
 
@@ -309,80 +309,90 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                             </div>
                         ) : isEmailConnected ? (
                             <div style={{
-                                padding: '10px 14px',
-                                borderRadius: '8px',
-                                backgroundColor: 'rgba(85, 107, 47, 0.08)',
-                                border: '1px solid rgba(85, 107, 47, 0.25)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '8px'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Check size={16} style={{ color: '#556B2F', flexShrink: 0 }} />
-                                    <span style={{ fontSize: '12px', color: 'var(--foreground)' }}>
-                                        Expéditeur : <strong>{companyDisplayName}</strong> ({senderEmailAddress})
-                                    </span>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={fetchChannels}
-                                    title="Actualiser le statut"
-                                    style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '3px', display: 'flex', alignItems: 'center', color: 'var(--muted-foreground)' }}
-                                >
-                                    <RefreshCw size={13} />
-                                </button>
-                            </div>
-                        ) : (
-                            <div style={{
                                 padding: '12px 14px',
-                                borderRadius: '8px',
-                                backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                                border: '1px solid rgba(239, 68, 68, 0.25)',
+                                borderRadius: '10px',
+                                backgroundColor: 'rgba(34, 197, 94, 0.08)',
+                                border: '1px solid rgba(34, 197, 94, 0.25)',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: '6px'
+                                gap: '4px'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
-                                        <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#ef4444' }}>
-                                            Adresse email professionnelle non connectée
+                                        <CheckCircle2 size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
+                                        <span style={{ fontSize: '12.5px', color: 'var(--foreground)' }}>
+                                            Expéditeur : <strong>{companyDisplayName}</strong> ({senderEmailAddress})
                                         </span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={fetchChannels}
                                         title="Actualiser le statut"
-                                        style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '3px', display: 'flex', alignItems: 'center', color: '#ef4444' }}
+                                        style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '3px', display: 'flex', alignItems: 'center', color: '#16a34a' }}
                                     >
                                         <RefreshCw size={13} />
                                     </button>
                                 </div>
-                                <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0, lineHeight: 1.4 }}>
-                                    Connectez votre compte Google / Email dans les Paramètres pour envoyer vos factures depuis votre propre adresse.
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        onClose();
-                                        window.location.href = '/settings?tab=communication';
-                                    }}
-                                    style={{
-                                        alignSelf: 'flex-start',
-                                        marginTop: '4px',
-                                        backgroundColor: '#556B2F',
-                                        color: '#ffffff',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '6px 12px',
-                                        fontSize: '11.5px',
-                                        fontWeight: 700,
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    Connecter mon compte Google
-                                </button>
+                                <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, paddingLeft: '24px' }}>
+                                    Compte Google connecté
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{
+                                padding: '12px 14px',
+                                borderRadius: '10px',
+                                backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                                border: '1px solid rgba(59, 130, 246, 0.22)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '6px'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Mail size={16} style={{ color: '#2563eb', flexShrink: 0 }} />
+                                        <span style={{ fontSize: '12.5px', color: 'var(--foreground)' }}>
+                                            Expéditeur : <strong>{companyDisplayName} via GestArt</strong> <span style={{ color: 'var(--muted-foreground)', fontSize: '11.5px' }}>(support.gestart@gmail.com)</span>
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={fetchChannels}
+                                        title="Actualiser le statut"
+                                        style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '3px', display: 'flex', alignItems: 'center', color: '#2563eb' }}
+                                    >
+                                        <RefreshCw size={13} />
+                                    </button>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '24px' }}>
+                                    <CornerDownLeft size={14} style={{ color: '#2563eb', flexShrink: 0 }} />
+                                    <span style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                                        Réponses des clients : redirigées vers <strong style={{ color: 'var(--foreground)' }}>{company?.email || user?.email || "votre adresse email"}</strong>
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid rgba(59, 130, 246, 0.15)', paddingLeft: '24px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onClose();
+                                            window.location.href = '/settings?tab=communication';
+                                        }}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '5px',
+                                            background: 'none',
+                                            border: 'none',
+                                            padding: 0,
+                                            fontSize: '11.5px',
+                                            color: '#2563eb',
+                                            fontWeight: 600,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Sparkles size={12} />
+                                        <span>Connecter mon compte Google en 1 clic</span>
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -658,7 +668,18 @@ function InvoiceSendDrawer({ invoice, onClose, onSelfSend, onAutoSend, onDownloa
                                     flexDirection: 'column',
                                     gap: '3px'
                                 }}>
-                                    <div><strong style={{ color: '#CBD5E1' }}>De :</strong> {companyDisplayName} &lt;{senderEmailAddress}&gt;</div>
+                                    <div>
+                                        <strong style={{ color: '#CBD5E1' }}>De :</strong>{' '}
+                                        {isEmailConnected
+                                            ? `${companyDisplayName} <${senderEmailAddress}>`
+                                            : `${companyDisplayName} via GestArt <support.gestart@gmail.com>`
+                                        }
+                                    </div>
+                                    {!isEmailConnected && (
+                                        <div>
+                                            <strong style={{ color: '#CBD5E1' }}>Réponses redirigées vers :</strong> {company?.email || user?.email || 'votre adresse email'}
+                                        </div>
+                                    )}
                                     <div><strong style={{ color: '#CBD5E1' }}>À :</strong> {targetEmail || 'email.client@exemple.fr'}</div>
                                     <div><strong style={{ color: '#CBD5E1' }}>Objet :</strong> Facture {docNumber} ({totalTtc} € TTC) — {companyDisplayName}</div>
                                 </div>

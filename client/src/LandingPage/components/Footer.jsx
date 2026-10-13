@@ -44,6 +44,7 @@ function Footer() {
         { label: "Mentions légales", path: "/mentions-legales" },
         { label: "CGU / CGV", path: "/cgu" },
         { label: "Politique de confidentialité", path: "/confidentialite" },
+        { label: "Accord sous-traitance (DPA)", path: "/dpa" },
         { label: "Gestion des cookies", path: "/cookies" }
     ];
 

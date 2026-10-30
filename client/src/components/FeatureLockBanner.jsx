@@ -33,17 +33,19 @@ export default function FeatureLockBanner({
                     gap: '12px',
                     padding: '12px 18px',
                     borderRadius: '12px',
-                    background: 'linear-gradient(135deg, rgba(91,77,219,0.12) 0%, rgba(124,58,237,0.06) 100%)',
-                    border: '1px solid rgba(91,77,219,0.25)',
+                    backgroundColor: 'var(--card)',
+                    border: '1px solid var(--border)',
                     marginBottom: '16px'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{
                             width: '32px', height: '32px', borderRadius: '8px',
-                            background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)',
+                            backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                            border: '1px solid rgba(85, 107, 47, 0.25)',
+                            color: 'var(--sidebar-primary, #556B2F)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                         }}>
-                            <Lock size={16} color="#FFF" />
+                            <Lock size={15} />
                         </div>
                         <div>
                             <span style={{ fontWeight: 700, fontSize: '13px', display: 'block', color: 'var(--foreground)' }}>
@@ -60,19 +62,21 @@ export default function FeatureLockBanner({
                         onClick={() => setIsCheckoutOpen(true)}
                         style={{
                             padding: '8px 16px',
-                            background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)',
-                            color: '#FFF',
-                            border: 'none',
+                            backgroundColor: 'var(--sidebar-primary, #556B2F)',
+                            color: '#FFFFFF',
+                            border: '1px solid var(--sidebar-primary, #556B2F)',
                             borderRadius: '8px',
-                            fontWeight: 700,
+                            fontWeight: 600,
                             fontSize: '12.5px',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
                             gap: '6px',
-                            boxShadow: '0 4px 12px rgba(91,77,219,0.25)',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            transition: 'opacity 0.15s ease'
                         }}
+                        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.92'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
                     >
                         <Star size={14} fill="currentColor" /> Débloquer avec Pro
                     </button>
@@ -94,32 +98,46 @@ export default function FeatureLockBanner({
     return (
         <>
             <div style={{
-                background: 'linear-gradient(135deg, rgba(91,77,219,0.12) 0%, rgba(124,58,237,0.05) 100%)',
-                border: '1px solid rgba(91,77,219,0.3)',
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
                 borderRadius: '16px',
-                padding: '24px',
+                padding: '20px 24px',
                 marginBottom: '24px',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
                     <div style={{ flex: '1 1 340px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(91,77,219,0.15)', color: 'var(--sidebar-primary, #5B4DDB)', padding: '4px 10px', borderRadius: '50px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
-                            <Star size={13} fill="currentColor" /> Offre Pro Requise
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            backgroundColor: 'rgba(85, 107, 47, 0.12)',
+                            border: '1px solid rgba(85, 107, 47, 0.25)',
+                            color: 'var(--sidebar-primary, #556B2F)',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            marginBottom: '12px'
+                        }}>
+                            <Star size={12} fill="currentColor" /> Offre Pro Requise
                         </div>
 
-                        <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 800, color: 'var(--foreground)' }}>
+                        <h3 style={{ margin: '0 0 6px 0', fontSize: '1.15rem', fontWeight: 700, color: 'var(--foreground)' }}>
                             {title}
                         </h3>
 
-                        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted-foreground)', lineHeight: 1.5 }}>
+                        <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--muted-foreground)', lineHeight: 1.5, maxWidth: '720px' }}>
                             {description}
                         </p>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px 16px' }}>
                             {features.map((feat, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: 'var(--foreground)' }}>
-                                    <CheckCircle2 size={15} color="#22C55E" style={{ flexShrink: 0 }} />
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--foreground)' }}>
+                                    <CheckCircle2 size={15} color="var(--sidebar-primary, #556B2F)" style={{ flexShrink: 0 }} />
                                     <span>{feat}</span>
                                 </div>
                             ))}
@@ -129,56 +147,61 @@ export default function FeatureLockBanner({
                     <div style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '10px',
+                        gap: '8px',
                         alignItems: 'stretch',
-                        minWidth: '220px',
+                        minWidth: '230px',
                         flex: '0 0 auto',
-                        backgroundColor: 'var(--card, #1E293B)',
-                        padding: '16px',
+                        backgroundColor: 'var(--background)',
+                        padding: '16px 18px',
                         borderRadius: '12px',
-                        border: '1px solid var(--border, rgba(255,255,255,0.1))'
+                        border: '1px solid var(--border)'
                     }}>
                         <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600 }}>À PARTIR DE</div>
-                            <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--sidebar-primary, #5B4DDB)' }}>{priceText}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontWeight: 600, letterSpacing: '0.4px' }}>À PARTIR DE</div>
+                            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--foreground)', marginTop: '2px' }}>{priceText}</div>
                         </div>
 
                         <button
                             type="button"
                             onClick={() => setIsCheckoutOpen(true)}
                             style={{
-                                padding: '12px 18px',
-                                background: 'linear-gradient(135deg, #5B4DDB, #7C3AED)',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '10px',
-                                fontWeight: 800,
-                                fontSize: '13.5px',
+                                padding: '10px 18px',
+                                backgroundColor: 'var(--sidebar-primary, #556B2F)',
+                                color: '#FFFFFF',
+                                border: '1px solid var(--sidebar-primary, #556B2F)',
+                                borderRadius: '8px',
+                                fontWeight: 600,
+                                fontSize: '13px',
                                 cursor: 'pointer',
-                                display: 'flex',
+                                display: 'inline-flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 gap: '8px',
-                                boxShadow: '0 8px 18px rgba(91,77,219,0.35)'
+                                transition: 'opacity 0.15s ease'
                             }}
+                            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.92'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
                         >
-                            <Star size={16} fill="currentColor" /> Passer à l'offre Pro <ArrowRight size={15} />
+                            <Star size={14} fill="currentColor" /> Passer à l'offre Pro <ArrowRight size={14} />
                         </button>
 
                         <button
                             type="button"
                             onClick={() => navigate('/settings?tab=abonnement')}
                             style={{
-                                padding: '8px 12px',
-                                background: 'transparent',
-                                color: 'var(--muted-foreground)',
+                                padding: '9px 14px',
+                                backgroundColor: 'var(--card)',
+                                color: 'var(--foreground)',
                                 border: '1px solid var(--border)',
                                 borderRadius: '8px',
                                 fontWeight: 600,
-                                fontSize: '12px',
+                                fontSize: '12.5px',
                                 cursor: 'pointer',
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                transition: 'background-color 0.15s ease'
                             }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--muted)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--card)'; }}
                         >
                             Voir dans Abonnements →
                         </button>

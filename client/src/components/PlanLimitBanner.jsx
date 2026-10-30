@@ -186,7 +186,7 @@ export default function PlanLimitBanner({
                             width: '100%',
                             maxWidth: '320px',
                             height: '5px',
-                            backgroundColor: 'rgba(0,0,0,0.08)',
+                            backgroundColor: 'var(--muted)',
                             borderRadius: '10px',
                             marginTop: '10px',
                             overflow: 'hidden'

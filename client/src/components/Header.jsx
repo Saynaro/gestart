@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { Bell, MessageSquare, Send, X, ExternalLink, Trash2, Check, AlertTriangle, CheckCheck, ChevronDown, ChevronUp, FileText, Calendar, User, Wrench, ListChecks } from "lucide-react";
+import { Bell, MessageSquare, Send, X, ExternalLink, Trash2, Check, AlertTriangle, CheckCheck, ChevronDown, ChevronUp, FileText, Calendar, User, Wrench, ListChecks, Lock } from "lucide-react";
 import "./Header.css";
 import { profilePages, DropdownIcons } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
@@ -16,7 +16,7 @@ function Header({ title }) {
     const navigate = useNavigate();
     const { firstName, fullName, initials, avatarUrl, role } = useUser();
     const isTechnician = role === "TECHNICIAN";
-    const { displayName } = useSubscription();
+    const { displayName, isExpired } = useSubscription();
     const [menuOpen, setMenuOpen] = useState(false);
     const [bellOpen, setBellOpen] = useState(false);
     const [bellTab, setBellTab] = useState("notifications");
@@ -512,9 +512,14 @@ function Header({ title }) {
 
     const navigateTo = (e, path) => {
         e.preventDefault();
+        if (isExpired && (path === "/premium" || path.startsWith("/premium"))) {
+            window.dispatchEvent(new CustomEvent("subscription_expired", {
+                detail: { message: "Votre abonnement a expiré. Pour accéder aux fonctionnalités Premium, veuillez renouveler votre abonnement." }
+            }));
+            return;
+        }
         setActivePath(path);
-        window.history.pushState(null, "", path);
-        window.dispatchEvent(new Event("popstate"));
+        navigate(path);
     };
 
     const toggleMenu = (e) => {
@@ -559,6 +564,16 @@ function Header({ title }) {
         return "Home";
     };
 
+    const getTimeBasedGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return { text: "Bonjour", emoji: "👋" };
+        if (hour < 18) return { text: "Bon après-midi", emoji: "🌤" };
+        return { text: "Bonsoir", emoji: "🌙" };
+    };
+
+    const isHomePage = activePath.startsWith("/home") || activePath === "/dashboard" || activePath === "/";
+    const greetingInfo = getTimeBasedGreeting();
+
     const unreadNotificationsCount = notificationsList.filter(n => !n.isRead).length;
     const unreadMessagesCount = isTechnician ? 0 : Math.max(unreadMsgCount, smsList.filter(s => s.isUnread).length);
     const totalUnread = unreadMessagesCount + unreadNotificationsCount + pendingInvites.length;
@@ -567,7 +582,11 @@ function Header({ title }) {
     return (
         <div className="header">
             <div className="header-left">
-                <span className="greeting">{isMobile ? getPageTitle(activePath) : `Bonjour ${firstName} 👋`}</span>
+                {isMobile ? (
+                    <span className="greeting">{getPageTitle(activePath)}</span>
+                ) : !isHomePage ? (
+                    <span className="greeting">{`${greetingInfo.text} ${firstName} ${greetingInfo.emoji}`}</span>
+                ) : null}
             </div>
             <div className="header-right">
                 <div 
@@ -838,6 +857,12 @@ function Header({ title }) {
                                                                                             className="notif-action-btn"
                                                                                             onClick={() => {
                                                                                                 handleCloseNotifications();
+                                                                                                if (isExpired) {
+                                                                                                    window.dispatchEvent(new CustomEvent("subscription_expired", {
+                                                                                                        detail: { message: "Votre abonnement a expiré. Pour accéder aux fonctionnalités Premium, veuillez renouveler votre abonnement." }
+                                                                                                    }));
+                                                                                                    return;
+                                                                                                }
                                                                                                 navigate("/premium");
                                                                                             }}
                                                                                         >
@@ -1135,25 +1160,34 @@ function Header({ title }) {
                         <div className="header-user-dropdown" onClick={(e) => e.stopPropagation()}>
                             <div className="header-dropdown-user-header">
                                 <span className="header-dropdown-user-name">{fullName}</span>
-                                <span className="header-dropdown-user-plan">Offre {displayName}</span>
+                                <span className="header-dropdown-user-plan" style={isExpired ? { color: "#ef4444", fontWeight: 700 } : undefined}>
+                                    {isExpired ? "Abonnement expiré" : `Offre ${displayName}`}
+                                </span>
                             </div>
                             <div className="header-dropdown-divider"></div>
                             <ul className="header-dropdown-list">
                                 {profilePages.map((page, index) => {
                                     const isActive = activePath === page.path;
+                                    const showLock = isExpired && page.path === "/premium";
                                     return (
                                         <li key={index} className="header-dropdown-item">
                                             <a
                                                 href={page.path}
                                                 onClick={(e) => {
-                                                    navigateTo(e, page.path);
                                                     setMenuOpen(false);
+                                                    navigateTo(e, page.path);
                                                 }}
                                                 className={`header-dropdown-link ${isActive ? "active" : ""}`}
                                             >
                                                 {DropdownIcons[page.iconKey]}
                                                 <span className="header-dropdown-title">{page.title}</span>
-                                                {page.badge && <span className="header-dropdown-badge">{page.badge}</span>}
+                                                {showLock ? (
+                                                    <span className="header-dropdown-badge" style={{ display: "inline-flex", alignItems: "center", color: "#EF4444", backgroundColor: "rgba(239, 68, 68, 0.12)", padding: "3px 6px", borderRadius: "6px" }}>
+                                                        <Lock size={12} />
+                                                    </span>
+                                                ) : page.badge ? (
+                                                    <span className="header-dropdown-badge">{page.badge}</span>
+                                                ) : null}
                                             </a>
                                         </li>
                                     );

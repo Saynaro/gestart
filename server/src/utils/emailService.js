@@ -1,8 +1,14 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
-import { generateQuotePdfBuffer, generateInvoicePdfBuffer } from "./pdfGenerator.js";
+import { generateQuotePdfBuffer, generateInvoicePdfBuffer, generateReceiptPdfBuffer } from "./pdfGenerator.js";
 import { prisma } from "../config/db.js";
 import { emailProvider } from "../services/messaging/providers/email/EmailProvider.js";
 import { emitToCompany } from "../config/socket.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Direct Nodemailer Transporter Configuration
@@ -988,7 +994,100 @@ export const sendTrialExpiredEmail = async ({
 };
 
 /**
- * 3. Email : Confirmation d'activation d'abonnement (Bienvenue)
+ * Helper : Génère la pièce jointe PDF du reçu de paiement d'abonnement GestArt
+ */
+const buildSubscriptionReceiptAttachment = async ({
+    paymentId,
+    planName = "Pro",
+    amount = 0,
+    transactionId,
+    paidAt = new Date(),
+    clientName = "Client GestArt",
+    clientEmail = "",
+    clientPhone = "",
+    clientAddress = "",
+    clientSiret = ""
+}) => {
+    try {
+        const displayId = paymentId
+            ? `REC-${String(paymentId).slice(-6).toUpperCase()}`
+            : `REC-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+        const numericAmount = Number(String(amount).replace(",", ".")) || 0;
+
+        const paymentData = {
+            type: "SUBSCRIPTION",
+            docNumber: `${displayId} — Abonnement ${planName}`,
+            amountTTC: numericAmount,
+            amountHT: numericAmount,
+            tvaAmount: 0,
+            tvaRate: 0,
+            companyName: "KHALID SAINARO EI (GestArt)",
+            companyAddress: "23 Rue Paganini, 06000 Nice, France",
+            companySiret: "944 087 725 00015",
+            companyEmail: "support.gestart@gmail.com",
+            companyPhone: "06 51 60 43 16",
+            clientName,
+            clientEmail,
+            clientPhone,
+            clientAddress,
+            clientSiret,
+            cardBrand: "CARTE BANCAIRE (STRIPE)",
+            cardLast4: "",
+            transactionId: transactionId || displayId,
+            paidAt: paidAt || new Date()
+        };
+
+        let logoDataUri = null;
+        try {
+            const possiblePaths = [
+                path.join(__dirname, "../assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "src/assets/Logo-transparent.png"),
+                path.resolve(process.cwd(), "../client/public/Logo-transparent.png")
+            ];
+            for (const p of possiblePaths) {
+                if (fs.existsSync(p)) {
+                    const buf = fs.readFileSync(p);
+                    logoDataUri = `data:image/png;base64,${buf.toString("base64")}`;
+                    break;
+                }
+            }
+        } catch (_) {}
+
+        const pdfBuffer = await generateReceiptPdfBuffer({
+            paymentData,
+            company: {
+                name: "KHALID SAINARO EI (GestArt)",
+                address: "23 Rue Paganini",
+                postalCode: "06000",
+                city: "Nice",
+                siret: "944 087 725 00015",
+                phone: "06 51 60 43 16",
+                email: "support.gestart@gmail.com",
+                logoUrl: logoDataUri
+            },
+            customization: {
+                primaryColor: "#556B2F",
+                logoUrl: logoDataUri
+            }
+        });
+
+        return {
+            displayId,
+            attachment: {
+                filename: `Recu_Paiement_${displayId}.pdf`,
+                content: pdfBuffer,
+                contentType: "application/pdf"
+            }
+        };
+    } catch (err) {
+        console.warn("[SUBSCRIPTION RECEIPT PDF ATTACHMENT WARNING]:", err.message);
+        return { displayId: null, attachment: null };
+    }
+};
+
+/**
+ * 3. Email : Confirmation d'activation / renouvellement d'abonnement + Reçu PDF
  */
 export const sendSubscriptionActivatedEmail = async ({
     to,
@@ -996,19 +1095,51 @@ export const sendSubscriptionActivatedEmail = async ({
     planName = "Pro",
     amount,
     billingCycle = "mensuel",
-    nextBillingDate
+    nextBillingDate,
+    paymentId,
+    transactionId,
+    paidAt = new Date(),
+    company = {}
 }) => {
     try {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const dashboardUrl = `${frontendUrl}/`;
         const billingUrl = `${frontendUrl}/settings?tab=abonnement`;
-        const subject = `🎉 Bienvenue ! Votre abonnement GestArt ${planName} est activé`;
+        const subject = `Confirmation & Reçu de paiement — Abonnement GestArt ${planName}`;
 
         const nextDateFormatted = nextBillingDate ? new Date(nextBillingDate).toLocaleDateString("fr-FR", {
             day: "2-digit",
             month: "long",
             year: "numeric"
         }) : null;
+
+        const paidDateFormatted = new Date(paidAt || new Date()).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        });
+
+        const clientName = company?.name || firstName || to;
+        const clientAddress = company?.address
+            ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ""} ${company.city || ""}` : ""}`
+            : "";
+
+        const { displayId, attachment } = await buildSubscriptionReceiptAttachment({
+            paymentId,
+            planName,
+            amount,
+            transactionId,
+            paidAt,
+            clientName,
+            clientEmail: to,
+            clientPhone: company?.phone || "",
+            clientAddress,
+            clientSiret: company?.siret || ""
+        });
+
+        const formattedAmount = amount !== undefined && amount !== null
+            ? Number(String(amount).replace(",", ".")).toFixed(2).replace(".", ",")
+            : null;
 
         const html = `
             <!DOCTYPE html>
@@ -1032,7 +1163,7 @@ export const sendSubscriptionActivatedEmail = async ({
                     </table>
 
                     <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
-                        Votre abonnement est maintenant actif
+                        Votre abonnement GestArt ${planName} est actif
                     </h1>
 
                     <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
@@ -1040,23 +1171,44 @@ export const sendSubscriptionActivatedEmail = async ({
                     </p>
 
                     <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
-                        Nous vous confirmons l'activation de votre abonnement <strong>GestArt ${planName}</strong> (${billingCycle}).
-                        ${amount ? ` Montant : <strong>${amount} € HT</strong>.` : ''}
+                        Nous vous confirmons le règlement et l'activation de votre abonnement <strong>GestArt ${planName}</strong> (${billingCycle}). Vous trouverez votre reçu de paiement officiel en pièce jointe (PDF).
                     </p>
 
-                    ${nextDateFormatted ? `
-                    <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin: 0 0 24px 0;">
-                        Prochain renouvellement automatique : <strong>${nextDateFormatted}</strong>.
-                    </p>` : ''}
-
-                    <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 28px 0;">
-                        Toutes vos fonctionnalités professionnelles sont immédiatement disponibles dans votre espace de travail :
-                    </p>
+                    <!-- Receipt Summary Card -->
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px; margin: 0 0 24px 0;">
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #556B2F; margin-bottom: 12px;">
+                            Récapitulatif du règlement ${displayId ? `· ${displayId}` : ""}
+                        </div>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 14px; color: #334155;">
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Formule</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">GestArt ${planName} (${billingCycle})</td>
+                            </tr>
+                            ${formattedAmount ? `
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Montant réglé</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 700; color: #556B2F;">${formattedAmount} € HT</td>
+                            </tr>` : ""}
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Date de paiement</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">${paidDateFormatted}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Moyen de paiement</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">Carte bancaire (Stripe)</td>
+                            </tr>
+                            ${nextDateFormatted ? `
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Prochaine échéance</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">${nextDateFormatted}</td>
+                            </tr>` : ""}
+                        </table>
+                    </div>
 
                     <!-- Action Button -->
-                    <div style="margin: 28px 0 32px 0;">
-                        <a href="${dashboardUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
-                            Accéder à mon espace GestArt →
+                    <div style="margin: 24px 0 32px 0;">
+                        <a href="${billingUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                            Voir mon abonnement & mes reçus →
                         </a>
                     </div>
 
@@ -1070,9 +1222,15 @@ export const sendSubscriptionActivatedEmail = async ({
             </html>
         `;
 
-        const text = `Bonjour ${firstName},\n\nVotre abonnement GestArt ${planName} est activé avec succès !\nAccédez à votre espace : ${dashboardUrl}\n\nL'équipe GestArt`;
+        const text = `Bonjour ${firstName},\n\nVotre abonnement GestArt ${planName} est activé avec succès${formattedAmount ? ` (${formattedAmount} € HT)` : ''} !\nVotre reçu de paiement est joint à cet email.\nAccédez à votre espace : ${dashboardUrl}\n\nL'équipe GestArt`;
 
-        return await sendEmail({ to, subject, html, text });
+        return await sendEmail({
+            to,
+            subject,
+            html,
+            text,
+            attachments: attachment ? [attachment] : []
+        });
     } catch (err) {
         console.error("[SUBSCRIPTION ACTIVATED EMAIL ERROR]", err);
         return { success: false, error: err.message };
@@ -1080,25 +1238,58 @@ export const sendSubscriptionActivatedEmail = async ({
 };
 
 /**
- * 4. Email : Renouvellement automatique d'abonnement réussi
+ * 4. Email : Renouvellement d'abonnement réussi + Reçu PDF
  */
 export const sendSubscriptionRenewedEmail = async ({
     to,
     firstName = "Bonjour",
     planName = "Pro",
     amount,
-    nextBillingDate
+    billingCycle = "mensuel",
+    nextBillingDate,
+    paymentId,
+    transactionId,
+    paidAt = new Date(),
+    company = {}
 }) => {
     try {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const billingUrl = `${frontendUrl}/settings?tab=abonnement`;
-        const subject = `Confirmation de renouvellement de votre abonnement GestArt`;
+        const subject = `Confirmation de renouvellement & Reçu — GestArt ${planName}`;
 
         const nextDateFormatted = nextBillingDate ? new Date(nextBillingDate).toLocaleDateString("fr-FR", {
             day: "2-digit",
             month: "long",
             year: "numeric"
         }) : null;
+
+        const paidDateFormatted = new Date(paidAt || new Date()).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        });
+
+        const clientName = company?.name || firstName || to;
+        const clientAddress = company?.address
+            ? `${company.address}${company.postalCode || company.city ? `, ${company.postalCode || ""} ${company.city || ""}` : ""}`
+            : "";
+
+        const { displayId, attachment } = await buildSubscriptionReceiptAttachment({
+            paymentId,
+            planName,
+            amount,
+            transactionId,
+            paidAt,
+            clientName,
+            clientEmail: to,
+            clientPhone: company?.phone || "",
+            clientAddress,
+            clientSiret: company?.siret || ""
+        });
+
+        const formattedAmount = amount !== undefined && amount !== null
+            ? Number(String(amount).replace(",", ".")).toFixed(2).replace(".", ",")
+            : null;
 
         const html = `
             <!DOCTYPE html>
@@ -1122,7 +1313,7 @@ export const sendSubscriptionRenewedEmail = async ({
                     </table>
 
                     <h1 style="font-size: 19px; font-weight: 700; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.01em;">
-                        Renouvellement de votre abonnement
+                        Renouvellement de votre abonnement confirmé
                     </h1>
 
                     <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
@@ -1130,15 +1321,41 @@ export const sendSubscriptionRenewedEmail = async ({
                     </p>
 
                     <p style="font-size: 15px; color: #334155; line-height: 1.6; margin: 0 0 20px 0;">
-                        Le paiement pour le renouvellement de votre formule <strong>GestArt ${planName}</strong>${amount ? ` d'un montant de <strong>${amount} € HT</strong>` : ''} a bien été validé.
+                        Le paiement pour le renouvellement de votre formule <strong>GestArt ${planName}</strong>${formattedAmount ? ` d'un montant de <strong>${formattedAmount} € HT</strong>` : ''} a bien été validé. Votre reçu de paiement officiel est joint à cet email au format PDF.
                     </p>
 
-                    ${nextDateFormatted ? `
-                    <p style="font-size: 14px; color: #64748B; line-height: 1.5; margin: 0 0 24px 0;">
-                        Prochaine échéance : <strong>${nextDateFormatted}</strong>.
-                    </p>` : ''}
+                    <!-- Receipt Summary Card -->
+                    <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px; margin: 0 0 24px 0;">
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #556B2F; margin-bottom: 12px;">
+                            Reçu de paiement ${displayId ? `· ${displayId}` : ""}
+                        </div>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 14px; color: #334155;">
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Formule</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">GestArt ${planName} (${billingCycle})</td>
+                            </tr>
+                            ${formattedAmount ? `
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Montant réglé</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 700; color: #556B2F;">${formattedAmount} € HT</td>
+                            </tr>` : ""}
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Date de paiement</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">${paidDateFormatted}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Moyen de paiement</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">Carte bancaire (Stripe)</td>
+                            </tr>
+                            ${nextDateFormatted ? `
+                            <tr>
+                                <td style="padding: 5px 0; color: #64748B;">Prochaine échéance</td>
+                                <td style="padding: 5px 0; text-align: right; font-weight: 600; color: #0F172A;">${nextDateFormatted}</td>
+                            </tr>` : ""}
+                        </table>
+                    </div>
 
-                    <div style="margin: 28px 0 32px 0;">
+                    <div style="margin: 24px 0 32px 0;">
                         <a href="${billingUrl}" style="background-color: #556B2F; color: #FFFFFF !important; padding: 13px 28px; font-weight: 600; font-size: 14px; text-decoration: none; border-radius: 8px; display: inline-block;">
                             Gérer mon abonnement & factures →
                         </a>
@@ -1154,9 +1371,15 @@ export const sendSubscriptionRenewedEmail = async ({
             </html>
         `;
 
-        const text = `Bonjour ${firstName},\n\nLe paiement de votre abonnement GestArt ${planName} a été validé avec succès.\nRetrouvez vos factures dans votre espace : ${billingUrl}\n\nL'équipe GestArt`;
+        const text = `Bonjour ${firstName},\n\nLe paiement de votre abonnement GestArt ${planName} a été validé avec succès${formattedAmount ? ` (${formattedAmount} € HT)` : ''}.\nVotre reçu de paiement PDF est joint à cet email.\nRetrouvez vos factures dans votre espace : ${billingUrl}\n\nL'équipe GestArt`;
 
-        return await sendEmail({ to, subject, html, text });
+        return await sendEmail({
+            to,
+            subject,
+            html,
+            text,
+            attachments: attachment ? [attachment] : []
+        });
     } catch (err) {
         console.error("[SUBSCRIPTION RENEWED EMAIL ERROR]", err);
         return { success: false, error: err.message };

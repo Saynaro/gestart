@@ -6,6 +6,7 @@ import { stripe, getStripePriceId, STRIPE_PRICES } from "../config/stripe.js";
 import { generateReceiptPdfBuffer } from "../utils/pdfGenerator.js";
 import {
     sendSubscriptionActivatedEmail,
+    sendSubscriptionRenewedEmail,
     sendSubscriptionCancelledEmail
 } from "../utils/emailService.js";
 
@@ -301,7 +302,7 @@ export const verifyCheckoutSession = async (req, res) => {
                 stripeSubscriptionId: stripeSubId || null,
                 stripeCustomerId: stripeCustId || null
             },
-            include: { plan: true }
+            include: { plan: true, company: true }
         });
 
         // Record payment history idempotently if invoice or payment intent available
@@ -310,6 +311,9 @@ export const verifyCheckoutSession = async (req, res) => {
         const paymentIntentId = session.payment_intent
             ? (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent.id)
             : null;
+
+        let createdPayment = null;
+        let shouldSendEmail = true;
 
         if (paymentIntentId || invoiceId) {
             const existingPayment = await prisma.payment.findFirst({
@@ -321,9 +325,14 @@ export const verifyCheckoutSession = async (req, res) => {
                 }
             });
 
-            if (!existingPayment) {
-                const amountPaid = session.amount_total ? session.amount_total / 100 : targetPlan.priceMonthly;
-                await prisma.payment.create({
+            if (existingPayment) {
+                shouldSendEmail = false;
+            } else {
+                const amountPaid = session.amount_total !== undefined && session.amount_total !== null
+                    ? session.amount_total / 100
+                    : (cycle.toUpperCase() === "ANNUAL" ? targetPlan.priceAnnual : targetPlan.priceMonthly);
+
+                createdPayment = await prisma.payment.create({
                     data: {
                         subscriptionId: updatedSubscription.id,
                         amount: amountPaid,
@@ -335,8 +344,30 @@ export const verifyCheckoutSession = async (req, res) => {
                         stripeInvoiceUrl: stripeInvoice?.hosted_invoice_url || null,
                         paidAt: new Date()
                     }
-                }).catch(err => console.warn("[VERIFY_SESSION PAYMENT RECORD WARNING]:", err.message));
+                }).catch(err => {
+                    console.warn("[VERIFY_SESSION PAYMENT RECORD WARNING]:", err.message);
+                    return null;
+                });
             }
+        }
+
+        if (shouldSendEmail && req.user?.email) {
+            const amountPaid = session.amount_total !== undefined && session.amount_total !== null
+                ? (session.amount_total / 100).toFixed(2)
+                : Number(cycle.toUpperCase() === "ANNUAL" ? targetPlan.priceAnnual : targetPlan.priceMonthly).toFixed(2);
+
+            sendSubscriptionRenewedEmail({
+                to: req.user.email,
+                firstName: req.user.firstName || "Cher client",
+                planName: targetPlan.displayName || targetPlan.name || "Pro",
+                amount: amountPaid,
+                billingCycle: cycle.toUpperCase() === "ANNUAL" ? "annuel" : "mensuel",
+                nextBillingDate: periodEnd,
+                paymentId: createdPayment?.id,
+                transactionId: paymentIntentId || invoiceId,
+                paidAt: createdPayment?.paidAt || new Date(),
+                company: updatedSubscription.company || {}
+            }).catch(err => console.error("[VERIFY_SESSION EMAIL ERROR]:", err.message));
         }
 
         return res.status(200).json({
@@ -430,8 +461,23 @@ export const upgradeSubscription = async (req, res) => {
                         cancelledAt: null,
                         status: "ACTIVE"
                     },
-                    include: { plan: true }
+                    include: { plan: true, company: true }
                 });
+
+                if (req.user?.email) {
+                    const priceAmount = normalizedCycle === "ANNUAL" ? newPlan.priceAnnual : newPlan.priceMonthly;
+                    sendSubscriptionRenewedEmail({
+                        to: req.user.email,
+                        firstName: req.user.firstName || "Cher client",
+                        planName: newPlan.displayName || newPlan.name || "Pro",
+                        amount: Number(priceAmount || 0).toFixed(2),
+                        billingCycle: normalizedCycle === "ANNUAL" ? "annuel" : "mensuel",
+                        nextBillingDate: updatedSubscription.currentPeriodEnd,
+                        transactionId: updatedStripeSub.latest_invoice || updatedStripeSub.id,
+                        paidAt: new Date(),
+                        company: updatedSubscription.company || {}
+                    }).catch(err => console.error("[UPGRADE_SUB EMAIL ERR]:", err.message));
+                }
 
                 return res.status(200).json({
                     success: true,
@@ -527,8 +573,24 @@ export const reactivateSubscription = async (req, res) => {
                 status: "ACTIVE",
                 cancelledAt: null
             },
-            include: { plan: true }
+            include: { plan: true, company: true }
         });
+
+        if (req.user?.email) {
+            const planObj = updatedSubscription.plan;
+            const cycleStr = (updatedSubscription.cycle || "MONTHLY").toUpperCase();
+            const priceAmount = cycleStr === "ANNUAL" ? planObj?.priceAnnual : planObj?.priceMonthly;
+            sendSubscriptionRenewedEmail({
+                to: req.user.email,
+                firstName: req.user.firstName || "Cher client",
+                planName: planObj?.displayName || planObj?.name || "Pro",
+                amount: priceAmount !== undefined ? Number(priceAmount).toFixed(2) : undefined,
+                billingCycle: cycleStr === "ANNUAL" ? "annuel" : "mensuel",
+                nextBillingDate: updatedSubscription.currentPeriodEnd,
+                paidAt: new Date(),
+                company: updatedSubscription.company || {}
+            }).catch(err => console.error("[REACTIVATE_SUB EMAIL ERR]:", err.message));
+        }
 
         return res.status(200).json({
             success: true,

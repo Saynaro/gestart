@@ -211,6 +211,8 @@ export const handleStripeWebhook = async (req, res) => {
                         // Record initial payment idempotently
                         const invoiceId = session.invoice ? (typeof session.invoice === 'string' ? session.invoice : session.invoice?.id) : null;
                         const paymentIntentId = session.payment_intent ? (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id) : null;
+                        let createdPayment = null;
+                        let shouldSendEmail = true;
 
                         if (invoiceId || paymentIntentId) {
                             const existingPayment = await prisma.payment.findFirst({
@@ -222,11 +224,13 @@ export const handleStripeWebhook = async (req, res) => {
                                 }
                             });
 
-                            if (!existingPayment) {
-                                await prisma.payment.create({
+                            if (existingPayment) {
+                                shouldSendEmail = false;
+                            } else {
+                                createdPayment = await prisma.payment.create({
                                     data: {
                                         subscriptionId: updatedSub.id,
-                                        amount: session.amount_total ? session.amount_total / 100 : (targetPlan?.priceMonthly || 34.9),
+                                        amount: session.amount_total !== undefined && session.amount_total !== null ? session.amount_total / 100 : (targetPlan?.priceMonthly || 34.9),
                                         currency: (session.currency || "EUR").toUpperCase(),
                                         status: "succeeded",
                                         method: "CARD",
@@ -234,19 +238,26 @@ export const handleStripeWebhook = async (req, res) => {
                                         stripeInvoiceId: invoiceId,
                                         paidAt: new Date()
                                     }
-                                }).catch(err => console.warn("[WEBHOOK PAYMENT RECORD SKIP]:", err.message));
+                                }).catch(err => {
+                                    console.warn("[WEBHOOK PAYMENT RECORD SKIP]:", err.message);
+                                    return null;
+                                });
                             }
                         }
 
                         const owner = updatedSub.company?.users?.[0];
-                        if (owner?.email) {
+                        if (shouldSendEmail && owner?.email) {
                             sendSubscriptionActivatedEmail({
                                 to: owner.email,
                                 firstName: owner.firstName || "Cher client",
                                 planName: updatedSub.plan?.displayName || updatedSub.plan?.name || "Pro",
-                                amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : undefined,
+                                amount: session.amount_total !== undefined && session.amount_total !== null ? (session.amount_total / 100).toFixed(2) : undefined,
                                 billingCycle: updatedSub.cycle === "ANNUAL" ? "annuel" : "mensuel",
-                                nextBillingDate: updatedSub.currentPeriodEnd
+                                nextBillingDate: updatedSub.currentPeriodEnd,
+                                paymentId: createdPayment?.id,
+                                transactionId: paymentIntentId || invoiceId,
+                                paidAt: createdPayment?.paidAt || new Date(),
+                                company: updatedSub.company || {}
                             }).catch(err => console.error("[WEBHOOK SUB ACTIVATED EMAIL ERROR]", err.message));
                         }
                     } catch (subErr) {
@@ -300,16 +311,20 @@ export const handleStripeWebhook = async (req, res) => {
                         });
 
                         // Idempotent payment history creation
+                        let createdInvoicePayment = null;
+                        let isNewInvoicePayment = true;
                         if (invoice.id) {
                             const existingPayment = await prisma.payment.findUnique({
                                 where: { stripeInvoiceId: invoice.id }
                             });
 
-                            if (!existingPayment) {
-                                await prisma.payment.create({
+                            if (existingPayment) {
+                                isNewInvoicePayment = false;
+                            } else {
+                                createdInvoicePayment = await prisma.payment.create({
                                     data: {
                                         subscriptionId: sub.id,
-                                        amount: invoice.amount_paid ? invoice.amount_paid / 100 : (sub.plan?.priceMonthly || 0),
+                                        amount: invoice.amount_paid !== undefined && invoice.amount_paid !== null ? invoice.amount_paid / 100 : (sub.plan?.priceMonthly || 0),
                                         currency: (invoice.currency || "EUR").toUpperCase(),
                                         status: "succeeded",
                                         method: "CARD",
@@ -318,20 +333,28 @@ export const handleStripeWebhook = async (req, res) => {
                                         stripeInvoiceUrl: invoice.hosted_invoice_url || null,
                                         paidAt: new Date()
                                     }
-                                }).catch(err => console.warn("[WEBHOOK INVOICE PAYMENT RECORD SKIP]:", err.message));
+                                }).catch(err => {
+                                    console.warn("[WEBHOOK INVOICE PAYMENT RECORD SKIP]:", err.message);
+                                    return null;
+                                });
                             }
                         }
 
-                        // Send renewal email on automatic recurring cycles
-                        if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update") {
+                        // Send renewal email with receipt PDF on recurring cycles or manual renewal
+                        if (isNewInvoicePayment && (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update" || invoice.billing_reason === "subscription_create")) {
                             const owner = sub.company?.users?.[0];
                             if (owner?.email) {
                                 sendSubscriptionRenewedEmail({
                                     to: owner.email,
                                     firstName: owner.firstName || "Cher client",
                                     planName: sub.plan?.displayName || sub.plan?.name || "Pro",
-                                    amount: invoice.amount_paid ? (invoice.amount_paid / 100).toFixed(2) : undefined,
-                                    nextBillingDate: nextPeriodEnd
+                                    amount: invoice.amount_paid !== undefined && invoice.amount_paid !== null ? (invoice.amount_paid / 100).toFixed(2) : undefined,
+                                    billingCycle: sub.cycle === "ANNUAL" ? "annuel" : "mensuel",
+                                    nextBillingDate: nextPeriodEnd,
+                                    paymentId: createdInvoicePayment?.id,
+                                    transactionId: (typeof invoice.payment_intent === 'string' ? invoice.payment_intent : invoice.payment_intent?.id) || invoice.id,
+                                    paidAt: createdInvoicePayment?.paidAt || new Date(),
+                                    company: sub.company || {}
                                 }).catch(err => console.error("[WEBHOOK SUB RENEWED EMAIL ERROR]", err.message));
                             }
                         }

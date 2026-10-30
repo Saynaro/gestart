@@ -189,7 +189,7 @@ export default function ChiffreAffairesTab({ isMobileView, triggerToast }) {
                     <div style={{ fontSize: isMobileView ? '22px' : '24px', fontWeight: 800, color: 'var(--sidebar-primary)', marginTop: '2px' }}>
                         {thresholdServices.toLocaleString("fr-FR")} €
                     </div>
-                    <div style={{ height: '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
+                    <div style={{ height: '8px', backgroundColor: 'var(--muted)', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
                         <div style={{ width: `${percentage}%`, height: '100%', backgroundColor: isWarning ? '#ef4444' : 'var(--sidebar-primary)', borderRadius: '4px' }} />
                     </div>
                 </div>

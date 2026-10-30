@@ -22,7 +22,7 @@ import SubscriptionReceiptModal from "./SubscriptionReceiptModal";
 
 export default function AbonnementTab({ isMobileView, triggerToast, triggerConfirm }) {
     const comparisonRef = useRef(null);
-    const { subscription: contextSub, displayName: contextPlanName, refreshSubscription } = useSubscription();
+    const { subscription: contextSub, rawDisplayName: contextPlanName, refreshSubscription } = useSubscription();
     const { user, company } = useUser();
 
     // Subscription & Usage States
@@ -633,7 +633,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Clients</span>
                             <span style={{ fontWeight: 800 }}>{usage.clients.current} / {usage.clients.max === -1 ? 'Illimité' : usage.clients.max}</span>
                         </div>
-                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'var(--muted)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${clientsPercent}%`, height: '100%', backgroundColor: clientsPercent > 90 ? '#ef4444' : '#556B2F', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
@@ -643,7 +643,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Techniciens / Membres</span>
                             <span style={{ fontWeight: 800 }}>{usage.technicians.current} / {usage.technicians.max === -1 ? 'Illimité' : usage.technicians.max}</span>
                         </div>
-                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'var(--muted)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${techsPercent}%`, height: '100%', backgroundColor: techsPercent > 90 ? '#ef4444' : '#f59e0b', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>
@@ -653,7 +653,7 @@ export default function AbonnementTab({ isMobileView, triggerToast, triggerConfi
                             <span style={{ color: 'var(--muted-foreground)', fontWeight: 600 }}>Crédits SMS restants</span>
                             <span style={{ fontWeight: 800 }}>{usage.sms.max === -1 ? 'Illimité' : `${Math.max(0, usage.sms.max - usage.sms.current)} / ${usage.sms.max}`}</span>
                         </div>
-                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: isMobileView ? '8px' : '8px', backgroundColor: 'var(--muted)', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{ width: `${smsPercent}%`, height: '100%', backgroundColor: '#22c55e', borderRadius: '4px', transition: 'width 0.3s' }} />
                         </div>
                     </div>

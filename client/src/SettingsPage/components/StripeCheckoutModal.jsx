@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lock, ShieldCheck, Loader2, AlertCircle, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
+import { X, Lock, ShieldCheck, Loader2, AlertCircle, CreditCard, ArrowRight, CheckCircle2, ChevronDown, Check } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import { useSubscription } from "../../utils/useSubscription";
 
 const PLANS_INFO = {
     STARTER: { 
@@ -10,7 +11,7 @@ const PLANS_INFO = {
         displayName: "Starter", 
         priceMonthly: "34,90", 
         priceAnnual: "27,00", 
-        description: "1 utilisateur, 100 clients max, facturation & rappels auto", 
+        description: "1 utilisateur · 100 clients · 100 SMS", 
         features: ["1 utilisateur (patron)", "100 clients max", "100 SMS / mois inclus", "Devis, Factures & Chorus Pro", "Rappels automatiques", "Rapprochement bancaire manuel"] 
     },
     PRO: { 
@@ -18,7 +19,7 @@ const PLANS_INFO = {
         displayName: "Pro", 
         priceMonthly: "69,90", 
         priceAnnual: "55,00", 
-        description: "5 techniciens, 500 clients, 1 banque incluse & support 7j/7", 
+        description: "5 techniciens · 500 clients · 1 banque incluse", 
         features: ["Jusqu'à 5 techniciens inclus", "500 clients max", "500 SMS / mois inclus", "1 compte bancaire inclus (DSP2)", "Rapprochement bancaire auto", "Option 2e compte : +7 €/m", "Application mobile techniciens"] 
     },
     UNLIMITED: { 
@@ -26,13 +27,27 @@ const PLANS_INFO = {
         displayName: "Unlimited", 
         priceMonthly: "119,90", 
         priceAnnual: "95,92", 
-        description: "Clients & techniciens illimités, 3 banques incluses & Support VIP", 
+        description: "Clients & techniciens illimités · 3 banques · Support VIP", 
         features: ["Clients & Techniciens illimités", "1 500 SMS / mois inclus", "3 comptes bancaires inclus (DSP2)", "Rapprochement bancaire auto", "Facturation électronique intégrale", "Support VIP prioritaire 7j/7"] 
     }
 };
 
-export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO", initialCycle = "MONTHLY", onSuccess, mode = "checkout" }) {
-    const [plan, setPlan] = useState(targetPlan.toUpperCase());
+const PLAN_ORDER = ["STARTER", "PRO", "UNLIMITED"];
+
+export default function StripeCheckoutModal({ isOpen, onClose, targetPlan, initialCycle = "MONTHLY", onSuccess, mode = "checkout" }) {
+    const { planName: userLastPlan } = useSubscription();
+
+    const resolveInitialPlan = (requestedPlan, fallbackPlan) => {
+        const req = requestedPlan?.toUpperCase();
+        if (req && PLANS_INFO[req]) return req;
+        const fb = fallbackPlan?.toUpperCase();
+        if (fb && PLANS_INFO[fb]) return fb;
+        return "PRO";
+    };
+
+    const defaultPlan = resolveInitialPlan(targetPlan, userLastPlan);
+    const [plan, setPlan] = useState(defaultPlan);
+    const [expandedPlan, setExpandedPlan] = useState(defaultPlan);
     const [billingCycle, setBillingCycle] = useState(initialCycle);
     const [agreeTerms, setAgreeTerms] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -45,7 +60,12 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    useEffect(() => { setPlan(targetPlan.toUpperCase()); }, [targetPlan]);
+    useEffect(() => {
+        const nextPlan = resolveInitialPlan(targetPlan, userLastPlan);
+        setPlan(nextPlan);
+        setExpandedPlan(nextPlan);
+    }, [targetPlan, userLastPlan, isOpen]);
+
     useEffect(() => { setBillingCycle(initialCycle); }, [initialCycle]);
 
     useEffect(() => {
@@ -114,8 +134,9 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                 style={{ 
                     position: "fixed", 
                     inset: 0, 
-                    backgroundColor: "rgba(15,23,42,0.6)", 
+                    backgroundColor: "rgba(0, 0, 0, 0.72)", 
                     backdropFilter: "blur(6px)", 
+                    WebkitBackdropFilter: "blur(6px)",
                     zIndex: 99999, 
                     display: "flex", 
                     alignItems: "center", 
@@ -356,66 +377,222 @@ export default function StripeCheckoutModal({ isOpen, onClose, targetPlan = "PRO
                                     </div>
                                 </div>
 
-                                {/* Plan Summary & Features Box */}
-                                <div style={{ 
-                                    backgroundColor: "var(--background)", 
-                                    border: "1px solid var(--border)", 
-                                    borderRadius: "12px", 
-                                    padding: isMobile ? "12px 14px" : "16px 18px",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "10px"
-                                }}>
-                                    {/* Price & Plan name */}
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                                        <div>
-                                            <span style={{ fontWeight: 800, fontSize: isMobile ? "15px" : "16px" }}>{currentPlanObj.displayName}</span>
-                                            <span style={{ fontSize: "11px", color: "var(--muted-foreground)", marginLeft: "6px" }}>
-                                                {billingCycle === "ANNUAL" ? "Facturation annuelle" : "Facturation mensuelle"}
-                                            </span>
-                                        </div>
-                                        <div style={{ textAlign: "right" }}>
-                                            <span style={{ fontSize: isMobile ? "20px" : "22px", fontWeight: 900, color: "#556B2F" }}>{currentPriceMonthly} €</span>
-                                            <span style={{ fontSize: "10.5px", color: "var(--muted-foreground)" }}> HT/m</span>
-                                        </div>
-                                    </div>
+                                {/* Plans Accordion Selector (PC & Mobile) */}
+                                <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? "8px" : "10px" }}>
+                                    {PLAN_ORDER.map((planKey) => {
+                                        const planItem = PLANS_INFO[planKey];
+                                        const isSelected = plan === planKey;
+                                        const isExpanded = expandedPlan === planKey;
+                                        const isLastPlan = userLastPlan?.toUpperCase() === planKey;
+                                        const itemPrice = billingCycle === "ANNUAL" ? planItem.priceAnnual : planItem.priceMonthly;
 
-                                    {/* Features list */}
-                                    <div style={{ 
-                                        display: "flex", 
-                                        flexDirection: "column", 
-                                        gap: "5px", 
-                                        paddingTop: "8px", 
-                                        borderTop: "1px solid var(--border)" 
-                                    }}>
-                                        {currentPlanObj.features.map((f, i) => (
-                                            <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: isMobile ? "11.5px" : "12px" }}>
-                                                <CheckCircle2 size={13} color="#22C55E" style={{ flexShrink: 0 }} />
-                                                <span>{f}</span>
+                                        return (
+                                            <div
+                                                key={planKey}
+                                                style={{
+                                                    backgroundColor: "var(--background)",
+                                                    border: isSelected ? "1.5px solid #556B2F" : "1px solid var(--border)",
+                                                    borderRadius: "12px",
+                                                    padding: isMobile ? "12px 14px" : "14px 16px",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                                                    boxShadow: isSelected ? "0 0 0 1px rgba(85, 107, 47, 0.15)" : "none"
+                                                }}
+                                            >
+                                                {/* Clickable Header */}
+                                                <div
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onClick={() => {
+                                                        if (plan !== planKey) {
+                                                            setPlan(planKey);
+                                                            setExpandedPlan(planKey);
+                                                        } else {
+                                                            setExpandedPlan(isExpanded ? null : planKey);
+                                                        }
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter" || e.key === " ") {
+                                                            e.preventDefault();
+                                                            if (plan !== planKey) {
+                                                                setPlan(planKey);
+                                                                setExpandedPlan(planKey);
+                                                            } else {
+                                                                setExpandedPlan(isExpanded ? null : planKey);
+                                                            }
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        cursor: "pointer",
+                                                        userSelect: "none",
+                                                        outline: "none",
+                                                        WebkitTapHighlightColor: "transparent",
+                                                        gap: "10px"
+                                                    }}
+                                                >
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: "1 1 auto" }}>
+                                                        {/* Radio Circle */}
+                                                        <div
+                                                            style={{
+                                                                width: "18px",
+                                                                height: "18px",
+                                                                borderRadius: "50%",
+                                                                border: isSelected ? "5px solid #556B2F" : "1.5px solid var(--muted-foreground)",
+                                                                backgroundColor: "transparent",
+                                                                flexShrink: 0,
+                                                                boxSizing: "border-box",
+                                                                transition: "all 0.15s ease"
+                                                            }}
+                                                        />
+                                                        <div style={{ minWidth: 0, flex: "1 1 auto" }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                                                <span style={{ fontWeight: 800, fontSize: isMobile ? "14.5px" : "15.5px", color: "var(--foreground)" }}>
+                                                                    {planItem.displayName}
+                                                                </span>
+                                                                {isLastPlan && (
+                                                                    <span style={{
+                                                                        backgroundColor: "rgba(85, 107, 47, 0.14)",
+                                                                        color: "#556B2F",
+                                                                        fontSize: "10px",
+                                                                        fontWeight: 700,
+                                                                        padding: "2px 7px",
+                                                                        borderRadius: "50px"
+                                                                    }}>
+                                                                        Votre offre
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div style={{
+                                                                fontSize: isMobile ? "11px" : "11.5px",
+                                                                color: "var(--muted-foreground)",
+                                                                marginTop: "2px",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                                textOverflow: "ellipsis"
+                                                            }}>
+                                                                {planItem.description}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Price + Accordion Chevron */}
+                                                    <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "6px" : "10px", flexShrink: 0 }}>
+                                                        <div style={{ textAlign: "right" }}>
+                                                            <span style={{ fontSize: isMobile ? "16.5px" : "18.5px", fontWeight: 900, color: isSelected ? "#556B2F" : "var(--foreground)" }}>
+                                                                {itemPrice} €
+                                                            </span>
+                                                            <span style={{ fontSize: "10.5px", color: "var(--muted-foreground)" }}> HT/m</span>
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center",
+                                                                width: "26px",
+                                                                height: "26px",
+                                                                borderRadius: "50%",
+                                                                backgroundColor: isExpanded ? "var(--muted)" : "transparent",
+                                                                color: "var(--muted-foreground)",
+                                                                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                                                transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease"
+                                                            }}
+                                                        >
+                                                            <ChevronDown size={15} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Collapsible Full Info */}
+                                                <div
+                                                    style={{
+                                                        display: "grid",
+                                                        gridTemplateRows: isExpanded ? "1fr" : "0fr",
+                                                        transition: "grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1)"
+                                                    }}
+                                                >
+                                                    <div style={{ overflow: "hidden" }}>
+                                                        <div
+                                                            style={{
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                gap: "6px",
+                                                                paddingTop: "10px",
+                                                                marginTop: "10px",
+                                                                borderTop: "1px solid var(--border)"
+                                                            }}
+                                                        >
+                                                            <div style={{ fontSize: "11px", color: "var(--muted-foreground)", fontWeight: 600, marginBottom: "2px" }}>
+                                                                {billingCycle === "ANNUAL" ? "Facturation annuelle (-20%)" : "Facturation mensuelle sans engagement"}
+                                                            </div>
+                                                            {planItem.features.map((f, i) => (
+                                                                <div key={i} style={{ display: "flex", alignItems: "center", gap: "7px", fontSize: isMobile ? "11.5px" : "12px", color: "var(--foreground)" }}>
+                                                                    <CheckCircle2 size={13} color="#22C55E" style={{ flexShrink: 0 }} />
+                                                                    <span>{f}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        );
+                                    })}
                                 </div>
 
-                                {/* Terms & Auto-renewal note */}
-                                <label style={{ 
-                                    display: "flex", 
-                                    alignItems: "flex-start", 
-                                    gap: "8px", 
-                                    fontSize: isMobile ? "11px" : "11.5px", 
-                                    color: "var(--muted-foreground)", 
-                                    cursor: "pointer", 
-                                    lineHeight: "1.35",
-                                    userSelect: "none"
-                                }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={agreeTerms} 
-                                        onChange={(e) => setAgreeTerms(e.target.checked)} 
-                                        style={{ marginTop: "2px", accentColor: "#556B2F", flexShrink: 0 }} 
-                                    />
-                                    <span>Renouvellement automatique · Résiliation en 1 clic sans frais</span>
-                                </label>
+                                {/* Terms & Auto-renewal confirmation box */}
+                                <div
+                                    role="checkbox"
+                                    aria-checked={agreeTerms}
+                                    tabIndex={0}
+                                    onClick={() => setAgreeTerms(!agreeTerms)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            setAgreeTerms(!agreeTerms);
+                                        }
+                                    }}
+                                    style={{ 
+                                        display: "flex", 
+                                        alignItems: "center", 
+                                        gap: "10px", 
+                                        padding: isMobile ? "10px 12px" : "11px 14px",
+                                        borderRadius: "10px",
+                                        backgroundColor: agreeTerms ? "rgba(85, 107, 47, 0.08)" : "var(--background)",
+                                        border: agreeTerms ? "1px solid rgba(85, 107, 47, 0.45)" : "1px dashed var(--muted-foreground)",
+                                        cursor: "pointer", 
+                                        userSelect: "none",
+                                        transition: "all 0.15s ease"
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: "18px",
+                                            height: "18px",
+                                            borderRadius: "5px",
+                                            backgroundColor: agreeTerms ? "#556B2F" : "transparent",
+                                            border: agreeTerms ? "1.5px solid #556B2F" : "1.5px solid var(--muted-foreground)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "#FFFFFF",
+                                            flexShrink: 0,
+                                            transition: "all 0.15s ease"
+                                        }}
+                                    >
+                                        {agreeTerms && <Check size={13} strokeWidth={3} />}
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                                        <span style={{ fontSize: isMobile ? "11.5px" : "12px", fontWeight: 600, color: "var(--foreground)", lineHeight: "1.3" }}>
+                                            J'accepte le renouvellement automatique
+                                        </span>
+                                        <span style={{ fontSize: isMobile ? "10.5px" : "11px", color: "var(--muted-foreground)", lineHeight: "1.3" }}>
+                                            Résiliation en 1 clic à tout moment sans frais
+                                        </span>
+                                    </div>
+                                </div>
 
                                 {/* Checkout Button */}
                                 <button

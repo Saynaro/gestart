@@ -21,15 +21,17 @@ COPY . .
 RUN npm run build
 
 # ==============================================================================
-# STAGE 2: SERVE WITH NGINX (FRONTEND + API.GESTART.COM REVERSE PROXY)
+# STAGE 2: SERVE WITH NGINX (AUTO-DETECTS HTTP OR HTTPS SSL)
 # ==============================================================================
 FROM nginx:1.27-alpine
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/default.conf && mkdir -p /etc/nginx/templates /var/www/certbot
 
-# Copy custom nginx config (handles gestart.com & api.gestart.com)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy both HTTP and HTTPS Nginx templates
+COPY nginx.conf /etc/nginx/templates/nginx-http.conf
+COPY nginx-ssl.conf /etc/nginx/templates/nginx-ssl.conf
+COPY docker-entrypoint.sh /docker-entrypoint-ssl.sh
+RUN chmod +x /docker-entrypoint-ssl.sh
 
 # Copy built React PWA assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -37,5 +39,4 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
-
+ENTRYPOINT ["/docker-entrypoint-ssl.sh"]

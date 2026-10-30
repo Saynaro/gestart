@@ -164,12 +164,12 @@ async function runTests() {
         });
 
     } catch (err) {
-        console.error("💥 TEST ERROR:", err);
+        console.error(" TEST ERROR:", err);
         failedTests++;
     }
 
     console.log("\n==================================================");
-    console.log(`🏁 TEST RESULTS: ${passedTests} PASSED, ${failedTests} FAILED`);
+    console.log(` TEST RESULTS: ${passedTests} PASSED, ${failedTests} FAILED`);
     console.log("==================================================");
 
     if (failedTests > 0) {

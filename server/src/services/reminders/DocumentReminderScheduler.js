@@ -14,10 +14,10 @@ export class DocumentReminderScheduler {
 
     start() {
         if (this.timer) return;
-        console.log("📑 [DOCUMENT_REMINDER_SCHEDULER] Démarrage du planificateur de relances Factures & Devis (5m)...");
+        console.log(" [DOCUMENT_REMINDER_SCHEDULER] Démarrage du planificateur de relances Factures & Devis (5m)...");
 
         // Initial run after 15 seconds
-        setTimeout(() => this.processReminders().catch(() => {}), 15000);
+        setTimeout(() => this.processReminders().catch(() => { }), 15000);
 
         this.timer = setInterval(() => {
             this.processReminders().catch(err => {
@@ -30,7 +30,7 @@ export class DocumentReminderScheduler {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
-            console.log("📑 [DOCUMENT_REMINDER_SCHEDULER] Planificateur arrêté.");
+            console.log(" [DOCUMENT_REMINDER_SCHEDULER] Planificateur arrêté.");
         }
     }
 

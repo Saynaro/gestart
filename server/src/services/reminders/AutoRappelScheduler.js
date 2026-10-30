@@ -18,10 +18,10 @@ export class AutoRappelScheduler {
      */
     start() {
         if (this.timer) return;
-        console.log("⏰ [AUTO_RAPPEL_SCHEDULER] Démarrage du planificateur de relances automatiques (60s)...");
+        console.log(" [AUTO_RAPPEL_SCHEDULER] Démarrage du planificateur de relances automatiques (60s)...");
 
         // Exécution initiale immédiate après 5s
-        setTimeout(() => this.processPendingReminders().catch(() => {}), 5000);
+        setTimeout(() => this.processPendingReminders().catch(() => { }), 5000);
 
         this.timer = setInterval(() => {
             this.processPendingReminders().catch(err => {
@@ -37,7 +37,7 @@ export class AutoRappelScheduler {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
-            console.log("⏰ [AUTO_RAPPEL_SCHEDULER] Planificateur arrêté.");
+            console.log(" [AUTO_RAPPEL_SCHEDULER] Planificateur arrêté.");
         }
     }
 
@@ -80,7 +80,7 @@ export class AutoRappelScheduler {
                 return;
             }
 
-            console.log(`⏰ [AUTO_RAPPEL_SCHEDULER] ${pendingExecutions.length} rappel(s) échu(s) à traiter.`);
+            console.log(` [AUTO_RAPPEL_SCHEDULER] ${pendingExecutions.length} rappel(s) échu(s) à traiter.`);
 
             for (const execution of pendingExecutions) {
                 await this.executeSingleReminder(execution, now);
@@ -149,7 +149,7 @@ export class AutoRappelScheduler {
             }
 
             const isPlanEligible = plan?.hasAutoSmsReminders || plan?.hasPremiumSettings || plan?.name === "STARTER" || plan?.name === "PRO" || plan?.name === "UNLIMITED";
-            
+
             // En environnement de développement ou démo, tolérer les tests
             const isDevelopment = process.env.NODE_ENV !== "production";
             if (!isPlanEligible && !isDevelopment) {
@@ -224,7 +224,7 @@ export class AutoRappelScheduler {
             const serviceName = reminderAutomation.trackedServices?.[0]?.serviceType?.name || "votre équipement";
             const defaultTpl = reminderAutomation.trackedServices?.[0]?.serviceType?.defaultTemplate
                 || "Bonjour {{client_first_name}}, il est recommandé de prévoir le prochain contrôle ou entretien de votre {{intervention_type}}. Souhaitez-vous convenir d'un rendez-vous ?";
-            
+
             const templateToUse = reminderAutomation.customMessageTemplate || defaultTpl;
 
             const renderedBody = renderTemplate(templateToUse, {

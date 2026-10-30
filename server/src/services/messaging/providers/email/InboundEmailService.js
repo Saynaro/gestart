@@ -102,7 +102,7 @@ class InboundEmailService {
 
                 for (const uid of targetUids) {
                     try {
-                        const messageData = await client.download(uid, ['rfc822'], { uid: true });
+                        const messageData = await client.download(String(uid), undefined, { uid: true });
                         if (!messageData?.content) continue;
 
                         const parsed = await simpleParser(messageData.content);
@@ -127,7 +127,7 @@ class InboundEmailService {
                             }
                         });
                         if (existingLog) {
-                            await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                            await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                             continue;
                         }
 
@@ -199,7 +199,7 @@ class InboundEmailService {
 
                         // Si aucun client de la CRM ne correspond, ignorer ce message
                         if (!resolvedCompanyId || !resolvedClientId) {
-                            await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                            await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                             continue;
                         }
 
@@ -267,7 +267,7 @@ class InboundEmailService {
                             message: newLog
                         });
 
-                        await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                        await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                         syncedCount++;
                         console.log(`[INBOUND_RELAY_SYNC] Message reçu de ${fromEmail} (Client: ${resolvedClientId})`);
                     } catch (itemErr) {
@@ -344,7 +344,7 @@ class InboundEmailService {
 
                 for (const uid of uids) {
                     try {
-                        const messageData = await client.download(uid, ['rfc822'], { uid: true });
+                        const messageData = await client.download(String(uid), undefined, { uid: true });
                         if (!messageData?.content) continue;
 
                         const parsed = await simpleParser(messageData.content);
@@ -365,7 +365,7 @@ class InboundEmailService {
                             }
                         });
                         if (exists) {
-                            await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                            await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                             continue;
                         }
 
@@ -380,7 +380,7 @@ class InboundEmailService {
 
                         if (!clientRecord) {
                             // Ignorer les newsletters et emails non reliés aux clients CRM
-                            await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                            await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                             continue;
                         }
 
@@ -423,7 +423,7 @@ class InboundEmailService {
                             message: newLog
                         });
 
-                        await client.messageFlagsAdd({ uid }, ['\\Seen']);
+                        await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true });
                         syncedCount++;
                     } catch (itemErr) {
                         console.warn("[COMPANY_IMAP_ITEM_ERROR]", itemErr.message);

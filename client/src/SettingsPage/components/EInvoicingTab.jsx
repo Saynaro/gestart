@@ -1043,9 +1043,13 @@ export default function EInvoicingTab({ isMobileView, triggerToast }) {
                                     border: '1px solid rgba(16, 185, 129, 0.25)',
                                     fontSize: isMobileView ? '12.5px' : '11px',
                                     color: 'var(--foreground)',
-                                    lineHeight: 1.4
+                                    lineHeight: 1.4,
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '8px'
                                 }}>
-                                    💡 <strong>Astuce :</strong> {guide.tip}
+                                    <Info size={15} style={{ color: '#10b981', flexShrink: 0, marginTop: '1px' }} />
+                                    <div><strong>Astuce :</strong> {guide.tip}</div>
                                 </div>
                             )}
 

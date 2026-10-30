@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, CheckCircle2, XCircle, AlertCircle, RefreshCw, HelpCircle, ExternalLink, X, BookOpen } from "lucide-react";
+import { Link, CheckCircle2, XCircle, AlertCircle, RefreshCw, HelpCircle, ExternalLink, X, BookOpen, Info } from "lucide-react";
 import BottomSheetModal from "../../components/BottomSheetModal";
 
 const SOFTWARE_GUIDES = {
@@ -362,9 +362,13 @@ function AccountingIntegration() {
                         fontSize: '12.5px',
                         color: 'var(--foreground)',
                         lineHeight: 1.4,
-                        marginBottom: '16px'
+                        marginBottom: '16px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px'
                     }}>
-                        💡 <strong>Astuce :</strong> {currentGuide.tip}
+                        <Info size={16} style={{ color: '#10b981', flexShrink: 0, marginTop: '1px' }} />
+                        <div><strong>Astuce :</strong> {currentGuide.tip}</div>
                     </div>
                 )}
 

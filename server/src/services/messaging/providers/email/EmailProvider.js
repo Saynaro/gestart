@@ -88,8 +88,10 @@ export class EmailProvider extends MessageProvider {
                     const fromAddress = connection.displayName
                         ? `"${connection.displayName}" <${connection.emailAddress}>`
                         : connection.emailAddress;
+                    const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
+                    const replyTo = `"${connection.displayName || connection.emailAddress}" <${relayUser}>`;
 
-                    return { transporter, fromAddress, connectionId: connection.id };
+                    return { transporter, fromAddress, replyTo, connectionId: connection.id };
                 }
 
                 // 2. Connexion Google Workspace OAuth
@@ -163,8 +165,10 @@ export class EmailProvider extends MessageProvider {
                     const fromAddress = connection.displayName
                         ? `"${connection.displayName}" <${connection.emailAddress}>`
                         : connection.emailAddress;
+                    const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
+                    const replyTo = `"${connection.displayName || connection.emailAddress}" <${relayUser}>`;
 
-                    return { transporter, fromAddress, connectionId: connection.id };
+                    return { transporter, fromAddress, replyTo, connectionId: connection.id };
                 }
 
                 // 3. Connexion Microsoft 365 OAuth
@@ -191,8 +195,10 @@ export class EmailProvider extends MessageProvider {
                     const fromAddress = connection.displayName
                         ? `"${connection.displayName}" <${connection.emailAddress}>`
                         : connection.emailAddress;
+                    const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
+                    const replyTo = `"${connection.displayName || connection.emailAddress}" <${relayUser}>`;
 
-                    return { transporter, fromAddress, connectionId: connection.id };
+                    return { transporter, fromAddress, replyTo, connectionId: connection.id };
                 }
             }
         }
@@ -213,7 +219,6 @@ export class EmailProvider extends MessageProvider {
             });
 
             let companyName = "Artisan";
-            let companyEmail = user;
             if (companyId) {
                 try {
                     const comp = await prisma.company.findUnique({
@@ -221,12 +226,13 @@ export class EmailProvider extends MessageProvider {
                         select: { name: true, email: true }
                     });
                     if (comp?.name) companyName = comp.name;
-                    if (comp?.email) companyEmail = comp.email;
                 } catch (e) {}
             }
 
             const fromAddress = `"${companyName} via GestArt" <${user}>`;
-            const replyTo = companyEmail;
+            // Important: Reply-To reste sur l'adresse du relais (user) pour que la réponse du client
+            // revienne automatiquement dans le chat CRM de la bonne entreprise via Message-ID / In-Reply-To
+            const replyTo = `"${companyName} via GestArt" <${user}>`;
             return { transporter, fromAddress, replyTo, connectionId: null, isFallback: true };
         }
 
@@ -446,7 +452,7 @@ ${bodyContent}
                     text: body.trim(),
                     html: htmlBody,
                     attachments: preparedAttachments,
-                    replyTo: replyTo || company?.email || (fromAddress.includes("<") ? fromAddress.match(/<([^>]+)>/)?.[1] : fromAddress)
+                    replyTo: replyTo || (fromAddress.includes("<") ? fromAddress.match(/<([^>]+)>/)?.[1] : fromAddress)
                 };
 
                 if (inReplyTo) mailOptions.inReplyTo = inReplyTo;
@@ -731,11 +737,12 @@ ${bodyContent}
 
             try {
                 let accessToken = "";
+                let accessDecryptFailed = false;
                 if (connection.encryptedAccessToken) {
                     try {
                         accessToken = decryptCredential(connection.encryptedAccessToken);
                     } catch (e) {
-                        console.error("[GMAIL_SYNC] Erreur déchiffrement access token:", e.message);
+                        accessDecryptFailed = true;
                     }
                 }
 
@@ -780,8 +787,22 @@ ${bodyContent}
                             continue;
                         }
                     } catch (refErr) {
+                        if (accessDecryptFailed && refErr.message?.includes("decrypt")) {
+                            await prisma.emailConnection.update({
+                                where: { id: connection.id },
+                                data: { status: "ERROR" }
+                            }).catch(() => {});
+                            console.warn(`[GMAIL_SYNC] Connexion Gmail obsolète (clé de chiffrement modifiée) marquée en ERROR pour reconnexion (${connection.emailAddress}).`);
+                            continue;
+                        }
                         console.warn("[GMAIL_SYNC] Avertissement refresh token:", refErr.message);
                     }
+                } else if (accessDecryptFailed && !connection.encryptedRefreshToken) {
+                    await prisma.emailConnection.update({
+                        where: { id: connection.id },
+                        data: { status: "ERROR" }
+                    }).catch(() => {});
+                    continue;
                 }
 
                 if (!accessToken) continue;

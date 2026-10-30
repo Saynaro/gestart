@@ -26,6 +26,7 @@ import { getAuthToken } from "../../utils/auth";
 import { API_URL } from "../../utils/config";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../../components/ChannelIcons";
 import { useUser } from "../../utils/useUser";
+import { useSubscription } from "../../utils/useSubscription";
 
 export default function CommunicationTab({ isMobileView, triggerToast, triggerConfirm }) {
     const { isExpired } = useSubscription();
@@ -508,7 +509,7 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                     onClick={handleLaunchMetaEmbeddedSignup}
                                     style={{ padding: isMobileView ? "8px 14px" : "9px 18px", backgroundColor: "#22c55e", color: "#ffffff", border: "none", borderRadius: "8px", fontSize: isMobileView ? "12.5px" : "13px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 2px 8px rgba(34, 197, 94, 0.3)" }}
                                 >
-                                    <WhatsAppIcon size={isMobileView ? 16 : 18} />
+                                    <WhatsAppIcon size={isMobileView ? 16 : 18} color="#ffffff" />
                                     Connecter WhatsApp Business
                                 </button>
                             )}
@@ -522,8 +523,9 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                             <span>Qualité : <strong style={{ color: "#22c55e" }}>Excellente ({whatsapp.qualityRating || "GREEN"})</strong></span>
                         </div>
                     ) : (
-                        <div style={{ background: "var(--background)", borderRadius: "10px", padding: isMobileView ? "10px 12px" : "12px 16px", fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)" }}>
-                            💡 Connectez votre numéro WhatsApp Business officiel pour recevoir et envoyer des messages directement depuis vos conversations clients.
+                        <div style={{ background: "var(--background)", borderRadius: "10px", padding: isMobileView ? "10px 12px" : "12px 16px", fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <Info size={16} style={{ color: "#22c55e", flexShrink: 0 }} />
+                            <span>Connectez votre numéro WhatsApp Business officiel pour recevoir et envoyer des messages directement depuis vos conversations clients.</span>
                         </div>
                     )}
                 </div>
@@ -608,35 +610,13 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                             boxShadow: "0 2px 6px rgba(85, 107, 47, 0.25)"
                                         }}
                                     >
-                                        <Key size={14} />
-                                        <span>Mot de passe Google</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleGoogleConnect}
-                                        style={{
-                                            padding: isMobileView ? "7px 12px" : "8px 14px",
-                                            backgroundColor: "#ffffff",
-                                            color: "#3c4043",
-                                            border: "1px solid #dadce0",
-                                            borderRadius: "8px",
-                                            fontSize: isMobileView ? "12px" : "12.5px",
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "6px",
-                                            boxShadow: "0 1px 2px rgba(60,64,67,0.08)"
-                                        }}
-                                        title="Connexion Google en 1 clic"
-                                    >
-                                        <svg width={isMobileView ? "15" : "16"} height={isMobileView ? "15" : "16"} viewBox="0 0 24 24">
+                                        <svg width={isMobileView ? "14" : "15"} height={isMobileView ? "14" : "15"} viewBox="0 0 24 24" style={{ background: "#fff", borderRadius: "50%", padding: "2px" }}>
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                                         </svg>
-                                        <span>1-Clic Google</span>
+                                        <span>Connecter Gmail (Guide 1 min)</span>
                                     </button>
                                     <button
                                         type="button"
@@ -653,20 +633,43 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                         </div>
                     </div>
 
-                    <div style={{ background: email.status === "CONNECTED" ? "var(--background)" : "rgba(59, 130, 246, 0.08)", border: email.status === "CONNECTED" ? "none" : "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "10px", padding: isMobileView ? "12px" : "14px 16px", fontSize: isMobileView ? "12px" : "12.5px", color: "var(--foreground)" }}>
+                    <div style={{ background: email.status === "CONNECTED" ? "var(--background)" : "rgba(59, 130, 246, 0.08)", border: email.status === "CONNECTED" ? "1px solid var(--border)" : "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "10px", padding: isMobileView ? "9px 11px" : "14px 16px", fontSize: isMobileView ? "11.5px" : "12.5px", lineHeight: isMobileView ? 1.35 : 1.5, color: "var(--foreground)" }}>
                         {email.status === "CONNECTED" ? (
-                            <span>Expéditeur officiel : <strong style={{ color: "var(--foreground)" }}>{email.displayName || "Votre Société"} &lt;{email.emailAddress}&gt;</strong> · Vos devis et factures PDF sont transmis avec cette identité.</span>
+                            isMobileView ? (
+                                <div style={{ display: "flex", alignItems: "flex-start", gap: "7px" }}>
+                                    <CheckCircle2 size={14} style={{ color: "#22c55e", flexShrink: 0, marginTop: "2px" }} />
+                                    <span>Expéditeur actif : <strong>{email.emailAddress}</strong> (Envoi + réponses chat synchronisées).</span>
+                                </div>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <CheckCircle2 size={16} style={{ color: "#22c55e", flexShrink: 0 }} />
+                                        <span>Expéditeur actif : <strong style={{ color: "var(--foreground)" }}>{email.displayName || companyName || "Votre Société"} &lt;{email.emailAddress}&gt;</strong> · Vos devis, factures et messages sont envoyés depuis votre adresse.</span>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "24px", color: "var(--muted-foreground)" }}>
+                                        <CornerDownLeft size={14} style={{ color: "#22c55e", flexShrink: 0 }} />
+                                        <span>Réception bidirectionnelle active : lorsque vos clients répondent à un email, leur message s'affiche automatiquement dans votre chat GestArt.</span>
+                                    </div>
+                                </div>
+                            )
                         ) : (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <Mail size={16} style={{ color: "#2563eb", flexShrink: 0 }} />
-                                    <span><strong>Relais GestArt actif par défaut (support.gestart@gmail.com) :</strong> vos devis, factures et messages s'envoient immédiatement sous le nom de votre entreprise, sans configuration requise.</span>
+                            isMobileView ? (
+                                <div style={{ display: "flex", alignItems: "flex-start", gap: "7px" }}>
+                                    <Mail size={14} style={{ color: "#2563eb", flexShrink: 0, marginTop: "2px" }} />
+                                    <span><strong>Relais GestArt actif :</strong> envoi immédiat sous votre nom et réception des réponses clients dans le chat.</span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "24px", color: "var(--muted-foreground)" }}>
-                                    <CornerDownLeft size={14} style={{ color: "#2563eb", flexShrink: 0 }} />
-                                    <span>Les réponses de vos clients sont automatiquement réceptionnées et synchronisées en temps réel dans votre CRM.</span>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <Mail size={16} style={{ color: "#2563eb", flexShrink: 0 }} />
+                                        <span><strong>Relais GestArt actif par défaut :</strong> vos devis, factures et messages s'envoient immédiatement sous le nom <strong>« {companyName || "Votre Entreprise"} via GestArt »</strong>, sans aucune configuration obligatoire.</span>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "24px", color: "var(--muted-foreground)" }}>
+                                        <CornerDownLeft size={14} style={{ color: "#2563eb", flexShrink: 0 }} />
+                                        <span>Lorsque vos clients cliquent sur « Répondre » dans leur boîte mail, leur réponse arrive directement dans la conversation client de votre CRM.</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )
                         )}
                     </div>
                 </div>
@@ -770,131 +773,159 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
             {/* Modal de Configuration Email / SMTP */}
             {isEmailModalOpen && createPortal(
-                <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 999999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto", boxSizing: "border-box" }}>
-                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "18px", width: "100%", maxWidth: "560px", maxHeight: "92vh", overflowY: "auto", padding: "24px", boxShadow: "0 24px 48px rgba(0,0,0,0.45)", margin: "auto", boxSizing: "border-box" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <div style={{ width: "38px", height: "38px", borderRadius: "10px", backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Mail size={20} />
+                <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 999999, display: "flex", alignItems: "center", justifyContent: "center", padding: isMobileView ? "10px" : "16px", overflowY: "auto", boxSizing: "border-box" }}>
+                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: isMobileView ? "16px" : "18px", width: "100%", maxWidth: "560px", maxHeight: "92vh", overflowY: "auto", padding: isMobileView ? "16px" : "24px", boxShadow: "0 24px 48px rgba(0,0,0,0.45)", margin: "auto", boxSizing: "border-box" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isMobileView ? "12px" : "18px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: isMobileView ? "8px" : "10px" }}>
+                                <div style={{ width: isMobileView ? "32px" : "38px", height: isMobileView ? "32px" : "38px", borderRadius: "10px", backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                    <Mail size={isMobileView ? 17 : 20} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: 800 }}>Connecter votre boîte Email</h3>
-                                    <p style={{ margin: "2px 0 0 0", fontSize: "12px", color: "var(--muted-foreground)" }}>
-                                        Envoyez vos devis et factures avec votre propre adresse
-                                    </p>
+                                    <h3 style={{ margin: 0, fontSize: isMobileView ? "15px" : "16.5px", fontWeight: 800 }}>Connecter votre boîte Email</h3>
+                                    {!isMobileView && (
+                                        <p style={{ margin: "2px 0 0 0", fontSize: "12px", color: "var(--muted-foreground)" }}>
+                                            Envoyez vos devis et factures avec votre propre adresse
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <button onClick={() => setIsEmailModalOpen(false)} style={{ background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer", padding: "4px" }}>
-                                <X size={20} />
+                                <X size={isMobileView ? 18 : 20} />
                             </button>
                         </div>
 
                         {/* Sélecteur de méthode */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "18px", padding: "4px", backgroundColor: "var(--background)", borderRadius: "10px", border: "1px solid var(--border)" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: isMobileView ? "12px" : "18px", padding: "3px", backgroundColor: "var(--background)", borderRadius: "10px", border: "1px solid var(--border)" }}>
                             <button
                                 type="button"
                                 onClick={() => setEmailMode("google_app_pass")}
                                 style={{
-                                    padding: "9px 12px",
+                                    padding: isMobileView ? "7px 8px" : "9px 12px",
                                     borderRadius: "8px",
                                     border: "none",
-                                    fontSize: "12.5px",
+                                    fontSize: isMobileView ? "11.5px" : "12.5px",
                                     fontWeight: 700,
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    gap: "6px",
+                                    gap: "5px",
+                                    whiteSpace: "nowrap",
                                     backgroundColor: emailMode === "google_app_pass" ? "var(--card)" : "transparent",
                                     color: emailMode === "google_app_pass" ? "#556B2F" : "var(--muted-foreground)",
                                     boxShadow: emailMode === "google_app_pass" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
                                     transition: "all 0.15s ease"
                                 }}
                             >
-                                <Key size={14} />
-                                <span>Gmail / Google (1 min)</span>
+                                <Key size={isMobileView ? 13 : 14} />
+                                <span>{isMobileView ? "Gmail (1 min)" : "Gmail / Google (1 min)"}</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setEmailMode("custom_smtp")}
                                 style={{
-                                    padding: "9px 12px",
+                                    padding: isMobileView ? "7px 8px" : "9px 12px",
                                     borderRadius: "8px",
                                     border: "none",
-                                    fontSize: "12.5px",
+                                    fontSize: isMobileView ? "11.5px" : "12.5px",
                                     fontWeight: 700,
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    gap: "6px",
+                                    gap: "5px",
+                                    whiteSpace: "nowrap",
                                     backgroundColor: emailMode === "custom_smtp" ? "var(--card)" : "transparent",
                                     color: emailMode === "custom_smtp" ? "#556B2F" : "var(--muted-foreground)",
                                     boxShadow: emailMode === "custom_smtp" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
                                     transition: "all 0.15s ease"
                                 }}
                             >
-                                <Mail size={14} />
-                                <span>Autre SMTP / Hébergeur</span>
+                                <Mail size={isMobileView ? 13 : 14} />
+                                <span>{isMobileView ? "Autre SMTP" : "Autre SMTP / Hébergeur"}</span>
                             </button>
                         </div>
 
                         {emailMode === "google_app_pass" && (
-                            <div style={{ marginBottom: "18px", padding: "14px", borderRadius: "12px", backgroundColor: "rgba(85, 107, 47, 0.08)", border: "1px solid rgba(85, 107, 47, 0.22)" }}>
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, fontSize: "13px", color: "var(--foreground)" }}>
-                                        <Sparkles size={15} style={{ color: "#556B2F" }} />
-                                        <span>Guide rapide : créer votre mot de passe Google en 1 minute</span>
+                            isMobileView ? (
+                                <div style={{ marginBottom: "12px", padding: "10px 12px", borderRadius: "10px", backgroundColor: "rgba(85, 107, 47, 0.08)", border: "1px solid rgba(85, 107, 47, 0.25)", fontSize: "11px", lineHeight: "1.35", color: "var(--foreground)" }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                                        <span style={{ fontWeight: 800, fontSize: "11.5px", display: "flex", alignItems: "center", gap: "5px" }}>
+                                            <Sparkles size={13} style={{ color: "#556B2F" }} /> Tutoriel Gmail (1 min)
+                                        </span>
+                                        <a
+                                            href="https://myaccount.google.com/apppasswords"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{ color: "#2563eb", fontWeight: 700, fontSize: "11px", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "3px" }}
+                                        >
+                                            Ouvrir Google <ExternalLink size={10} />
+                                        </a>
                                     </div>
-                                    <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#16a34a" }}>
-                                        100% Gratuit
-                                    </span>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "3px", color: "var(--muted-foreground)" }}>
+                                        <div><strong>1.</strong> Ouvrez le lien (activez la 2FA Google si demandé).</div>
+                                        <div><strong>2.</strong> Tapez <strong>GestArt</strong> et cliquez sur <strong>Créer</strong>.</div>
+                                        <div><strong>3.</strong> Copiez le code de <strong>16 lettres</strong> généré et collez-le ci-dessous.</div>
+                                    </div>
                                 </div>
+                            ) : (
+                                <div style={{ marginBottom: "18px", padding: "16px", borderRadius: "12px", backgroundColor: "rgba(85, 107, 47, 0.08)", border: "1px solid rgba(85, 107, 47, 0.25)" }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "6px" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 800, fontSize: "13px", color: "var(--foreground)" }}>
+                                            <Sparkles size={15} style={{ color: "#556B2F" }} />
+                                            <span>Tutoriel rapide : connecter Gmail en 4 étapes (1 minute)</span>
+                                        </div>
+                                        <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#16a34a" }}>
+                                            Envoi + Réception Chat
+                                        </span>
+                                    </div>
 
-                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "12px", lineHeight: "1.45", color: "var(--foreground)" }}>
-                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>1</span>
-                                        <div>
-                                            Ouvrez la page Google Sécurité :{" "}
-                                            <a
-                                                href="https://myaccount.google.com/apppasswords"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{ color: "#2563eb", fontWeight: 700, textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "3px" }}
-                                            >
-                                                myaccount.google.com/apppasswords
-                                                <ExternalLink size={11} />
-                                            </a>
-                                            <span style={{ color: "var(--muted-foreground)", display: "block", fontSize: "11px" }}>
-                                                (Assurez-vous que la validation en 2 étapes est activée sur votre compte Google)
-                                            </span>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "12px", lineHeight: "1.5", color: "var(--foreground)" }}>
+                                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                            <span style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#556B2F", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "11px", flexShrink: 0, marginTop: "1px" }}>1</span>
+                                            <div>
+                                                Cliquez sur ce lien direct vers votre compte Google :{" "}
+                                                <a
+                                                    href="https://myaccount.google.com/apppasswords"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ color: "#2563eb", fontWeight: 700, textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                                                >
+                                                    Ouvrir Mots de passe des applications Google
+                                                    <ExternalLink size={11} />
+                                                </a>
+                                                <span style={{ color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", marginTop: "3px" }}>
+                                                    <Info size={13} style={{ color: "#556B2F", flexShrink: 0 }} />
+                                                    <span>Si Google le demande, activez d'abord la « Validation en deux étapes » sur votre compte.</span>
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>2</span>
-                                        <div>
-                                            Dans le champ "Nom de l'application", écrivez <strong>GestArt</strong> puis cliquez sur <strong>Créer</strong>.
+                                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                            <span style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#556B2F", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "11px", flexShrink: 0, marginTop: "1px" }}>2</span>
+                                            <div>
+                                                Dans le champ <strong>« Nom de l'application »</strong>, tapez <strong>GestArt</strong> puis cliquez sur le bouton <strong>Créer</strong>.
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "11px", flexShrink: 0 }}>3</span>
-                                        <div>
-                                            Google génère un code jaune de <strong>16 lettres</strong> (ex: <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "2px 5px", borderRadius: "4px", fontWeight: 600 }}>bptw bkbu ibbv drop</code>).
+                                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                            <span style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#556B2F", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "11px", flexShrink: 0, marginTop: "1px" }}>3</span>
+                                            <div>
+                                                Copiez le code de <strong>16 lettres</strong> affiché dans l'encadré jaune (ex : <code style={{ backgroundColor: "rgba(0,0,0,0.08)", padding: "2px 6px", borderRadius: "4px", fontWeight: 700 }}>abcd efgh ijkl mnop</code>).
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>4</span>
-                                        <div>
-                                            Collez ce mot de passe ci-dessous. Le serveur et le port sont déjà pré-remplis !
+                                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                                            <span style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#556B2F", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "11px", flexShrink: 0, marginTop: "1px" }}>4</span>
+                                            <div>
+                                                Collez ce code ci-dessous : vos devis, factures et messages partiront de votre Gmail et les réponses de vos clients arriveront directement dans votre chat GestArt !
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            )
                         )}
 
-                        <form onSubmit={handleSaveEmail} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <form onSubmit={handleSaveEmail} style={{ display: "flex", flexDirection: "column", gap: isMobileView ? "10px" : "14px" }}>
                             <div>
-                                <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                     {emailMode === "google_app_pass" ? "Votre adresse Gmail ou Google Workspace" : "Adresse Email d'envoi"} <span style={{ color: "#ef4444" }}>*</span>
                                 </label>
                                 <input
@@ -902,13 +933,13 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                     placeholder={company?.email || userEmail || "contact@monentreprise.fr"}
                                     value={emailForm.emailAddress}
                                     onChange={(e) => setEmailForm({ ...emailForm, emailAddress: e.target.value })}
-                                    style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                    style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                     Nom de l'expéditeur (affiché à vos clients)
                                 </label>
                                 <input
@@ -916,13 +947,13 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                     placeholder={companyName || "Mon Entreprise"}
                                     value={emailForm.displayName}
                                     onChange={(e) => setEmailForm({ ...emailForm, displayName: e.target.value })}
-                                    style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                    style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                 />
                             </div>
 
                             {emailMode === "google_app_pass" ? (
                                 <div>
-                                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                    <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                         Mot de passe d'application Google (16 lettres) <span style={{ color: "#ef4444" }}>*</span>
                                     </label>
                                     <input
@@ -930,19 +961,19 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                         placeholder="Ex: bptw bkbu ibbv drop"
                                         value={emailForm.smtpPass}
                                         onChange={(e) => setEmailForm({ ...emailForm, smtpPass: e.target.value })}
-                                        style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                        style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                         required
                                     />
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", fontSize: "11px", color: "var(--muted-foreground)" }}>
-                                        <Lock size={12} style={{ color: "#16a34a" }} />
-                                        <span>Les espaces sont automatiquement supprimés. Chiffrement AES-256-GCM sécurisé.</span>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", fontSize: isMobileView ? "10.5px" : "11px", color: "var(--muted-foreground)" }}>
+                                        <Lock size={11} style={{ color: "#16a34a", flexShrink: 0 }} />
+                                        <span>{isMobileView ? "Espaces ignorés · Chiffrement AES-256" : "Les espaces sont automatiquement supprimés. Chiffrement AES-256-GCM sécurisé."}</span>
                                     </div>
                                 </div>
                             ) : (
                                 <>
-                                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: isMobileView ? "8px" : "12px" }}>
                                         <div>
-                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                            <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                                 Serveur SMTP Host <span style={{ color: "#ef4444" }}>*</span>
                                             </label>
                                             <input
@@ -950,12 +981,12 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                                 placeholder="ssl0.ovh.net ou mail.ionos.fr"
                                                 value={emailForm.smtpHost}
                                                 onChange={(e) => setEmailForm({ ...emailForm, smtpHost: e.target.value })}
-                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                                 required={emailMode === "custom_smtp"}
                                             />
                                         </div>
                                         <div>
-                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                            <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                                 Port SMTP
                                             </label>
                                             <input
@@ -963,14 +994,14 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                                 placeholder="465 ou 587"
                                                 value={emailForm.smtpPort}
                                                 onChange={(e) => setEmailForm({ ...emailForm, smtpPort: e.target.value })}
-                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                             />
                                         </div>
                                     </div>
 
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobileView ? "8px" : "12px" }}>
                                         <div>
-                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                            <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                                 Identifiant SMTP
                                             </label>
                                             <input
@@ -978,11 +1009,11 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                                 placeholder="contact@monentreprise.fr"
                                                 value={emailForm.smtpUser}
                                                 onChange={(e) => setEmailForm({ ...emailForm, smtpUser: e.target.value })}
-                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                             />
                                         </div>
                                         <div>
-                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                            <label style={{ display: "block", fontSize: isMobileView ? "11.5px" : "12.5px", fontWeight: 700, marginBottom: isMobileView ? "4px" : "6px" }}>
                                                 Mot de passe SMTP <span style={{ color: "#ef4444" }}>*</span>
                                             </label>
                                             <input
@@ -990,7 +1021,7 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                                 placeholder="Mot de passe"
                                                 value={emailForm.smtpPass}
                                                 onChange={(e) => setEmailForm({ ...emailForm, smtpPass: e.target.value })}
-                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                style={{ width: "100%", height: isMobileView ? "38px" : "42px", padding: isMobileView ? "8px 11px" : "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: isMobileView ? "13px" : "13.5px", boxSizing: "border-box" }}
                                                 required
                                             />
                                         </div>
@@ -998,11 +1029,11 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                 </>
                             )}
 
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: isMobileView ? "4px" : "12px" }}>
                                 <button
                                     type="button"
                                     onClick={() => setIsEmailModalOpen(false)}
-                                    style={{ padding: "10px 16px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "transparent", color: "var(--foreground)", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}
+                                    style={{ padding: isMobileView ? "8px 14px" : "10px 16px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "transparent", color: "var(--foreground)", fontSize: isMobileView ? "12.5px" : "13px", fontWeight: 600, cursor: "pointer" }}
                                 >
                                     Annuler
                                 </button>
@@ -1010,17 +1041,17 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                     type="submit"
                                     disabled={isConnectingEmail}
                                     style={{
-                                        padding: "10px 22px",
+                                        padding: isMobileView ? "8px 16px" : "10px 22px",
                                         borderRadius: "8px",
                                         border: "none",
                                         backgroundColor: "#556B2F",
                                         color: "#ffffff",
-                                        fontSize: "13px",
+                                        fontSize: isMobileView ? "12.5px" : "13px",
                                         fontWeight: 700,
                                         cursor: isConnectingEmail ? "not-allowed" : "pointer",
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "8px",
+                                        gap: "6px",
                                         boxShadow: "0 2px 8px rgba(85, 107, 47, 0.35)"
                                     }}
                                 >

@@ -1036,9 +1036,13 @@ function DevisPage() {
                                 backgroundColor: 'var(--muted, #F4F3EF)',
                                 fontSize: '0.82rem',
                                 color: 'var(--muted-foreground)',
-                                lineHeight: 1.4
+                                lineHeight: 1.4,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '8px'
                             }}>
-                                💡 Une fois connecté via Google, vos factures, devis et messages seront tous envoyés directement depuis votre adresse sans passer par un email tiers.
+                                <Info size={16} style={{ color: 'var(--sidebar-primary)', flexShrink: 0, marginTop: '1px' }} />
+                                <span>Une fois connecté via Google, vos factures, devis et messages seront tous envoyés directement depuis votre adresse sans passer par un email tiers.</span>
                             </div>
 
                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>

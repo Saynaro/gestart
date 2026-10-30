@@ -17,14 +17,18 @@ export const initSocket = (httpServer) => {
                 if (!origin) return callback(null, true);
                 const allowedOrigins = [
                     process.env.FRONTEND_URL,
+                    "https://gestart.com",
+                    "https://www.gestart.com",
+                    "https://app.gestart.com",
                     "http://localhost:5173",
                     "http://localhost:5174",
                     "http://localhost:3000"
                 ].filter(Boolean);
 
                 const isLocalNetwork = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin);
+                const isGestartDomain = /^https?:\/\/([a-z0-9-]+\.)?gestart\.(com|fr)$/i.test(origin);
 
-                if (allowedOrigins.includes(origin) || isLocalNetwork || process.env.NODE_ENV !== "production") {
+                if (allowedOrigins.includes(origin) || isLocalNetwork || isGestartDomain || process.env.NODE_ENV !== "production") {
                     return callback(null, true);
                 }
                 return callback(new Error("CORS not allowed for this origin"));

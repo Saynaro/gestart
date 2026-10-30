@@ -1,0 +1,142 @@
+# ==============================================================================
+# GESTART CRM — PRODUCTION DOCKER COMPOSE (HETZNER VPS)
+# Architecture:
+#   - Frontend: https://gestart.com
+#   - Backend API & WebSockets: https://api.gestart.com
+#   - PostgreSQL 16 (Persistent Volume + Daily Automatic Backups)
+#   - Redis 7 (Password-protected Cache & Rate Limiter)
+# ==============================================================================
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # 1. BASE DE DONNÉES POSTGRESQL 16 (PERSISTENT DATA)
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestart-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-gestart}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:-gestart}
+    volumes:
+      # Named volume keeps all DB data safe across container restarts/rebuilds
+      - postgres_data:/var/lib/postgresql/data
+      # Shared folder for manual or automated SQL dumps on the host VPS
+      - ./backups:/backups
+    networks:
+      - gestart-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gestart} -d ${DB_NAME:-gestart}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. SAUVEGARDE AUTOMATIQUE QUOTIDIENNE DE LA BASE DE DONNÉES
+  #    Crée un dump .sql.gz chaque nuit dans ./backups sur le VPS
+  # ─────────────────────────────────────────────────────────────
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local:16-alpine
+    container_name: gestart-backups
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${DB_NAME:-gestart}
+      POSTGRES_USER: ${DB_USER:-gestart}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 14
+      BACKUP_KEEP_WEEKS: 8
+      BACKUP_KEEP_MONTHS: 6
+    volumes:
+      - ./backups:/backups
+    networks:
+      - gestart-network
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. REDIS 7 (CACHE & RATE LIMITING)
+  # ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: gestart-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    volumes:
+      - redis_data:/data
+    networks:
+      - gestart-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # 4. BACKEND API (api.gestart.com — Express + Prisma + Socket.io)
+  # ─────────────────────────────────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: gestart-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      FRONTEND_URL: ${FRONTEND_URL:-https://gestart.com}
+      BACKEND_URL: ${BACKEND_URL:-https://api.gestart.com}
+      DATABASE_URL: postgresql://${DB_USER:-gestart}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-gestart}?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - gestart-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # 5. FRONTEND + REVERSE PROXY NGINX (gestart.com & api.gestart.com)
+  # ─────────────────────────────────────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: ${BACKEND_URL:-https://api.gestart.com}
+        VITE_API_URL: ${VITE_API_URL:-https://api.gestart.com/api}
+        VITE_FRONTEND_URL: ${FRONTEND_URL:-https://gestart.com}
+    container_name: gestart-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - gestart-network
+
+networks:
+  gestart-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: gestart_postgres_data
+  redis_data:
+    name: gestart_redis_data
+

@@ -17,17 +17,24 @@ async function main() {
         });
     }
 
-    const hashedPassword = await bcrypt.hash('Khalid2527@@', 10);
+    const adminEmail = process.env.ADMIN_EMAIL || 'support.gestart@gmail.com';
+    const adminPassword = process.env.SUPERADMIN_PASSWORD;
+
+    if (!adminPassword) {
+        throw new Error("SUPERADMIN_PASSWORD n'est pas défini dans le fichier .env");
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     const superAdmin = await prisma.user.upsert({
-        where: { email: 'support.gestart@gmail.com' },
+        where: { email: adminEmail },
         update: {
             role: 'SUPERADMIN',
             emailVerified: true,
             password: hashedPassword
         },
         create: {
-            email: 'support.gestart@gmail.com',
+            email: adminEmail,
             password: hashedPassword,
             firstName: 'Khalid',
             lastName: 'Sainaro',

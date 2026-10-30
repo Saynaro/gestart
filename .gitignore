@@ -1,0 +1,19 @@
+# OS & Editor files
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.sw?
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+# Database backups
+backups/
+

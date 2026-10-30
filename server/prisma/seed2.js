@@ -100,13 +100,13 @@ async function main() {
             name: "ClimPro France Services",
             slug: "climpro-france",
             phone: "+33140000000",
-            email: "contact@climpro-france.fr",
+            email: "contact@gestart.fr",
             address: "15 Rue de la Paix",
             city: "Paris",
             postalCode: "75002",
             siret: "12345678900014",
             siren: "123456789",
-            website: "https://climpro-france.fr",
+            website: "https://gestart.fr",
             settings: {
                 create: {
                     quotePrefix: "D",
@@ -141,14 +141,14 @@ async function main() {
     const passwordHash = await bcrypt.hash("Password123!", salt);
 
     const owner = await prisma.user.upsert({
-        where: { email: "owner@climpro-france.fr" },
+        where: { email: "owner@gestart.fr" },
         update: {},
         create: {
             companyId: company.id,
-            email: "owner@climpro-france.fr",
+            email: "owner@gestart.fr",
             password: passwordHash,
-            firstName: "Jean",
-            lastName: "Dupont",
+            firstName: "Prenom",
+            lastName: "Nom",
             role: "OWNER",
             phone: "+33611223344",
             emailVerified: true,
@@ -157,14 +157,14 @@ async function main() {
     });
 
     const tech = await prisma.user.upsert({
-        where: { email: "technicien@climpro-france.fr" },
+        where: { email: "technicien@gestart.fr" },
         update: {},
         create: {
             companyId: company.id,
-            email: "technicien@climpro-france.fr",
+            email: "technicien@gestart.fr",
             password: passwordHash,
-            firstName: "Marc",
-            lastName: "Lambert",
+            firstName: "Prenom",
+            lastName: "Nom",
             role: "TECHNICIAN",
             phone: "+33655667788",
             emailVerified: true,
@@ -178,14 +178,14 @@ async function main() {
         data: {
             companyId: company.id,
             createdById: owner.id,
-            firstName: "Pierre",
-            lastName: "Martin",
-            companyName: "SCI Residence Martin",
+            firstName: "Client",
+            lastName: "1",
+            companyName: " Residence 1",
             phone: "+33699887766",
-            email: "pierre.martin@example.com",
-            address: "8 Boulevard Haussmann",
-            city: "Paris",
-            postalCode: "75009",
+            email: "client1@gestart.fr",
+            address: " 12 jean Medecin",
+            city: "Nice",
+            postalCode: "06000",
             status: "OK",
             preferredChannel: "SMS",
             source: "site_web"
@@ -232,7 +232,7 @@ async function main() {
     });
 
     console.log(`✓ 6. Intervention démo créée (${intervention.title})`);
-    console.log("🎉 Seed2 terminé avec succès !");
+    console.log(" Seed2 terminé avec succès !");
 }
 
 main()

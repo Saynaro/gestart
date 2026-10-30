@@ -29,11 +29,19 @@ const startServer = async () => {
         documentReminderScheduler.start();
         subscriptionScheduler.start();
 
-        // Worker en arrière-plan : Synchronisation automatique des emails entrants (Gmail) toutes les 60 secondes
+        // Worker en arrière-plan : Synchronisation automatique des emails entrants toutes les 45 secondes
         const syncInterval = setInterval(async () => {
             try {
                 const { prisma } = await import("./config/db.js");
                 const { emailProvider } = await import("./services/messaging/providers/email/EmailProvider.js");
+                const { inboundEmailService } = await import("./services/messaging/providers/email/InboundEmailService.js");
+
+                // 1. Synchronisation du relais central GestArt (support.gestart@gmail.com)
+                await inboundEmailService.syncRelayInbox().catch(err => {
+                    console.warn("[SYNC_RELAY_NOTICE]", err.message);
+                });
+
+                // 2. Synchronisation des connexions Google OAuth
                 const activeGoogleConnections = await prisma.emailConnection.findMany({
                     where: { provider: "GOOGLE", status: "CONNECTED" },
                     select: { companyId: true },
@@ -43,8 +51,19 @@ const startServer = async () => {
                 for (const conn of activeGoogleConnections) {
                     await emailProvider.syncGoogleInbox(conn.companyId).catch(() => {});
                 }
+
+                // 3. Synchronisation des connexions personnalisées IMAP (Mot de passe d'application Google)
+                const activeImapConnections = await prisma.emailConnection.findMany({
+                    where: { provider: "SMTP", status: "CONNECTED" },
+                    select: { companyId: true },
+                    distinct: ["companyId"]
+                });
+
+                for (const conn of activeImapConnections) {
+                    await inboundEmailService.syncCompanyImap(conn.companyId).catch(() => {});
+                }
             } catch (e) {}
-        }, 60000);
+        }, 45000);
 
         // graceful shutdown for docker
         // make sure that the server is closed before the database

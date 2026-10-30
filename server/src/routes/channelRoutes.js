@@ -8,7 +8,8 @@ import {
     testEmail,
     disconnectEmail,
     startGoogleEmailAuth,
-    handleGoogleEmailCallback
+    handleGoogleEmailCallback,
+    syncEmail
 } from "../controllers/channelController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { requireManager } from "../middlewares/checkRole.js";
@@ -34,5 +35,6 @@ router.get("/email/google/auth", requireManager, startGoogleEmailAuth);
 router.post("/email/connect", requireManager, connectEmail);
 router.post("/email/test", requireManager, testEmail);
 router.post("/email/disconnect", requireManager, disconnectEmail);
+router.post("/email/sync", syncEmail);
 
 export default router;

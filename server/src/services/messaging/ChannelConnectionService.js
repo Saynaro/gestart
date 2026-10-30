@@ -320,13 +320,20 @@ export const ChannelConnectionService = {
         smtpUser,
         smtpPass
     }) {
-        if (!companyId || !emailAddress) {
-            throw new Error("L'adresse email et la société sont obligatoires.");
+        let resolvedSmtpHost = smtpHost;
+        let resolvedSmtpPort = smtpPort ? parseInt(smtpPort, 10) : undefined;
+        let resolvedSmtpUser = smtpUser || emailAddress;
+        const cleanSmtpPass = smtpPass ? smtpPass.replace(/\s+/g, "") : null;
+
+        if (emailAddress.includes("@gmail.com") || (smtpHost && smtpHost.includes("gmail"))) {
+            resolvedSmtpHost = resolvedSmtpHost || "smtp.gmail.com";
+            resolvedSmtpPort = resolvedSmtpPort || 465;
+            resolvedSmtpUser = resolvedSmtpUser || emailAddress;
         }
 
         const encryptedAccessToken = accessToken ? encryptCredential(accessToken) : null;
         const encryptedRefreshToken = refreshToken ? encryptCredential(refreshToken) : null;
-        const encryptedSmtpPass = smtpPass ? encryptCredential(smtpPass) : null;
+        const encryptedSmtpPass = cleanSmtpPass ? encryptCredential(cleanSmtpPass) : null;
         const tokenExpiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : null;
 
         // Reset isDefault sur les autres connexions de l'entreprise
@@ -349,9 +356,9 @@ export const ChannelConnectionService = {
                 encryptedAccessToken: encryptedAccessToken || undefined,
                 encryptedRefreshToken: encryptedRefreshToken || undefined,
                 tokenExpiresAt: tokenExpiresAt || undefined,
-                smtpHost: smtpHost || undefined,
-                smtpPort: smtpPort ? parseInt(smtpPort, 10) : undefined,
-                smtpUser: smtpUser || undefined,
+                smtpHost: resolvedSmtpHost || undefined,
+                smtpPort: resolvedSmtpPort || undefined,
+                smtpUser: resolvedSmtpUser || undefined,
                 encryptedSmtpPass: encryptedSmtpPass || undefined,
                 status: "CONNECTED",
                 isDefault: true,
@@ -366,9 +373,9 @@ export const ChannelConnectionService = {
                 encryptedAccessToken,
                 encryptedRefreshToken,
                 tokenExpiresAt,
-                smtpHost: smtpHost || null,
-                smtpPort: smtpPort ? parseInt(smtpPort, 10) : null,
-                smtpUser: smtpUser || null,
+                smtpHost: resolvedSmtpHost || null,
+                smtpPort: resolvedSmtpPort || null,
+                smtpUser: resolvedSmtpUser || null,
                 encryptedSmtpPass,
                 status: "CONNECTED",
                 isDefault: true,

@@ -16,16 +16,20 @@ import {
     Info,
     ChevronRight,
     Sparkles,
-    Lock
+    Lock,
+    CornerDownLeft,
+    Key,
+    HelpCircle
 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { getAuthToken } from "../../utils/auth";
 import { API_URL } from "../../utils/config";
 import { WhatsAppIcon, EmailIcon, SmsIcon } from "../../components/ChannelIcons";
-import { useSubscription } from "../../utils/useSubscription";
+import { useUser } from "../../utils/useUser";
 
 export default function CommunicationTab({ isMobileView, triggerToast, triggerConfirm }) {
     const { isExpired } = useSubscription();
+    const { companyName, email: userEmail, company } = useUser();
     const [loading, setLoading] = useState(true);
     const [channelsData, setChannelsData] = useState(null);
     const [testingChannel, setTestingChannel] = useState(null);
@@ -43,6 +47,8 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
     const [isConnectingWa, setIsConnectingWa] = useState(false);
 
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [emailMode, setEmailMode] = useState("google_app_pass"); // "google_app_pass" | "custom_smtp"
+    const [showAppPassGuide, setShowAppPassGuide] = useState(true);
     const [emailForm, setEmailForm] = useState({
         provider: "SMTP",
         emailAddress: "",
@@ -172,13 +178,36 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
             return;
         }
 
+        const isGoogleMode = emailMode === "google_app_pass" || emailForm.emailAddress.includes("@gmail.com");
+        const payload = isGoogleMode
+            ? {
+                ...emailForm,
+                provider: "SMTP",
+                smtpHost: "smtp.gmail.com",
+                smtpPort: 465,
+                smtpUser: emailForm.emailAddress.trim(),
+                smtpPass: emailForm.smtpPass.replace(/\s+/g, '')
+            }
+            : {
+                ...emailForm,
+                smtpPass: emailForm.smtpPass.replace(/\s+/g, '')
+            };
+
         try {
             setIsConnectingEmail(true);
             await apiFetch("/v1/communication/email/connect", {
                 method: "POST",
-                body: JSON.stringify(emailForm)
+                body: JSON.stringify(payload)
             });
-            triggerToast("Boîte Email connectée avec succès !");
+
+            // Validation immédiate
+            const testRes = await apiFetch("/v1/communication/email/test", { method: "POST" });
+            if (testRes.success) {
+                triggerToast("Boîte Email connectée et validée avec succès ! ✓");
+            } else {
+                triggerToast("Boîte enregistrée, mais vérifiez le mot de passe : " + (testRes.message || ""), true);
+            }
+
             setIsEmailModalOpen(false);
             fetchChannels();
         } catch (err) {
@@ -560,9 +589,33 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
                                     <button
                                         type="button"
-                                        onClick={handleGoogleConnect}
+                                        onClick={() => {
+                                            setEmailMode("google_app_pass");
+                                            setIsEmailModalOpen(true);
+                                        }}
                                         style={{
                                             padding: isMobileView ? "7px 12px" : "8px 16px",
+                                            backgroundColor: "#556B2F",
+                                            color: "#ffffff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            fontSize: isMobileView ? "12px" : "12.5px",
+                                            fontWeight: 700,
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            boxShadow: "0 2px 6px rgba(85, 107, 47, 0.25)"
+                                        }}
+                                    >
+                                        <Key size={14} />
+                                        <span>Mot de passe Google</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleGoogleConnect}
+                                        style={{
+                                            padding: isMobileView ? "7px 12px" : "8px 14px",
                                             backgroundColor: "#ffffff",
                                             color: "#3c4043",
                                             border: "1px solid #dadce0",
@@ -575,6 +628,7 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                             gap: "6px",
                                             boxShadow: "0 1px 2px rgba(60,64,67,0.08)"
                                         }}
+                                        title="Connexion Google en 1 clic"
                                     >
                                         <svg width={isMobileView ? "15" : "16"} height={isMobileView ? "15" : "16"} viewBox="0 0 24 24">
                                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -582,28 +636,37 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                                         </svg>
-                                        Google
+                                        <span>1-Clic Google</span>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            setEmailForm(prev => ({ ...prev, provider: "SMTP" }));
+                                            setEmailMode("custom_smtp");
                                             setIsEmailModalOpen(true);
                                         }}
                                         style={{ padding: isMobileView ? "7px 12px" : "8px 14px", backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px", fontSize: isMobileView ? "12px" : "12.5px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
                                     >
-                                        SMTP
+                                        Autre IMAP / SMTP
                                     </button>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div style={{ background: "var(--background)", borderRadius: "10px", padding: isMobileView ? "10px 12px" : "12px 16px", fontSize: isMobileView ? "12px" : "12.5px", color: "var(--muted-foreground)" }}>
+                    <div style={{ background: email.status === "CONNECTED" ? "var(--background)" : "rgba(59, 130, 246, 0.08)", border: email.status === "CONNECTED" ? "none" : "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "10px", padding: isMobileView ? "12px" : "14px 16px", fontSize: isMobileView ? "12px" : "12.5px", color: "var(--foreground)" }}>
                         {email.status === "CONNECTED" ? (
                             <span>Expéditeur officiel : <strong style={{ color: "var(--foreground)" }}>{email.displayName || "Votre Société"} &lt;{email.emailAddress}&gt;</strong> · Vos devis et factures PDF sont transmis avec cette identité.</span>
                         ) : (
-                            <span>Connectez votre adresse email professionnelle pour envoyer des devis, factures et répondre aux clients.</span>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <Mail size={16} style={{ color: "#2563eb", flexShrink: 0 }} />
+                                    <span><strong>Relais GestArt actif par défaut (support.gestart@gmail.com) :</strong> vos devis, factures et messages s'envoient immédiatement sous le nom de votre entreprise, sans configuration requise.</span>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "24px", color: "var(--muted-foreground)" }}>
+                                    <CornerDownLeft size={14} style={{ color: "#2563eb", flexShrink: 0 }} />
+                                    <span>Les réponses de vos clients sont automatiquement réceptionnées et synchronisées en temps réel dans votre CRM.</span>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -708,27 +771,135 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
             {/* Modal de Configuration Email / SMTP */}
             {isEmailModalOpen && createPortal(
                 <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", zIndex: 999999, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", overflowY: "auto", boxSizing: "border-box" }}>
-                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "16px", width: "100%", maxWidth: "520px", maxHeight: "90vh", overflowY: "auto", padding: "24px", boxShadow: "0 20px 40px rgba(0,0,0,0.4)", margin: "auto", boxSizing: "border-box" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                    <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "18px", width: "100%", maxWidth: "560px", maxHeight: "92vh", overflowY: "auto", padding: "24px", boxShadow: "0 24px 48px rgba(0,0,0,0.45)", margin: "auto", boxSizing: "border-box" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <div style={{ width: "36px", height: "36px", borderRadius: "10px", backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <div style={{ width: "38px", height: "38px", borderRadius: "10px", backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     <Mail size={20} />
                                 </div>
-                                <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 800 }}>Configurer votre boîte Email</h3>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: 800 }}>Connecter votre boîte Email</h3>
+                                    <p style={{ margin: "2px 0 0 0", fontSize: "12px", color: "var(--muted-foreground)" }}>
+                                        Envoyez vos devis et factures avec votre propre adresse
+                                    </p>
+                                </div>
                             </div>
-                            <button onClick={() => setIsEmailModalOpen(false)} style={{ background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer" }}>
+                            <button onClick={() => setIsEmailModalOpen(false)} style={{ background: "none", border: "none", color: "var(--muted-foreground)", cursor: "pointer", padding: "4px" }}>
                                 <X size={20} />
                             </button>
                         </div>
 
+                        {/* Sélecteur de méthode */}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "18px", padding: "4px", backgroundColor: "var(--background)", borderRadius: "10px", border: "1px solid var(--border)" }}>
+                            <button
+                                type="button"
+                                onClick={() => setEmailMode("google_app_pass")}
+                                style={{
+                                    padding: "9px 12px",
+                                    borderRadius: "8px",
+                                    border: "none",
+                                    fontSize: "12.5px",
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "6px",
+                                    backgroundColor: emailMode === "google_app_pass" ? "var(--card)" : "transparent",
+                                    color: emailMode === "google_app_pass" ? "#556B2F" : "var(--muted-foreground)",
+                                    boxShadow: emailMode === "google_app_pass" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
+                                    transition: "all 0.15s ease"
+                                }}
+                            >
+                                <Key size={14} />
+                                <span>Gmail / Google (1 min)</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setEmailMode("custom_smtp")}
+                                style={{
+                                    padding: "9px 12px",
+                                    borderRadius: "8px",
+                                    border: "none",
+                                    fontSize: "12.5px",
+                                    fontWeight: 700,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "6px",
+                                    backgroundColor: emailMode === "custom_smtp" ? "var(--card)" : "transparent",
+                                    color: emailMode === "custom_smtp" ? "#556B2F" : "var(--muted-foreground)",
+                                    boxShadow: emailMode === "custom_smtp" ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
+                                    transition: "all 0.15s ease"
+                                }}
+                            >
+                                <Mail size={14} />
+                                <span>Autre SMTP / Hébergeur</span>
+                            </button>
+                        </div>
+
+                        {emailMode === "google_app_pass" && (
+                            <div style={{ marginBottom: "18px", padding: "14px", borderRadius: "12px", backgroundColor: "rgba(85, 107, 47, 0.08)", border: "1px solid rgba(85, 107, 47, 0.22)" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, fontSize: "13px", color: "var(--foreground)" }}>
+                                        <Sparkles size={15} style={{ color: "#556B2F" }} />
+                                        <span>Guide rapide : créer votre mot de passe Google en 1 minute</span>
+                                    </div>
+                                    <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "6px", backgroundColor: "rgba(34, 197, 94, 0.15)", color: "#16a34a" }}>
+                                        100% Gratuit
+                                    </span>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "12px", lineHeight: "1.45", color: "var(--foreground)" }}>
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>1</span>
+                                        <div>
+                                            Ouvrez la page Google Sécurité :{" "}
+                                            <a
+                                                href="https://myaccount.google.com/apppasswords"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ color: "#2563eb", fontWeight: 700, textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "3px" }}
+                                            >
+                                                myaccount.google.com/apppasswords
+                                                <ExternalLink size={11} />
+                                            </a>
+                                            <span style={{ color: "var(--muted-foreground)", display: "block", fontSize: "11px" }}>
+                                                (Assurez-vous que la validation en 2 étapes est activée sur votre compte Google)
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>2</span>
+                                        <div>
+                                            Dans le champ "Nom de l'application", écrivez <strong>GestArt</strong> puis cliquez sur <strong>Créer</strong>.
+                                        </div>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "11px", flexShrink: 0 }}>3</span>
+                                        <div>
+                                            Google génère un code jaune de <strong>16 lettres</strong> (ex: <code style={{ backgroundColor: "rgba(0,0,0,0.06)", padding: "2px 5px", borderRadius: "4px", fontWeight: 600 }}>bptw bkbu ibbv drop</code>).
+                                        </div>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                                        <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "var(--card)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "11px", flexShrink: 0 }}>4</span>
+                                        <div>
+                                            Collez ce mot de passe ci-dessous. Le serveur et le port sont déjà pré-remplis !
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSaveEmail} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                             <div>
                                 <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                    Adresse Email d'envoi <span style={{ color: "#ef4444" }}>*</span>
+                                    {emailMode === "google_app_pass" ? "Votre adresse Gmail ou Google Workspace" : "Adresse Email d'envoi"} <span style={{ color: "#ef4444" }}>*</span>
                                 </label>
                                 <input
                                     type="email"
-                                    placeholder="contact@dupont-clim.fr"
+                                    placeholder={company?.email || userEmail || "contact@monentreprise.fr"}
                                     value={emailForm.emailAddress}
                                     onChange={(e) => setEmailForm({ ...emailForm, emailAddress: e.target.value })}
                                     style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
@@ -738,72 +909,96 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
 
                             <div>
                                 <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                    Nom de l'expéditeur
+                                    Nom de l'expéditeur (affiché à vos clients)
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="Dupont Climatisation"
+                                    placeholder={companyName || "Mon Entreprise"}
                                     value={emailForm.displayName}
                                     onChange={(e) => setEmailForm({ ...emailForm, displayName: e.target.value })}
                                     style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
                                 />
                             </div>
 
-                            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+                            {emailMode === "google_app_pass" ? (
                                 <div>
                                     <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                        Serveur SMTP Host
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="smtp.gmail.com / mail.ovh.net"
-                                        value={emailForm.smtpHost}
-                                        onChange={(e) => setEmailForm({ ...emailForm, smtpHost: e.target.value })}
-                                        style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                        Port
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="465 ou 587"
-                                        value={emailForm.smtpPort}
-                                        onChange={(e) => setEmailForm({ ...emailForm, smtpPort: e.target.value })}
-                                        style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                        Utilisateur SMTP
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="user@domaine.fr"
-                                        value={emailForm.smtpUser}
-                                        onChange={(e) => setEmailForm({ ...emailForm, smtpUser: e.target.value })}
-                                        style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
-                                        Mot de passe SMTP
+                                        Mot de passe d'application Google (16 lettres) <span style={{ color: "#ef4444" }}>*</span>
                                     </label>
                                     <input
                                         type="password"
-                                        placeholder="Mot de passe d'application"
+                                        placeholder="Ex: bptw bkbu ibbv drop"
                                         value={emailForm.smtpPass}
                                         onChange={(e) => setEmailForm({ ...emailForm, smtpPass: e.target.value })}
                                         style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                        required
                                     />
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", fontSize: "11px", color: "var(--muted-foreground)" }}>
+                                        <Lock size={12} style={{ color: "#16a34a" }} />
+                                        <span>Les espaces sont automatiquement supprimés. Chiffrement AES-256-GCM sécurisé.</span>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <>
+                                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                                Serveur SMTP Host <span style={{ color: "#ef4444" }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="ssl0.ovh.net ou mail.ionos.fr"
+                                                value={emailForm.smtpHost}
+                                                onChange={(e) => setEmailForm({ ...emailForm, smtpHost: e.target.value })}
+                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                required={emailMode === "custom_smtp"}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                                Port SMTP
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="465 ou 587"
+                                                value={emailForm.smtpPort}
+                                                onChange={(e) => setEmailForm({ ...emailForm, smtpPort: e.target.value })}
+                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                                Identifiant SMTP
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="contact@monentreprise.fr"
+                                                value={emailForm.smtpUser}
+                                                onChange={(e) => setEmailForm({ ...emailForm, smtpUser: e.target.value })}
+                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12.5px", fontWeight: 700, marginBottom: "6px" }}>
+                                                Mot de passe SMTP <span style={{ color: "#ef4444" }}>*</span>
+                                            </label>
+                                            <input
+                                                type="password"
+                                                placeholder="Mot de passe"
+                                                value={emailForm.smtpPass}
+                                                onChange={(e) => setEmailForm({ ...emailForm, smtpPass: e.target.value })}
+                                                style={{ width: "100%", height: "42px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--background)", color: "var(--foreground)", fontSize: "13.5px", boxSizing: "border-box" }}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
                                 <button
                                     type="button"
                                     onClick={() => setIsEmailModalOpen(false)}
@@ -814,10 +1009,32 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                                 <button
                                     type="submit"
                                     disabled={isConnectingEmail}
-                                    style={{ padding: "10px 20px", borderRadius: "8px", border: "none", backgroundColor: "var(--sidebar-primary)", color: "#ffffff", fontSize: "13px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+                                    style={{
+                                        padding: "10px 22px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        backgroundColor: "#556B2F",
+                                        color: "#ffffff",
+                                        fontSize: "13px",
+                                        fontWeight: 700,
+                                        cursor: isConnectingEmail ? "not-allowed" : "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        boxShadow: "0 2px 8px rgba(85, 107, 47, 0.35)"
+                                    }}
                                 >
-                                    {isConnectingEmail ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                                    Enregistrer l'email
+                                    {isConnectingEmail ? (
+                                        <>
+                                            <Loader2 size={16} className="animate-spin" />
+                                            <span>Validation en cours...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Check size={16} />
+                                            <span>Valider et Connecter</span>
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>

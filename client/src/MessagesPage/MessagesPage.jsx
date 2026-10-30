@@ -402,6 +402,8 @@ function MessagesPage() {
     }
   }, []);
 
+  const [isSyncingEmail, setIsSyncingEmail] = useState(false);
+
   const handleRefresh = useCallback(async () => {
     await fetchConversations(true);
     if (activeChatIdParam) {
@@ -411,6 +413,17 @@ function MessagesPage() {
       } catch (_) {}
     }
   }, [fetchConversations, activeChatIdParam]);
+
+  const handleManualSyncInbox = async () => {
+    try {
+      setIsSyncingEmail(true);
+      await apiFetch("/v1/communication/email/sync", { method: "POST" });
+    } catch (_) {
+    } finally {
+      await handleRefresh();
+      setIsSyncingEmail(false);
+    }
+  };
 
   useEffect(() => {
     fetchConversations(!!cachedMessagesChats);
@@ -1591,6 +1604,30 @@ function MessagesPage() {
             </button>
           )}
         </div>
+        <button
+          type="button"
+          className="inbox-sync-btn"
+          title="Actualiser et synchroniser les emails"
+          aria-label="Actualiser les messages"
+          disabled={isSyncingEmail}
+          onClick={handleManualSyncInbox}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "36px",
+            height: "36px",
+            borderRadius: "10px",
+            border: "1px solid var(--border)",
+            backgroundColor: "var(--background)",
+            color: isSyncingEmail ? "#2563eb" : "var(--muted-foreground)",
+            cursor: isSyncingEmail ? "not-allowed" : "pointer",
+            flexShrink: 0,
+            transition: "all 0.15s ease"
+          }}
+        >
+          <RefreshCw size={15} className={isSyncingEmail ? "animate-spin" : ""} />
+        </button>
         <button
           type="button"
           className="inbox-mobile-new-chat-btn"

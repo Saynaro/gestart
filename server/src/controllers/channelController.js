@@ -279,3 +279,39 @@ export const handleGoogleEmailCallback = async (req, res) => {
         return res.redirect(`${frontendUrl}/settings?tab=communication&error=${encodeURIComponent(err.message)}`);
     }
 };
+
+/**
+ * Déclenche une synchronisation immédiate des emails entrants
+ * POST /api/v1/communication/email/sync
+ */
+export const syncEmail = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { inboundEmailService } = await import("../services/messaging/providers/email/InboundEmailService.js");
+        const { emailProvider } = await import("../services/messaging/providers/email/EmailProvider.js");
+
+        // Sync relais central GestArt
+        const relayRes = await inboundEmailService.syncRelayInbox().catch(() => ({ synced: 0 }));
+
+        // Sync Google OAuth si connecté
+        const googleRes = await emailProvider.syncGoogleInbox(companyId).catch(() => ({ synced: 0 }));
+
+        // Sync IMAP entreprise (si mot de passe d'application configuré)
+        const imapRes = await inboundEmailService.syncCompanyImap(companyId).catch(() => ({ synced: 0 }));
+
+        const totalSynced = (relayRes?.synced || 0) + (googleRes?.synced || 0) + (imapRes?.synced || 0);
+
+        return res.status(200).json({
+            success: true,
+            message: totalSynced > 0 ? `${totalSynced} nouveau(x) message(s) synchronisé(s)` : "Boîte de réception à jour",
+            data: { synced: totalSynced }
+        });
+    } catch (err) {
+        console.error("SYNC EMAIL ERROR:", err.message);
+        return res.status(500).json({
+            success: false,
+            message: err.message || "Erreur de synchronisation email"
+        });
+    }
+};
+

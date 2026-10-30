@@ -318,7 +318,7 @@ export default function SupportTab({ isMobileView, triggerToast }) {
             width: '100%',
             height: isMobileView ? '100%' : 'auto',
             flex: isMobileView ? '1 1 0' : 'none',
-            minHeight: isMobileView ? '0' : '580px',
+            minHeight: (isMobileView || isCollapsed) ? '0' : '580px',
             backgroundColor: isMobileView ? 'var(--background)' : 'var(--card)',
             border: isMobileView ? 'none' : '1px solid var(--border)',
             borderRadius: isMobileView ? '0' : '18px',
@@ -328,7 +328,7 @@ export default function SupportTab({ isMobileView, triggerToast }) {
             {/* Chat Header */}
             <div style={{
                 padding: isMobileView ? '12px 16px' : '16px 22px',
-                borderBottom: '1px solid var(--border)',
+                borderBottom: isCollapsed ? 'none' : '1px solid var(--border)',
                 backgroundColor: 'rgba(255, 255, 255, 0.02)',
                 display: 'flex',
                 justifyContent: 'space-between',

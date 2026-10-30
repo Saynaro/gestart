@@ -345,7 +345,9 @@ function SettingsPage() {
             defaultOpen["Config"] = true;
         } else if (tabParam === "support" || tabParam === "faq" || tabParam === "parrainage") {
             defaultOpen["Communauté"] = true;
-        } else if (tabParam) {
+        } else if (tabParam === "mentions" || tabParam === "cgu" || tabParam === "confidentialite" || tabParam === "cookies") {
+            defaultOpen["À propos"] = true;
+        } else {
             defaultOpen["Mon compte"] = true;
         }
         return defaultOpen;

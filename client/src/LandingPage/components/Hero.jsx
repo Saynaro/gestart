@@ -1,15 +1,16 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Hero.css";
-import heroDashboard from "../../assets/hero-dashboard.jpg";
 import { CirclePlay, Calendar, MessageSquare, FileSignature, FileText, CreditCard, BarChart3 } from "lucide-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { isAuthenticated } from "../../utils/auth";
+import DemoModal from "./DemoModal";
 
 function Hero() {
     const navigate = useNavigate();
     const loggedIn = isAuthenticated();
+    const [isDemoOpen, setIsDemoOpen] = useState(false);
     const containerRef = useRef(null);
     const node1Ref = useRef(null);
     const node2Ref = useRef(null);
@@ -126,9 +127,18 @@ function Hero() {
                             <span className="desktop-text">{loggedIn ? 'Accéder à mon espace →' : 'Essayer gratuitement 14j'}</span>
                             <span className="mobile-text">{loggedIn ? 'Mon Espace' : 'Essai gratuit 14j'}</span>
                         </button>
-                        <button className="secondary-button" onClick={() => navigate(loggedIn ? '/home' : '/login')}>
+                        <button 
+                            className="secondary-button" 
+                            onClick={() => {
+                                if (loggedIn) {
+                                    navigate('/home');
+                                } else {
+                                    setIsDemoOpen(true);
+                                }
+                            }}
+                        >
                             <span className="desktop-text">{loggedIn ? 'Tableau de bord' : 'Voir le demo en 2 minutes'}</span>
-                            <span className="mobile-text">{loggedIn ? 'Connexion' : 'Voir demo en 2 min.'}</span>
+                            <span className="mobile-text">{loggedIn ? 'Tableau de bord' : 'Voir demo en 2 min.'}</span>
                             <CirclePlay />
                         </button>
                     </div>
@@ -139,16 +149,18 @@ function Hero() {
                     </div>
                 </div>
             </div>
-            <div className="hero-image">
+            <div className="hero-image" onClick={() => setIsDemoOpen(true)} title="Cliquez pour agrandir la démo" style={{ cursor: "pointer" }}>
                 <img 
-                    src={heroDashboard} 
+                    src="/image.png" 
                     alt="Tableau de bord de gestion de maintenance GestArt" 
-                    width={700} 
-                    height={467} 
+                    width={920} 
+                    height={560} 
                     fetchPriority="high" 
                     loading="eager" 
                 />
             </div>
+
+            <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
         </>
     )
 }

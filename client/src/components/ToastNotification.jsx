@@ -106,15 +106,15 @@ export default function ToastNotification({
 
     const renderIcon = () => {
         if (type === 'error') {
-            return <AlertTriangle size={18} style={{ color: "#EF4444", flexShrink: 0 }} />;
+            return <AlertTriangle size={18} style={{ color: "#EF4444", flexShrink: 0, marginTop: '2px' }} />;
         }
         if (type === 'info') {
-            return <Info size={18} style={{ color: "#3B82F6", flexShrink: 0 }} />;
+            return <Info size={18} style={{ color: "#3B82F6", flexShrink: 0, marginTop: '2px' }} />;
         }
         if (type === 'sparkles') {
-            return <Sparkles size={18} style={{ color: "#a855f7", flexShrink: 0 }} />;
+            return <Sparkles size={18} style={{ color: "#a855f7", flexShrink: 0, marginTop: '2px' }} />;
         }
-        return <CheckCircle2 size={18} style={{ color: "#10B981", flexShrink: 0 }} />;
+        return <CheckCircle2 size={18} style={{ color: "#10B981", flexShrink: 0, marginTop: '2px' }} />;
     };
 
     return (
@@ -139,7 +139,7 @@ export default function ToastNotification({
                     title="Cliquer pour masquer"
                 >
                     {renderIcon()}
-                    <span>{message}</span>
+                    <span style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>{message}</span>
                 </motion.div>
             )}
         </AnimatePresence>

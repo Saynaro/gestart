@@ -196,7 +196,7 @@ function MessagesPage() {
       if (res?.data?.usage?.sms) {
         setSmsUsage(res.data.usage.sms);
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   useEffect(() => {
@@ -343,17 +343,17 @@ function MessagesPage() {
     if (!dateString) return "";
     const date = new Date(dateString);
     if (isNaN(date)) return "";
-    
+
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
     const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
-    
+
     if (isToday) return "Aujourd'hui";
     if (isYesterday) return "Hier";
-    
+
     const options = { weekday: 'short', day: 'numeric', month: 'short' };
     let formatted = new Intl.DateTimeFormat('fr-FR', options).format(date);
     // Capitalize first letter
@@ -410,7 +410,7 @@ function MessagesPage() {
       try {
         const res = await apiFetch(`/v1/messages/inbox/${activeChatIdParam}`);
         if (res.data?.messages) setMessages(res.data.messages);
-      } catch (_) {}
+      } catch (_) { }
     }
   }, [fetchConversations, activeChatIdParam]);
 
@@ -487,9 +487,9 @@ function MessagesPage() {
           // Marquer comme lus
           try {
             await apiFetch(`/v1/messages/read/${activeChatIdParam}`, { method: "PATCH" });
-            setChats(prev => prev.map(c => 
-              (c.clientId === activeChatIdParam || c.id === activeChatIdParam) 
-                ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+            setChats(prev => prev.map(c =>
+              (c.clientId === activeChatIdParam || c.id === activeChatIdParam)
+                ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage }
                 : c
             ));
             window.dispatchEvent(new Event("messages-read"));
@@ -584,9 +584,9 @@ function MessagesPage() {
 
     const handleReadUpdate = (payload) => {
       const { clientId } = payload;
-      setChats(prev => prev.map(c => 
-        (c.clientId === clientId || c.id === clientId) 
-          ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+      setChats(prev => prev.map(c =>
+        (c.clientId === clientId || c.id === clientId)
+          ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage }
           : c
       ));
       window.dispatchEvent(new Event("messages-read"));
@@ -758,9 +758,9 @@ function MessagesPage() {
   };
 
   const handleSelectChat = (clientId) => {
-    setChats(prev => prev.map(c => 
-      (c.clientId === clientId || c.id === clientId) 
-        ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage } 
+    setChats(prev => prev.map(c =>
+      (c.clientId === clientId || c.id === clientId)
+        ? { ...c, unreadCount: 0, lastMessage: c.lastMessage ? { ...c.lastMessage, isRead: true } : c.lastMessage }
         : c
     ));
     navigate(`/messages?chat=${clientId}`);
@@ -814,8 +814,8 @@ function MessagesPage() {
 
   const handleStartChatWithContact = (client) => {
     const cleanClientPhone = (client.phone || "").replace(/\D/g, "");
-    const existing = chats.find(c => 
-      (c.clientId && c.clientId === client.id) || 
+    const existing = chats.find(c =>
+      (c.clientId && c.clientId === client.id) ||
       c.id === client.id ||
       (cleanClientPhone && c.phone && (
         c.phone.replace(/\D/g, "") === cleanClientPhone ||
@@ -871,7 +871,7 @@ function MessagesPage() {
     longPressTimerRef.current = setTimeout(() => {
       isLongPressTriggered.current = true;
       if (typeof navigator !== "undefined" && navigator.vibrate) {
-        try { navigator.vibrate(25); } catch (_) {}
+        try { navigator.vibrate(25); } catch (_) { }
       }
       setIsSelectMode(true);
       handleToggleSelectMessage(msgId);
@@ -941,8 +941,8 @@ function MessagesPage() {
         payload.clientIds = [targetChatId];
       }
 
-      const queryParam = idsArray.length > 0 
-        ? `?ids=${encodeURIComponent(idsArray.join(","))}` 
+      const queryParam = idsArray.length > 0
+        ? `?ids=${encodeURIComponent(idsArray.join(","))}`
         : (targetChatId ? `?clientIds=${encodeURIComponent(targetChatId)}` : "");
 
       await apiFetch(`/v1/messages/batch${queryParam}`, {
@@ -1724,8 +1724,8 @@ function MessagesPage() {
         ) : (
           filteredChats.map((chat, idx) => {
             const isSelected = activeChatIdParam === (chat.clientId || chat.id);
-            const rawUnread = chat.unreadCount !== undefined && chat.unreadCount !== null 
-              ? Number(chat.unreadCount) 
+            const rawUnread = chat.unreadCount !== undefined && chat.unreadCount !== null
+              ? Number(chat.unreadCount)
               : (chat.lastMessage && chat.lastMessage.direction === "INCOMING" && chat.lastMessage.isRead === false ? 1 : 0);
             const unreadCount = isSelected ? 0 : rawUnread;
             const isUnread = unreadCount > 0;
@@ -1988,11 +1988,11 @@ function MessagesPage() {
               const dateStr = formatMessageGroupDate(msg.createdAt || msg.time);
               if (dateStr !== currentGroup.date) {
                 if (currentGroup.messages.length > 0) {
-                   grouped.push(currentGroup);
+                  grouped.push(currentGroup);
                 }
-                currentGroup = { date: dateStr, messages: [ {msg, idx} ] };
+                currentGroup = { date: dateStr, messages: [{ msg, idx }] };
               } else {
-                currentGroup.messages.push({msg, idx});
+                currentGroup.messages.push({ msg, idx });
               }
             });
             if (currentGroup.messages.length > 0) {
@@ -2006,387 +2006,387 @@ function MessagesPage() {
                     {group.date}
                   </span>
                 </div>
-                {group.messages.map(({msg, idx}) => {
-            const msgId = msg.id || msg._id || `temp_${idx}`;
-            const isSelected = selectedMessageIds.has(msgId);
-            const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
-            const timeStr = formatMsgTime(msg.createdAt || msg.time);
-            const channel = (msg.channel || "SMS").toUpperCase();
-            const isEmail = channel === "EMAIL";
-            const isWhatsApp = channel === "WHATSAPP";
+                {group.messages.map(({ msg, idx }) => {
+                  const msgId = msg.id || msg._id || `temp_${idx}`;
+                  const isSelected = selectedMessageIds.has(msgId);
+                  const isMe = msg.direction === "OUTGOING" || msg.sender === "agent" || msg.sender === "me";
+                  const timeStr = formatMsgTime(msg.createdAt || msg.time);
+                  const channel = (msg.channel || "SMS").toUpperCase();
+                  const isEmail = channel === "EMAIL";
+                  const isWhatsApp = channel === "WHATSAPP";
 
-            return (
-              <div
-                key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
-                className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()} ${isSelectMode ? "select-mode-active" : ""} ${isSelected ? "selected-msg" : ""}`}
-                onTouchStart={(e) => handleTouchStartMessage(e, msgId)}
-                onTouchMove={(e) => handleTouchMoveMessage(e)}
-                onTouchEnd={handleTouchEndMessage}
-                onTouchCancel={handleTouchEndMessage}
-                onContextMenu={(e) => {
-                  if (!isSelectMode) {
-                    e.preventDefault();
-                    setIsSelectMode(true);
-                    handleToggleSelectMessage(msgId);
-                  }
-                }}
-                onClick={(e) => {
-                  if (isLongPressTriggered.current) {
-                    isLongPressTriggered.current = false;
-                    return;
-                  }
-                  if (isSelectMode) {
-                    e.stopPropagation();
-                    handleToggleSelectMessage(msgId);
-                  } else {
-                    setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg);
-                  }
-                }}
-              >
-                {/* Checkbox when in select mode */}
-                {isSelectMode && (
-                  <div
-                    className={`message-select-checkbox ${isSelected ? "checked" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleSelectMessage(msgId);
-                    }}
-                  >
-                    {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
-                  </div>
-                )}
-
-                <div className="message-bubble-row">
-                  {/* Quick hover actions on left for outgoing ('me') messages (Desktop only) */}
-                  {isMe && !isSelectMode && !isMobile && (
-                    <div className="message-hover-actions">
-                      <button
-                        type="button"
-                        className="msg-hover-btn delete"
-                        title="Supprimer ce message"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsDeletingEntireConversation(false);
-                          setSelectedMessageIds(new Set([msgId]));
-                          setIsDeleteModalOpen(true);
-                        }}
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                      <button
-                        type="button"
-                        className="msg-hover-btn select"
-                        title="Sélectionner"
-                        onClick={(e) => {
-                          e.stopPropagation();
+                  return (
+                    <div
+                      key={msg.id ? `msg_${msg.id}_${idx}` : `msg_${idx}`}
+                      className={`message-bubble-wrapper ${isMe ? "me" : "them"} channel-${channel.toLowerCase()} ${isSelectMode ? "select-mode-active" : ""} ${isSelected ? "selected-msg" : ""}`}
+                      onTouchStart={(e) => handleTouchStartMessage(e, msgId)}
+                      onTouchMove={(e) => handleTouchMoveMessage(e)}
+                      onTouchEnd={handleTouchEndMessage}
+                      onTouchCancel={handleTouchEndMessage}
+                      onContextMenu={(e) => {
+                        if (!isSelectMode) {
+                          e.preventDefault();
                           setIsSelectMode(true);
-                          setSelectedMessageIds(new Set([msgId]));
-                        }}
-                      >
-                        <CheckSquare size={13} />
-                      </button>
-                    </div>
-                  )}
-
-                  <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
-
-                  {/* Channel Header Indicator */}
-                  <div className="bubble-channel-header">
-                    <div className="bubble-channel-header-left">
-                      {renderChannelBadge(channel, "sm")}
-                      <span className="bubble-author-name">
-                        {isMe ? "Vous" : activeClientName}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Email Specific Subject Header */}
-                  {isEmail && msg.subject && (
-                    <div className="email-bubble-subject">
-                      <Mail size={13} className="email-subject-icon" />
-                      <span className="email-subject-label">Objet :</span>
-                      <span className="email-subject-text">{msg.subject}</span>
-                    </div>
-                  )}
-                  {/* Message Body (only if non-empty text) */}
-                  {(msg.body || msg.text)?.trim() && (
-                    isEmail ? (
-                      <FormattedEmailContent body={msg.body || msg.text} />
-                    ) : (
-                      <p className="message-text" style={{ whiteSpace: "pre-wrap" }}>
-                        {msg.body || msg.text}
-                      </p>
-                    )
-                  )}
-
-                  {/* Attachments Section (Images as big preview cards, PDFs & Files as compact single-line chips) */}
-                  {(() => {
-                    const parseAtts = (raw) => {
-                      if (!raw) return [];
-                      if (Array.isArray(raw)) return raw;
-                      if (typeof raw === "string") {
-                        try {
-                          const parsed = JSON.parse(raw);
-                          return Array.isArray(parsed) ? parsed : [];
-                        } catch {
-                          return [];
+                          handleToggleSelectMessage(msgId);
                         }
-                      }
-                      return [];
-                    };
+                      }}
+                      onClick={(e) => {
+                        if (isLongPressTriggered.current) {
+                          isLongPressTriggered.current = false;
+                          return;
+                        }
+                        if (isSelectMode) {
+                          e.stopPropagation();
+                          handleToggleSelectMessage(msgId);
+                        } else {
+                          setActiveDetailMessage(activeDetailMessage?.id === msg.id ? null : msg);
+                        }
+                      }}
+                    >
+                      {/* Checkbox when in select mode */}
+                      {isSelectMode && (
+                        <div
+                          className={`message-select-checkbox ${isSelected ? "checked" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleSelectMessage(msgId);
+                          }}
+                        >
+                          {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                        </div>
+                      )}
 
-                    const attList = parseAtts(msg.attachments);
-                    if (attList.length === 0) return null;
+                      <div className="message-bubble-row">
+                        {/* Quick hover actions on left for outgoing ('me') messages (Desktop only) */}
+                        {isMe && !isSelectMode && !isMobile && (
+                          <div className="message-hover-actions">
+                            <button
+                              type="button"
+                              className="msg-hover-btn delete"
+                              title="Supprimer ce message"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsDeletingEntireConversation(false);
+                                setSelectedMessageIds(new Set([msgId]));
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className="msg-hover-btn select"
+                              title="Sélectionner"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsSelectMode(true);
+                                setSelectedMessageIds(new Set([msgId]));
+                              }}
+                            >
+                              <CheckSquare size={13} />
+                            </button>
+                          </div>
+                        )}
 
-                    const getAttachmentSrc = (att) => {
-                      if (att.data) return att.data;
-                      if (att.url) return att.url.startsWith("http") ? att.url : `${BACKEND_URL}${att.url}`;
-                      if (att.path) return att.path.startsWith("http") ? att.path : `${BACKEND_URL}${att.path}`;
-                      return null;
-                    };
+                        <div className={`message-bubble ${isEmail ? "email-bubble-card" : ""} ${isWhatsApp ? "whatsapp-bubble-card" : ""}`}>
 
-                    const images = attList.filter(att => {
-                      const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
-                      const src = getAttachmentSrc(att);
-                      return isImg && src;
-                    });
+                          {/* Channel Header Indicator */}
+                          <div className="bubble-channel-header">
+                            <div className="bubble-channel-header-left">
+                              {renderChannelBadge(channel, "sm")}
+                              <span className="bubble-author-name">
+                                {isMe ? "Vous" : activeClientName}
+                              </span>
+                            </div>
+                          </div>
 
-                    const docs = attList.filter(att => {
-                      const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
-                      const src = getAttachmentSrc(att);
-                      return !(isImg && src);
-                    });
+                          {/* Email Specific Subject Header */}
+                          {isEmail && msg.subject && (
+                            <div className="email-bubble-subject">
+                              <Mail size={13} className="email-subject-icon" />
+                              <span className="email-subject-label">Objet :</span>
+                              <span className="email-subject-text">{msg.subject}</span>
+                            </div>
+                          )}
+                          {/* Message Body (only if non-empty text) */}
+                          {(msg.body || msg.text)?.trim() && (
+                            isEmail ? (
+                              <FormattedEmailContent body={msg.body || msg.text} />
+                            ) : (
+                              <p className="message-text" style={{ whiteSpace: "pre-wrap" }}>
+                                {msg.body || msg.text}
+                              </p>
+                            )
+                          )}
 
-                    const imagesList = images.map(att => ({
-                      url: getAttachmentSrc(att),
-                      name: att.filename || att.name || "Photo"
-                    }));
+                          {/* Attachments Section (Images as big preview cards, PDFs & Files as compact single-line chips) */}
+                          {(() => {
+                            const parseAtts = (raw) => {
+                              if (!raw) return [];
+                              if (Array.isArray(raw)) return raw;
+                              if (typeof raw === "string") {
+                                try {
+                                  const parsed = JSON.parse(raw);
+                                  return Array.isArray(parsed) ? parsed : [];
+                                } catch {
+                                  return [];
+                                }
+                              }
+                              return [];
+                            };
 
-                    const hasMixedAttachments = images.length > 0 && docs.length > 0;
+                            const attList = parseAtts(msg.attachments);
+                            if (attList.length === 0) return null;
 
-                    return (
-                      <div className={`message-attachments-container ${hasMixedAttachments ? "mixed-row" : ""}`}>
-                        {/* If only images and no docs: Use Smart Media Grid */}
-                        {!hasMixedAttachments && images.length > 0 && (() => {
-                          const maxVisible = 4;
-                          const isOverflow = images.length > maxVisible;
-                          const visibleImages = isOverflow ? images.slice(0, maxVisible) : images;
-                          const remainingCount = images.length - maxVisible + 1;
+                            const getAttachmentSrc = (att) => {
+                              if (att.data) return att.data;
+                              if (att.url) return att.url.startsWith("http") ? att.url : `${BACKEND_URL}${att.url}`;
+                              if (att.path) return att.path.startsWith("http") ? att.path : `${BACKEND_URL}${att.path}`;
+                              return null;
+                            };
 
-                          const gridClass = images.length === 1 ? "grid-1"
-                            : images.length === 2 ? "grid-2"
-                            : images.length === 3 ? "grid-3"
-                            : "grid-4";
+                            const images = attList.filter(att => {
+                              const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                              const src = getAttachmentSrc(att);
+                              return isImg && src;
+                            });
 
-                          return (
-                            <div className={`smart-media-grid ${gridClass}`}>
-                              {visibleImages.map((att, i) => {
-                                const imgSrc = getAttachmentSrc(att);
-                                const isLastAndOverflow = isOverflow && i === maxVisible - 1;
+                            const docs = attList.filter(att => {
+                              const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                              const src = getAttachmentSrc(att);
+                              return !(isImg && src);
+                            });
 
-                                return (
-                                  <div
-                                    key={`img_${i}`}
-                                    className={`smart-media-item ${isLastAndOverflow ? "has-more-overlay" : ""}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setLightboxGallery({ images: imagesList, index: i });
-                                    }}
-                                  >
-                                    <img 
-                                      src={imgSrc} 
-                                      alt={att.filename || att.name || "Photo"} 
-                                      className="smart-media-img"
-                                      loading="lazy"
-                                    />
-                                    {isLastAndOverflow ? (
-                                      <div className="smart-media-more-badge">
-                                        <span>+{remainingCount}</span>
-                                      </div>
-                                    ) : (
-                                      <div className="smart-media-hover-overlay">
-                                        <span className="smart-media-name">{att.filename || att.name || "Photo"}</span>
-                                        <div className="smart-media-actions">
-                                          <button 
-                                            type="button" 
-                                            className="att-btn" 
-                                            title="Agrandir"
+                            const imagesList = images.map(att => ({
+                              url: getAttachmentSrc(att),
+                              name: att.filename || att.name || "Photo"
+                            }));
+
+                            const hasMixedAttachments = images.length > 0 && docs.length > 0;
+
+                            return (
+                              <div className={`message-attachments-container ${hasMixedAttachments ? "mixed-row" : ""}`}>
+                                {/* If only images and no docs: Use Smart Media Grid */}
+                                {!hasMixedAttachments && images.length > 0 && (() => {
+                                  const maxVisible = 4;
+                                  const isOverflow = images.length > maxVisible;
+                                  const visibleImages = isOverflow ? images.slice(0, maxVisible) : images;
+                                  const remainingCount = images.length - maxVisible + 1;
+
+                                  const gridClass = images.length === 1 ? "grid-1"
+                                    : images.length === 2 ? "grid-2"
+                                      : images.length === 3 ? "grid-3"
+                                        : "grid-4";
+
+                                  return (
+                                    <div className={`smart-media-grid ${gridClass}`}>
+                                      {visibleImages.map((att, i) => {
+                                        const imgSrc = getAttachmentSrc(att);
+                                        const isLastAndOverflow = isOverflow && i === maxVisible - 1;
+
+                                        return (
+                                          <div
+                                            key={`img_${i}`}
+                                            className={`smart-media-item ${isLastAndOverflow ? "has-more-overlay" : ""}`}
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               setLightboxGallery({ images: imagesList, index: i });
                                             }}
                                           >
-                                            <Eye size={12} />
-                                          </button>
-                                          <button 
-                                            type="button" 
-                                            className="att-btn" 
-                                            title="Télécharger"
-                                            onClick={(e) => handleDownloadAttachment(e, imgSrc, att.filename || att.name || "photo.jpg")}
-                                          >
-                                            <Download size={12} />
-                                          </button>
-                                        </div>
+                                            <img
+                                              src={imgSrc}
+                                              alt={att.filename || att.name || "Photo"}
+                                              className="smart-media-img"
+                                              loading="lazy"
+                                            />
+                                            {isLastAndOverflow ? (
+                                              <div className="smart-media-more-badge">
+                                                <span>+{remainingCount}</span>
+                                              </div>
+                                            ) : (
+                                              <div className="smart-media-hover-overlay">
+                                                <span className="smart-media-name">{att.filename || att.name || "Photo"}</span>
+                                                <div className="smart-media-actions">
+                                                  <button
+                                                    type="button"
+                                                    className="att-btn"
+                                                    title="Agrandir"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setLightboxGallery({ images: imagesList, index: i });
+                                                    }}
+                                                  >
+                                                    <Eye size={12} />
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    className="att-btn"
+                                                    title="Télécharger"
+                                                    onClick={(e) => handleDownloadAttachment(e, imgSrc, att.filename || att.name || "photo.jpg")}
+                                                  >
+                                                    <Download size={12} />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  );
+                                })()}
+
+                                {/* If mixed (images + docs): Render compact square thumbnails inline alongside PDF chips */}
+                                {hasMixedAttachments && images.map((att, i) => {
+                                  const imgSrc = getAttachmentSrc(att);
+                                  return (
+                                    <div
+                                      key={`inline_img_${i}`}
+                                      className="attachment-inline-thumb-card"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setLightboxGallery({ images: imagesList, index: i });
+                                      }}
+                                      title="Cliquer pour agrandir la photo"
+                                    >
+                                      <img
+                                        src={imgSrc}
+                                        alt={att.filename || att.name || "Photo"}
+                                        className="inline-thumb-img"
+                                      />
+                                      <div className="inline-thumb-hover">
+                                        <Eye size={12} />
                                       </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
+                                    </div>
+                                  );
+                                })}
 
-                        {/* If mixed (images + docs): Render compact square thumbnails inline alongside PDF chips */}
-                        {hasMixedAttachments && images.map((att, i) => {
-                          const imgSrc = getAttachmentSrc(att);
-                          return (
-                            <div 
-                              key={`inline_img_${i}`}
-                              className="attachment-inline-thumb-card"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLightboxGallery({ images: imagesList, index: i });
-                              }}
-                              title="Cliquer pour agrandir la photo"
-                            >
-                              <img 
-                                src={imgSrc} 
-                                alt={att.filename || att.name || "Photo"} 
-                                className="inline-thumb-img" 
-                              />
-                              <div className="inline-thumb-hover">
-                                <Eye size={12} />
+                                {/* Documents / Files List (Inline Chips) */}
+                                {docs.length > 0 && docs.map((att, i) => {
+                                  const docSrc = getAttachmentSrc(att);
+                                  const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
+                                  return (
+                                    <div
+                                      key={`doc_${i}`}
+                                      className="attachment-chip clickable"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePreviewAttachedItem(att);
+                                      }}
+                                      title="Cliquer pour prévisualiser"
+                                    >
+                                      {isPdf ? (
+                                        <span className="pdf-tag-badge">PDF</span>
+                                      ) : (
+                                        <FileText size={13} className="attachment-chip-icon" />
+                                      )}
+                                      <span className="attachment-chip-name">{att.filename || att.name || "Document.pdf"}</span>
+                                      <div className="attachment-chip-actions">
+                                        <button
+                                          type="button"
+                                          className="att-chip-action-btn"
+                                          title="Voir"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePreviewAttachedItem(att);
+                                          }}
+                                        >
+                                          <Eye size={11} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="att-chip-action-btn"
+                                          title="Télécharger"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (docSrc) {
+                                              handleDownloadAttachment(e, docSrc, att.filename || att.name || "document");
+                                            } else {
+                                              handlePreviewAttachedItem(att);
+                                            }
+                                          }}
+                                        >
+                                          <Download size={11} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })()}
 
-                        {/* Documents / Files List (Inline Chips) */}
-                        {docs.length > 0 && docs.map((att, i) => {
-                          const docSrc = getAttachmentSrc(att);
-                          const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
-                          return (
-                            <div
-                              key={`doc_${i}`}
-                              className="attachment-chip clickable"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePreviewAttachedItem(att);
-                              }}
-                              title="Cliquer pour prévisualiser"
-                            >
-                              {isPdf ? (
-                                <span className="pdf-tag-badge">PDF</span>
-                              ) : (
-                                <FileText size={13} className="attachment-chip-icon" />
-                              )}
-                              <span className="attachment-chip-name">{att.filename || att.name || "Document.pdf"}</span>
-                              <div className="attachment-chip-actions">
+                          {/* Message Meta Footer */}
+                          <div className="bubble-meta-footer">
+                            <span className="message-time">{timeStr}</span>
+                            {isMe && renderStatusIcon(msg.status, channel)}
+                          </div>
+
+                          {/* Popover detail on click */}
+                          {activeDetailMessage?.id === msg.id && (
+                            <div className="message-quick-details">
+                              <div>Canal : <strong>{channel}</strong></div>
+                              <div>Date : <span>{new Date(msg.createdAt).toLocaleString()}</span></div>
+                              <div>Statut : <strong>{msg.status || "Délivré"}</strong></div>
+                              {msg.externalMessageId && <div className="font-mono text-xs">ID : {msg.externalMessageId.slice(0, 24)}...</div>}
+                              {msg.errorMessage && <div style={{ color: "#ef4444" }}>Erreur : {msg.errorMessage}</div>}
+                              <div style={{ marginTop: "6px", display: "flex", gap: "8px" }}>
                                 <button
                                   type="button"
-                                  className="att-chip-action-btn"
-                                  title="Voir"
+                                  className="delete-quick-detail-btn"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handlePreviewAttachedItem(att);
+                                    setIsDeletingEntireConversation(false);
+                                    setSelectedMessageIds(new Set([msgId]));
+                                    setIsDeleteModalOpen(true);
                                   }}
                                 >
-                                  <Eye size={11} />
-                                </button>
-                                <button
-                                  type="button"
-                                  className="att-chip-action-btn"
-                                  title="Télécharger"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (docSrc) {
-                                      handleDownloadAttachment(e, docSrc, att.filename || att.name || "document");
-                                    } else {
-                                      handlePreviewAttachedItem(att);
-                                    }
-                                  }}
-                                >
-                                  <Download size={11} />
+                                  <Trash2 size={13} />
+                                  <span>Supprimer ce message</span>
                                 </button>
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
+                          )}
+                        </div>
 
-                  {/* Message Meta Footer */}
-                  <div className="bubble-meta-footer">
-                    <span className="message-time">{timeStr}</span>
-                    {isMe && renderStatusIcon(msg.status, channel)}
-                  </div>
-
-                  {/* Popover detail on click */}
-                  {activeDetailMessage?.id === msg.id && (
-                    <div className="message-quick-details">
-                      <div>Canal : <strong>{channel}</strong></div>
-                      <div>Date : <span>{new Date(msg.createdAt).toLocaleString()}</span></div>
-                      <div>Statut : <strong>{msg.status || "Délivré"}</strong></div>
-                      {msg.externalMessageId && <div className="font-mono text-xs">ID : {msg.externalMessageId.slice(0, 24)}...</div>}
-                      {msg.errorMessage && <div style={{ color: "#ef4444" }}>Erreur : {msg.errorMessage}</div>}
-                      <div style={{ marginTop: "6px", display: "flex", gap: "8px" }}>
-                        <button
-                          type="button"
-                          className="delete-quick-detail-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsDeletingEntireConversation(false);
-                            setSelectedMessageIds(new Set([msgId]));
-                            setIsDeleteModalOpen(true);
-                          }}
-                        >
-                          <Trash2 size={13} />
-                          <span>Supprimer ce message</span>
-                        </button>
+                        {/* Quick hover actions on right for incoming ('them') messages (Desktop only) */}
+                        {!isMe && !isSelectMode && !isMobile && (
+                          <div className="message-hover-actions">
+                            <button
+                              type="button"
+                              className="msg-hover-btn delete"
+                              title="Supprimer ce message"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsDeletingEntireConversation(false);
+                                setSelectedMessageIds(new Set([msgId]));
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className="msg-hover-btn select"
+                              title="Sélectionner"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsSelectMode(true);
+                                setSelectedMessageIds(new Set([msgId]));
+                              }}
+                            >
+                              <CheckSquare size={13} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Quick hover actions on right for incoming ('them') messages (Desktop only) */}
-                {!isMe && !isSelectMode && !isMobile && (
-                  <div className="message-hover-actions">
-                    <button
-                      type="button"
-                      className="msg-hover-btn delete"
-                      title="Supprimer ce message"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsDeletingEntireConversation(false);
-                        setSelectedMessageIds(new Set([msgId]));
-                        setIsDeleteModalOpen(true);
-                      }}
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                    <button
-                      type="button"
-                      className="msg-hover-btn select"
-                      title="Sélectionner"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsSelectMode(true);
-                        setSelectedMessageIds(new Set([msgId]));
-                      }}
-                    >
-                      <CheckSquare size={13} />
-                    </button>
-                  </div>
-                )}
+                  );
+                })}
               </div>
-            </div>
-          );
-        })}
-        </div>
-      ));
-    })()
-    )}
+            ));
+          })()
+        )}
         <div ref={messagesEndRef} style={{ height: 1, width: "100%", pointerEvents: "none" }} />
       </div>
 
@@ -2729,912 +2729,916 @@ function MessagesPage() {
               color: 'var(--muted-foreground)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Mail size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
-                <span>Expéditeur : <strong style={{ color: 'var(--foreground)' }}>{companyDisplayName} via GestArt</strong> (support.gestart@gmail.com)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <CornerDownLeft size={12} style={{ color: '#2563eb', flexShrink: 0 }} />
-                <span>Réponses redirigées vers : <strong style={{ color: 'var(--foreground)' }}>{companyEmailAddress}</strong></span>
-              </div>
-            </div>
+                {/* Dynamic GestArt Relay Info Banner with Lucide Icons (No emojis) - Hidden on mobile */}
+                <div className="email-relay-banner">
+                  <div className="email-relay-item">
+                    <Mail size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
+                    <span>Expéditeur : <strong style={{ color: 'var(--foreground)' }}>{companyDisplayName} via GestArt</strong> (support.gestart@gmail.com)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div className="email-relay-item">
+                      <CornerDownLeft size={12} style={{ color: '#2563eb', flexShrink: 0 }} />
+                      <span>Réponses redirigées vers : <strong style={{ color: 'var(--foreground)' }}>{companyEmailAddress}</strong></span>
+                    </div>
+                  </div>
 
-            {isEmailMetaExpanded && (
-              <div className="email-composer-meta">
-                <div className="email-meta-row">
-                  <span className="email-meta-label">De :</span>
-                  <span className="email-meta-recipient font-mono">{companyDisplayName} via GestArt &lt;support.gestart@gmail.com&gt;</span>
-                </div>
-                <div className="email-meta-row">
-                  <span className="email-meta-label">Réponses :</span>
-                  <span className="email-meta-recipient font-mono">{companyEmailAddress}</span>
-                </div>
-                <div className="email-meta-row">
-                  <span className="email-meta-label">À :</span>
-                  <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>
-                </div>
-                <div className="email-meta-row">
-                  <span className="email-meta-label">Objet :</span>
-                  <input
-                    type="text"
-                    placeholder="Objet de l'email..."
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    onFocus={handleInputFocus}
-                    onClick={handleInputFocus}
-                    className="email-subject-input"
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="email-input-row" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', width: '100%' }}>
-              <textarea
-                placeholder={`Rédigez votre message à ${activeClientName}...`}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onFocus={handleInputFocus}
-                onClick={handleInputFocus}
-                onPaste={handlePaste}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`email-body-textarea ${isDraggingFile ? "drag-active" : ""}`}
-                rows={2}
-                disabled={isSending}
-                style={{ flex: 1, minWidth: 0 }}
-              />
-
-              <button
-                type="submit"
-                className="chat-send-btn email-send-btn"
-                disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
-                title={isExpired ? "Abonnement requis pour envoyer" : "Envoyer l'email"}
-                style={{
-                  flexShrink: 0,
-                  opacity: (!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending ? 0.6 : 1
-                }}
-              >
-                {isExpired ? <Lock size={16} /> : <Send size={16} />}
-              </button>
-            </div>
-
-            {/* Email Attachments List */}
-            {emailAttachments.length > 0 && (
-              <div className="email-attached-pills">
-                {emailAttachments.map((att, idx) => {
-                  const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
-                  const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
-                  const imgSrc = isImg ? (att.data || att.url) : null;
-
-                  return (
-                    <div key={idx} className="email-attached-pill">
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt="thumb"
-                          className="email-attached-thumb"
-                          onClick={() => handlePreviewAttachedItem(att)}
+                  {isEmailMetaExpanded && (
+                    <div className="email-composer-meta">
+                      <div className="email-meta-row">
+                        <span className="email-meta-label">De :</span>
+                        <span className="email-meta-recipient font-mono">{companyDisplayName} via GestArt &lt;support.gestart@gmail.com&gt;</span>
+                      </div>
+                      <div className="email-meta-row">
+                        <span className="email-meta-label">Réponses :</span>
+                        <span className="email-meta-recipient font-mono">{companyEmailAddress}</span>
+                      </div>
+                      <div className="email-meta-row">
+                        <span className="email-meta-label">À :</span>
+                        <span className="email-meta-recipient font-mono">{activeClientName} &lt;{clientObj.email || "aucun email"}&gt;</span>
+                      </div>
+                      <div className="email-meta-row">
+                        <span className="email-meta-label">Objet :</span>
+                        <input
+                          type="text"
+                          placeholder="Objet de l'email..."
+                          value={emailSubject}
+                          onChange={(e) => setEmailSubject(e.target.value)}
+                          onFocus={handleInputFocus}
+                          onClick={handleInputFocus}
+                          className="email-subject-input"
+                          required
                         />
-                      ) : isPdf ? (
-                        <span className="pdf-tag-badge">PDF</span>
-                      ) : (
-                        <FileText size={13} className="email-attached-icon" />
-                      )}
-                      <span 
-                        className="email-attached-name"
-                        onClick={() => handlePreviewAttachedItem(att)}
-                        title="Cliquer pour prévisualiser"
-                      >
-                        {att.filename || att.name}
-                        {att.size ? ` (${formatFileSize(att.size)})` : (att.total ? ` • ${Number(att.total).toFixed(2)} €` : "")}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handlePreviewAttachedItem(att)}
-                        className="email-attached-preview-btn"
-                        title="Prévisualiser ce document"
-                      >
-                        <Eye size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEmailAttachments(emailAttachments.filter((_, i) => i !== idx))}
-                        className="email-attached-remove-btn"
-                        title="Retirer ce fichier"
-                      >
-                        <X size={12} />
-                      </button>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="email-composer-bottom">
-              <input
-                type="file"
-                ref={fileInputRef}
-                multiple
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-                accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
-              />
-
-              <div className="email-attach-buttons-group">
-                <button
-                  type="button"
-                  className="email-attach-btn"
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Sélectionner des fichiers ou photos depuis votre ordinateur"
-                >
-                  <Paperclip size={14} />
-                  <span>Fichier / Photo</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="email-attach-btn secondary"
-                  onClick={() => setIsAttachModalOpen(true)}
-                  title="Joindre un devis ou une facture du client"
-                >
-                  <FileText size={14} />
-                  <span>Devis / Facture</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        ) : (
-          /* 2. CHAT COMPOSER (SMS & WhatsApp mode) */
-          <>
-            {selectedChannel === "SMS" && (isSmsLimitReached || isSmsLimitWarning) && (
-              <PlanLimitBanner
-                compact
-                type="sms"
-                variant={isSmsLimitReached ? "reached" : "warning"}
-                current={smsUsed}
-                max={smsMax}
-                unit="SMS"
-                targetPlan={isStarter ? "PRO" : "UNLIMITED"}
-                customTitle={isSmsLimitReached ? "Solde SMS mensuel épuisé (0 SMS restant)" : `Quota SMS : plus que ${smsRemaining} SMS disponible${smsRemaining > 1 ? "s" : ""}`}
-                customDescription={isSmsLimitReached ? `Passez à l'offre ${isStarter ? "Pro (500 SMS)" : "Unlimited (1 500 SMS)"}. Les canaux Email et WhatsApp restent illimités.` : `Votre solde SMS arrive à expiration pour ce mois.`}
-                style={{ margin: '0 0 10px 0' }}
-              />
-            )}
-            <form className="chat-input-form" onSubmit={handleSendMessage}>
-              {selectedChannel === "WHATSAPP" && (
-                <button
-                  type="button"
-                  className="composer-action-btn"
-                  title="Joindre un devis ou document"
-                  onClick={() => setIsAttachModalOpen(true)}
-                >
-                  <Paperclip size={18} />
-                </button>
-              )}
-
-              <div className="input-wrapper" style={{ position: "relative" }}>
-                <input
-                  type="text"
-                  placeholder={
-                    selectedChannel === "WHATSAPP"
-                      ? `Envoyer un message WhatsApp à ${clientObj.phone || activeClientName}...`
-                      : (selectedChannel === "SMS" && isSmsLimitReached)
-                      ? `Solde SMS épuisé (Passez à ${isStarter ? "Pro" : "Unlimited"} ou utilisez WhatsApp/Email)...`
-                      : `Envoyer un SMS à ${clientObj.phone || activeClientName}...`
-                  }
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onFocus={handleInputFocus}
-                  onClick={handleInputFocus}
-                  className="chat-input"
-                  disabled={isSending || (selectedChannel === "SMS" && isSmsLimitReached)}
-                />
-                <span className="input-channel-tag">
-                  {selectedChannel === "WHATSAPP" ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#22c55e" }}><WhatsAppIcon size={14} /> WhatsApp</span>
-                  ) : (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--sidebar-primary)" }}><SmsIcon size={14} /> SMS</span>
                   )}
-                </span>
-              </div>
 
-              <button
-                type="submit"
-                className="chat-send-btn"
-                title={
-                  isExpired
-                    ? "Abonnement requis pour envoyer"
-                    : (selectedChannel === "SMS" && isSmsLimitReached)
-                    ? `Solde SMS épuisé · Passer à ${isStarter ? "Pro" : "Unlimited"}`
-                    : `Envoyer via ${selectedChannel}`
-                }
-                disabled={(!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending}
-                style={{
-                  opacity: (!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending ? 0.6 : 1,
-                  backgroundColor: (selectedChannel === "SMS" && isSmsLimitReached) ? 'rgba(239, 68, 68, 0.15)' : undefined,
-                  color: (selectedChannel === "SMS" && isSmsLimitReached) ? '#ef4444' : undefined,
-                  border: (selectedChannel === "SMS" && isSmsLimitReached) ? '1px solid rgba(239, 68, 68, 0.3)' : undefined
-                }}
-              >
-                {isExpired ? <Lock size={16} /> : (selectedChannel === "SMS" && isSmsLimitReached) ? <Lock size={16} /> : <Send size={16} />}
-              </button>
-            </form>
-          </>
-        )}
-      </div>
+                  <div className="email-input-row" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', width: '100%' }}>
+                    <textarea
+                      placeholder={`Rédigez votre message à ${activeClientName}...`}
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onFocus={handleInputFocus}
+                      onClick={handleInputFocus}
+                      onPaste={handlePaste}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`email-body-textarea ${isDraggingFile ? "drag-active" : ""}`}
+                      rows={2}
+                      disabled={isSending}
+                      style={{ flex: 1, minWidth: 0 }}
+                    />
 
-      {/* Document / PDF Attachment Modal */}
-      <AnimatePresence>
-        {isAttachModalOpen && (
-          <motion.div
-            className="client-modal-overlay attachment-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            onClick={() => setIsAttachModalOpen(false)}
-          >
-            <motion.div
-              className="client-modal-card attachment-modal-card"
-              onClick={(e) => e.stopPropagation()}
-              initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
-              animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-              exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
-              drag={isMobile ? "y" : false}
-              dragListener={false}
-              dragControls={attachDragControls}
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.6 }}
-              onDragEnd={(e, info) => {
-                if (info.offset.y > 80 || info.velocity.y > 300) setIsAttachModalOpen(false);
-              }}
-            >
-              {isMobile && (
-                <div
-                  className="attachment-bottom-sheet-handle"
-                  onPointerDown={(e) => attachDragControls.start(e)}
-                >
-                  <div className="attachment-bottom-sheet-bar" />
-                </div>
-              )}
-
-              <div
-                className="client-modal-header attachment-modal-header"
-                style={{ flexShrink: 0 }}
-                onPointerDown={(e) => {
-                  if (e.target.closest("button")) return;
-                  attachDragControls.start(e);
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <FileText size={20} style={{ color: "var(--sidebar-primary)" }} />
-                  <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700 }}>Joindre un document</h3>
-                </div>
-                <button
-                  type="button"
-                  className="client-modal-close"
-                  onClick={() => setIsAttachModalOpen(false)}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="attachment-modal-client-bar" style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
-                <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
-                  Documents de <strong>{activeClientName}</strong> :
-                </p>
-              </div>
-
-              <div className="attachment-modal-body" style={{ padding: "14px", display: "flex", flexDirection: "column", gap: "12px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
-                {/* Devis du client */}
-                {clientObj.quotes && clientObj.quotes.length > 0 && (
-                  <div>
-                    <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
-                      Devis ({clientObj.quotes.length})
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {clientObj.quotes.map((q) => (
-                        <div
-                          key={q.id}
-                          className="attachment-pick-item"
-                        >
-                          <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
-                            <FileText size={18} />
-                          </div>
-                          <div className="attachment-item-info">
-                            <div className="attachment-item-title">Devis {q.number}</div>
-                            <div className="attachment-item-amount">
-                              <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
-                            </div>
-                          </div>
-                          <div className="attachment-item-actions">
-                            <button
-                              type="button"
-                              className="attachment-action-icon-btn"
-                              title="Prévisualiser ce devis"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenDocPreview(q, "quote");
-                              }}
-                            >
-                              <Eye size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              className="attachment-join-btn"
-                              style={{ color: "#ffffff", backgroundColor: "#556B2F", boxShadow: "0 2px 8px rgba(85, 107, 47, 0.25)" }}
-                              onClick={() => {
-                                setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
-                                setIsAttachModalOpen(false);
-                              }}
-                            >
-                              <Plus size={13} /> Joindre
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Factures du client */}
-                {clientObj.invoices && clientObj.invoices.length > 0 && (
-                  <div>
-                    <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
-                      Factures ({clientObj.invoices.length})
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {clientObj.invoices.map((inv) => (
-                        <div
-                          key={inv.id}
-                          className="attachment-pick-item"
-                        >
-                          <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
-                            <FileText size={18} />
-                          </div>
-                          <div className="attachment-item-info">
-                            <div className="attachment-item-title">Facture {inv.number}</div>
-                            <div className="attachment-item-amount">
-                              <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
-                            </div>
-                          </div>
-                          <div className="attachment-item-actions">
-                            <button
-                              type="button"
-                              className="attachment-action-icon-btn"
-                              title="Prévisualiser cette facture"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenDocPreview(inv, "invoice");
-                              }}
-                            >
-                              <Eye size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              className="attachment-join-btn"
-                              style={{ color: "#ffffff", backgroundColor: "#16a34a", boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)" }}
-                              onClick={() => {
-                                setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
-                                setIsAttachModalOpen(false);
-                              }}
-                            >
-                              <Plus size={13} /> Joindre
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {(!clientObj.quotes || clientObj.quotes.length === 0) && (!clientObj.invoices || clientObj.invoices.length === 0) && (
-                  <div style={{ padding: "30px 16px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                    <p className="no-data" style={{ margin: 0 }}>Aucun devis ni facture trouvé pour {activeClientName}.</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-
-  return (
-    <div className={`home-page ${isMobile ? `mobile-view-${mobileView}` : ""}`}>
-      {/* Sidebar - Always keep bottom navigation visible */}
-      <SideBar hideFab={isMobile && mobileView !== "list"} />
-
-      <div className="main-content">
-        {(!isMobile || (isMobile && mobileView === "list")) && <Header />}
-
-        <motion.div
-          className="page-content messages-page-content"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="messaging-container">
-            {/* Desktop View Layout */}
-            {!isMobile && (
-              <>
-                {renderChatList()}
-                {activeChatIdParam ? renderChatPane() : (
-                  <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
-                    <MessageSquare size={48} className="mb-4 opacity-40" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Aucune discussion sélectionnée</h3>
-                    <p className="text-sm max-w-sm mb-4">Choisissez un contact dans la boîte de réception à gauche ou cliquez sur Nouveau Message pour échanger par SMS, WhatsApp ou Email.</p>
                     <button
-                      onClick={() => setIsClientModalOpen(true)}
+                      type="submit"
+                      className="chat-send-btn email-send-btn"
+                      disabled={(!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending}
+                      title={isExpired ? "Abonnement requis pour envoyer" : "Envoyer l'email"}
                       style={{
-                        padding: "8px 16px",
-                        backgroundColor: "var(--sidebar-primary)",
-                        color: "#ffffff",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px"
+                        flexShrink: 0,
+                        opacity: (!inputText.trim() && emailAttachments.length === 0) || !emailSubject.trim() || isSending ? 0.6 : 1
                       }}
                     >
-                      <Plus size={16} /> Démarrer un message
+                      {isExpired ? <Lock size={16} /> : <Send size={16} />}
                     </button>
                   </div>
-                )}
 
-                {/* Desktop Slide-out Client Info Drawer */}
-                <AnimatePresence>
-                  {isInfoParam && activeChatIdParam && (
-                    <motion.div
-                      className="client-info-drawer-pane"
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 340, opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ type: "spring", bounce: 0, duration: 0.35 }}
+                  {/* Email Attachments List */}
+                  {emailAttachments.length > 0 && (
+                    <div className="email-attached-pills">
+                      {emailAttachments.map((att, idx) => {
+                        const isImg = att.isImage || (att.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(att.filename || att.name || "");
+                        const isPdf = (att.filename || att.name || "").toLowerCase().endsWith(".pdf") || att.type === "quote" || att.type === "invoice" || att.mimeType === "application/pdf";
+                        const imgSrc = isImg ? (att.data || att.url) : null;
+
+                        return (
+                          <div key={idx} className="email-attached-pill">
+                            {imgSrc ? (
+                              <img
+                                src={imgSrc}
+                                alt="thumb"
+                                className="email-attached-thumb"
+                                onClick={() => handlePreviewAttachedItem(att)}
+                              />
+                            ) : isPdf ? (
+                              <span className="pdf-tag-badge">PDF</span>
+                            ) : (
+                              <FileText size={13} className="email-attached-icon" />
+                            )}
+                            <span
+                              className="email-attached-name"
+                              onClick={() => handlePreviewAttachedItem(att)}
+                              title="Cliquer pour prévisualiser"
+                            >
+                              {att.filename || att.name}
+                              {att.size ? ` (${formatFileSize(att.size)})` : (att.total ? ` • ${Number(att.total).toFixed(2)} €` : "")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handlePreviewAttachedItem(att)}
+                              className="email-attached-preview-btn"
+                              title="Prévisualiser ce document"
+                            >
+                              <Eye size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEmailAttachments(emailAttachments.filter((_, i) => i !== idx))}
+                              className="email-attached-remove-btn"
+                              title="Retirer ce fichier"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="email-composer-bottom">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
+                      accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+                    />
+
+                    <div className="email-attach-buttons-group">
+                      <button
+                        type="button"
+                        className="email-attach-btn"
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Sélectionner des fichiers ou photos depuis votre ordinateur"
+                      >
+                        <Paperclip size={14} />
+                        <span>Fichier / Photo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="email-attach-btn secondary"
+                        onClick={() => setIsAttachModalOpen(true)}
+                        title="Joindre un devis ou une facture du client"
+                      >
+                        <FileText size={14} />
+                        <span>Devis / Facture</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+                ) : (
+                /* 2. CHAT COMPOSER (SMS & WhatsApp mode) */
+                <>
+                  {selectedChannel === "SMS" && (isSmsLimitReached || isSmsLimitWarning) && (
+                    <PlanLimitBanner
+                      compact
+                      type="sms"
+                      variant={isSmsLimitReached ? "reached" : "warning"}
+                      current={smsUsed}
+                      max={smsMax}
+                      unit="SMS"
+                      targetPlan={isStarter ? "PRO" : "UNLIMITED"}
+                      customTitle={isSmsLimitReached ? "Solde SMS mensuel épuisé (0 SMS restant)" : `Quota SMS : plus que ${smsRemaining} SMS disponible${smsRemaining > 1 ? "s" : ""}`}
+                      customDescription={isSmsLimitReached ? `Passez à l'offre ${isStarter ? "Pro (500 SMS)" : "Unlimited (1 500 SMS)"}. Les canaux Email et WhatsApp restent illimités.` : `Votre solde SMS arrive à expiration pour ce mois.`}
+                      style={{ margin: '0 0 10px 0' }}
+                    />
+                  )}
+                  <form className="chat-input-form" onSubmit={handleSendMessage}>
+                    {selectedChannel === "WHATSAPP" && (
+                      <button
+                        type="button"
+                        className="composer-action-btn"
+                        title="Joindre un devis ou document"
+                        onClick={() => setIsAttachModalOpen(true)}
+                      >
+                        <Paperclip size={18} />
+                      </button>
+                    )}
+
+                    <div className="input-wrapper" style={{ position: "relative" }}>
+                      <input
+                        type="text"
+                        placeholder={
+                          selectedChannel === "WHATSAPP"
+                            ? `Envoyer un message WhatsApp à ${clientObj.phone || activeClientName}...`
+                            : (selectedChannel === "SMS" && isSmsLimitReached)
+                              ? `Solde SMS épuisé (Passez à ${isStarter ? "Pro" : "Unlimited"} ou utilisez WhatsApp/Email)...`
+                              : `Envoyer un SMS à ${clientObj.phone || activeClientName}...`
+                        }
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        onFocus={handleInputFocus}
+                        onClick={handleInputFocus}
+                        className="chat-input"
+                        disabled={isSending || (selectedChannel === "SMS" && isSmsLimitReached)}
+                      />
+                      <span className="input-channel-tag">
+                        {selectedChannel === "WHATSAPP" ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#22c55e" }}><WhatsAppIcon size={14} /> WhatsApp</span>
+                        ) : (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--sidebar-primary)" }}><SmsIcon size={14} /> SMS</span>
+                        )}
+                      </span>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="chat-send-btn"
+                      title={
+                        isExpired
+                          ? "Abonnement requis pour envoyer"
+                          : (selectedChannel === "SMS" && isSmsLimitReached)
+                            ? `Solde SMS épuisé · Passer à ${isStarter ? "Pro" : "Unlimited"}`
+                            : `Envoyer via ${selectedChannel}`
+                      }
+                      disabled={(!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending}
+                      style={{
+                        opacity: (!inputText.trim() && !(selectedChannel === "SMS" && isSmsLimitReached)) || isSending ? 0.6 : 1,
+                        backgroundColor: (selectedChannel === "SMS" && isSmsLimitReached) ? 'rgba(239, 68, 68, 0.15)' : undefined,
+                        color: (selectedChannel === "SMS" && isSmsLimitReached) ? '#ef4444' : undefined,
+                        border: (selectedChannel === "SMS" && isSmsLimitReached) ? '1px solid rgba(239, 68, 68, 0.3)' : undefined
+                      }}
                     >
-                      <div className="drawer-header">
-                        <h4>Détails Client</h4>
-                        <button className="drawer-close-btn" onClick={() => navigate(`/messages?chat=${activeChatIdParam}`, { replace: true })}>
-                          <X size={18} />
+                      {isExpired ? <Lock size={16} /> : (selectedChannel === "SMS" && isSmsLimitReached) ? <Lock size={16} /> : <Send size={16} />}
+                    </button>
+                  </form>
+                </>
+        )}
+              </div>
+
+              {/* Document / PDF Attachment Modal */}
+              <AnimatePresence>
+                {isAttachModalOpen && (
+                  <motion.div
+                    className="client-modal-overlay attachment-modal-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    onClick={() => setIsAttachModalOpen(false)}
+                  >
+                    <motion.div
+                      className="client-modal-card attachment-modal-card"
+                      onClick={(e) => e.stopPropagation()}
+                      initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                      animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                      exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                      transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.35 }}
+                      drag={isMobile ? "y" : false}
+                      dragListener={false}
+                      dragControls={attachDragControls}
+                      dragConstraints={{ top: 0 }}
+                      dragElastic={{ top: 0, bottom: 0.6 }}
+                      onDragEnd={(e, info) => {
+                        if (info.offset.y > 80 || info.velocity.y > 300) setIsAttachModalOpen(false);
+                      }}
+                    >
+                      {isMobile && (
+                        <div
+                          className="attachment-bottom-sheet-handle"
+                          onPointerDown={(e) => attachDragControls.start(e)}
+                        >
+                          <div className="attachment-bottom-sheet-bar" />
+                        </div>
+                      )}
+
+                      <div
+                        className="client-modal-header attachment-modal-header"
+                        style={{ flexShrink: 0 }}
+                        onPointerDown={(e) => {
+                          if (e.target.closest("button")) return;
+                          attachDragControls.start(e);
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <FileText size={20} style={{ color: "var(--sidebar-primary)" }} />
+                          <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700 }}>Joindre un document</h3>
+                        </div>
+                        <button
+                          type="button"
+                          className="client-modal-close"
+                          onClick={() => setIsAttachModalOpen(false)}
+                        >
+                          <X size={20} />
                         </button>
                       </div>
-                      {renderClientInfoContent(selectedClientData || activeChat?.client)}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </>
-            )}
 
-            {/* Mobile View Layout */}
-            {isMobile && (
-              <div className="mobile-view-wrapper flex-1 flex flex-col relative w-full h-full overflow-hidden">
-                {mobileView === "list" && (
-                  <PullToRefresh onRefresh={handleRefresh} style={{ height: "100%", width: "100%", flex: 1, minHeight: 0 }}>
-                    {renderChatList()}
-                  </PullToRefresh>
-                )}
-                {mobileView === "chat" && renderChatPane()}
-                {mobileView === "info" && (
-                  <div className="mobile-info-view-container absolute inset-0 bg-background z-50 flex flex-col w-full h-full">
-                    <div className="mobile-info-header">
-                      <button className="mobile-info-back-btn" onClick={handleBackToChatPane}>
-                        <ArrowLeft size={20} />
-                      </button>
-                      <h4>Détails Client</h4>
-                      <div style={{ width: 36 }}></div>
-                    </div>
-                    <div className="mobile-info-scroll-body flex-1 overflow-y-auto">
-                      {renderClientInfoContent(selectedClientData || activeChat?.client)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Select Client for New Message Modal */}
-      <AnimatePresence>
-        {isClientModalOpen && (
-          <motion.div
-            className="client-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            onClick={() => setIsClientModalOpen(false)}
-          >
-            <motion.div
-              className="client-modal-card"
-              onClick={(e) => e.stopPropagation()}
-              initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
-              animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-              exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
-              drag={isMobile ? "y" : false}
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.8 }}
-              onDragEnd={(e, info) => {
-                if (info.offset.y > 80) setIsClientModalOpen(false);
-              }}
-            >
-              <div className="client-modal-pull-handle" />
-              <div className="client-modal-header">
-                <h3>Nouvelle discussion</h3>
-                <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="client-modal-search">
-                <Search size={16} className="modal-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Rechercher par nom, téléphone ou email..."
-                  value={modalSearchTerm}
-                  onChange={(e) => setModalSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="client-modal-list">
-                {isLoadingClients ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px 0" }}>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", borderRadius: "10px" }}>
-                        <div className="skeleton-shimmer" style={{ width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0 }} />
-                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-                          <div className="skeleton-shimmer" style={{ width: `${110 + (i % 3) * 35}px`, height: "14px", borderRadius: "4px" }} />
-                          <div className="skeleton-shimmer" style={{ width: `${140 + (i % 2) * 30}px`, height: "11px", borderRadius: "4px", opacity: 0.6 }} />
-                        </div>
+                      <div className="attachment-modal-client-bar" style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0, backgroundColor: "var(--accent)" }}>
+                        <p style={{ fontSize: "13px", color: "var(--foreground)", margin: 0, fontWeight: 500 }}>
+                          Documents de <strong>{activeClientName}</strong> :
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                ) : filteredContactsList.length === 0 ? (
-                  <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
-                    <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
-                      {!modalSearchTerm.trim() ? "Tous vos clients ont déjà un fil actif" : "Aucun contact trouvé"}
-                    </p>
-                    <p style={{ fontSize: "0.82rem", lineHeight: "1.4" }}>
-                      {!modalSearchTerm.trim() ? "Recherchez un client ci-dessus pour ouvrir directement sa conversation." : "Vérifiez l'orthographe du nom, numéro ou email."}
-                    </p>
-                  </div>
-                ) : (
-                  filteredContactsList.map((client) => {
-                    const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
-                    const inChat = hasActiveChat(client);
-                    return (
-                      <div
-                        key={client.id}
-                        className="client-modal-item"
-                        onClick={() => handleStartChatWithContact(client)}
-                      >
-                        <div className="client-modal-avatar">
-                          {getInitials(fullName)}
-                        </div>
-                        <div className="client-modal-info" style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                            <span className="client-modal-name">{fullName}</span>
-                            {inChat && (
-                              <span style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "4px",
-                                fontSize: "11px",
+
+                      <div className="attachment-modal-body" style={{ padding: "14px", display: "flex", flexDirection: "column", gap: "12px", flex: 1, overflowY: "auto", minHeight: 0, overscrollBehavior: "contain" }}>
+                        {/* Devis du client */}
+                        {clientObj.quotes && clientObj.quotes.length > 0 && (
+                          <div>
+                            <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                              Devis ({clientObj.quotes.length})
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              {clientObj.quotes.map((q) => (
+                                <div
+                                  key={q.id}
+                                  className="attachment-pick-item"
+                                >
+                                  <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(85, 107, 47, 0.12)", color: "#556B2F" }}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="attachment-item-info">
+                                    <div className="attachment-item-title">Devis {q.number}</div>
+                                    <div className="attachment-item-amount">
+                                      <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(q.amountTTC ?? q.totalTtc ?? q.total ?? 0)}</strong>
+                                    </div>
+                                  </div>
+                                  <div className="attachment-item-actions">
+                                    <button
+                                      type="button"
+                                      className="attachment-action-icon-btn"
+                                      title="Prévisualiser ce devis"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenDocPreview(q, "quote");
+                                      }}
+                                    >
+                                      <Eye size={15} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="attachment-join-btn"
+                                      style={{ color: "#ffffff", backgroundColor: "#556B2F", boxShadow: "0 2px 8px rgba(85, 107, 47, 0.25)" }}
+                                      onClick={() => {
+                                        setEmailAttachments(prev => [...prev, { filename: `Devis_${q.number}.pdf`, id: q.id, quoteId: q.id, type: "quote", number: q.number, total: q.amountTTC ?? q.totalTtc ?? q.total ?? 0, ...q }]);
+                                        setIsAttachModalOpen(false);
+                                      }}
+                                    >
+                                      <Plus size={13} /> Joindre
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Factures du client */}
+                        {clientObj.invoices && clientObj.invoices.length > 0 && (
+                          <div>
+                            <div className="attachment-section-heading" style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", marginBottom: "8px", letterSpacing: "0.04em" }}>
+                              Factures ({clientObj.invoices.length})
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              {clientObj.invoices.map((inv) => (
+                                <div
+                                  key={inv.id}
+                                  className="attachment-pick-item"
+                                >
+                                  <div className="attachment-icon-badge" style={{ backgroundColor: "rgba(34, 197, 94, 0.12)", color: "#16a34a" }}>
+                                    <FileText size={18} />
+                                  </div>
+                                  <div className="attachment-item-info">
+                                    <div className="attachment-item-title">Facture {inv.number}</div>
+                                    <div className="attachment-item-amount">
+                                      <span className="attachment-amount-label">Montant : </span><strong>{formatPrice(inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0)}</strong>
+                                    </div>
+                                  </div>
+                                  <div className="attachment-item-actions">
+                                    <button
+                                      type="button"
+                                      className="attachment-action-icon-btn"
+                                      title="Prévisualiser cette facture"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenDocPreview(inv, "invoice");
+                                      }}
+                                    >
+                                      <Eye size={15} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="attachment-join-btn"
+                                      style={{ color: "#ffffff", backgroundColor: "#16a34a", boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)" }}
+                                      onClick={() => {
+                                        setEmailAttachments(prev => [...prev, { filename: `Facture_${inv.number}.pdf`, id: inv.id, invoiceId: inv.id, type: "invoice", number: inv.number, total: inv.amountTTC ?? inv.totalTtc ?? inv.total ?? 0, ...inv }]);
+                                        setIsAttachModalOpen(false);
+                                      }}
+                                    >
+                                      <Plus size={13} /> Joindre
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {(!clientObj.quotes || clientObj.quotes.length === 0) && (!clientObj.invoices || clientObj.invoices.length === 0) && (
+                          <div style={{ padding: "30px 16px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                            <p className="no-data" style={{ margin: 0 }}>Aucun devis ni facture trouvé pour {activeClientName}.</p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            );
+
+            return (
+            <div className={`home-page ${isMobile ? `mobile-view-${mobileView}` : ""}`}>
+              {/* Sidebar - Always keep bottom navigation visible */}
+              <SideBar hideFab={isMobile && mobileView !== "list"} />
+
+              <div className="main-content">
+                {(!isMobile || (isMobile && mobileView === "list")) && <Header />}
+
+                <motion.div
+                  className="page-content messages-page-content"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="messaging-container">
+                    {/* Desktop View Layout */}
+                    {!isMobile && (
+                      <>
+                        {renderChatList()}
+                        {activeChatIdParam ? renderChatPane() : (
+                          <div className="chat-pane-placeholder flex-1 flex flex-col items-center justify-center bg-card text-muted-foreground p-8 text-center" style={{ borderRight: "1px solid var(--border)" }}>
+                            <MessageSquare size={48} className="mb-4 opacity-40" />
+                            <h3 className="text-lg font-semibold text-foreground mb-2">Aucune discussion sélectionnée</h3>
+                            <p className="text-sm max-w-sm mb-4">Choisissez un contact dans la boîte de réception à gauche ou cliquez sur Nouveau Message pour échanger par SMS, WhatsApp ou Email.</p>
+                            <button
+                              onClick={() => setIsClientModalOpen(true)}
+                              style={{
+                                padding: "8px 16px",
+                                backgroundColor: "var(--sidebar-primary)",
+                                color: "#ffffff",
+                                border: "none",
+                                borderRadius: "8px",
+                                fontSize: "0.85rem",
                                 fontWeight: 600,
-                                padding: "2px 7px",
-                                borderRadius: "6px",
-                                backgroundColor: "rgba(85, 107, 47, 0.12)",
-                                color: "#556B2F",
-                                whiteSpace: "nowrap"
-                              }}>
-                                <MessageSquare size={11} strokeWidth={2.2} />
-                                <span>En cours</span>
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px"
+                              }}
+                            >
+                              <Plus size={16} /> Démarrer un message
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Desktop Slide-out Client Info Drawer */}
+                        <AnimatePresence>
+                          {isInfoParam && activeChatIdParam && (
+                            <motion.div
+                              className="client-info-drawer-pane"
+                              initial={{ width: 0, opacity: 0 }}
+                              animate={{ width: 340, opacity: 1 }}
+                              exit={{ width: 0, opacity: 0 }}
+                              transition={{ type: "spring", bounce: 0, duration: 0.35 }}
+                            >
+                              <div className="drawer-header">
+                                <h4>Détails Client</h4>
+                                <button className="drawer-close-btn" onClick={() => navigate(`/messages?chat=${activeChatIdParam}`, { replace: true })}>
+                                  <X size={18} />
+                                </button>
+                              </div>
+                              {renderClientInfoContent(selectedClientData || activeChat?.client)}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    )}
+
+                    {/* Mobile View Layout */}
+                    {isMobile && (
+                      <div className="mobile-view-wrapper flex-1 flex flex-col relative w-full h-full overflow-hidden">
+                        {mobileView === "list" && (
+                          <PullToRefresh onRefresh={handleRefresh} style={{ height: "100%", width: "100%", flex: 1, minHeight: 0 }}>
+                            {renderChatList()}
+                          </PullToRefresh>
+                        )}
+                        {mobileView === "chat" && renderChatPane()}
+                        {mobileView === "info" && (
+                          <div className="mobile-info-view-container absolute inset-0 bg-background z-50 flex flex-col w-full h-full">
+                            <div className="mobile-info-header">
+                              <button className="mobile-info-back-btn" onClick={handleBackToChatPane}>
+                                <ArrowLeft size={20} />
+                              </button>
+                              <h4>Détails Client</h4>
+                              <div style={{ width: 36 }}></div>
+                            </div>
+                            <div className="mobile-info-scroll-body flex-1 overflow-y-auto">
+                              {renderClientInfoContent(selectedClientData || activeChat?.client)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Select Client for New Message Modal */}
+              <AnimatePresence>
+                {isClientModalOpen && (
+                  <motion.div
+                    className="client-modal-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    onClick={() => setIsClientModalOpen(false)}
+                  >
+                    <motion.div
+                      className="client-modal-card"
+                      onClick={(e) => e.stopPropagation()}
+                      initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                      animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                      exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, y: 15 }}
+                      transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.32 }}
+                      drag={isMobile ? "y" : false}
+                      dragConstraints={{ top: 0 }}
+                      dragElastic={{ top: 0, bottom: 0.8 }}
+                      onDragEnd={(e, info) => {
+                        if (info.offset.y > 80) setIsClientModalOpen(false);
+                      }}
+                    >
+                      <div className="client-modal-pull-handle" />
+                      <div className="client-modal-header">
+                        <h3>Nouvelle discussion</h3>
+                        <button className="client-modal-close" onClick={() => setIsClientModalOpen(false)}>
+                          <X size={20} />
+                        </button>
+                      </div>
+                      <div className="client-modal-search">
+                        <Search size={16} className="modal-search-icon" />
+                        <input
+                          type="text"
+                          placeholder="Rechercher par nom, téléphone ou email..."
+                          value={modalSearchTerm}
+                          onChange={(e) => setModalSearchTerm(e.target.value)}
+                        />
+                      </div>
+                      <div className="client-modal-list">
+                        {isLoadingClients ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px 0" }}>
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", borderRadius: "10px" }}>
+                                <div className="skeleton-shimmer" style={{ width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0 }} />
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                                  <div className="skeleton-shimmer" style={{ width: `${110 + (i % 3) * 35}px`, height: "14px", borderRadius: "4px" }} />
+                                  <div className="skeleton-shimmer" style={{ width: `${140 + (i % 2) * 30}px`, height: "11px", borderRadius: "4px", opacity: 0.6 }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : filteredContactsList.length === 0 ? (
+                          <div style={{ padding: "34px 20px", textAlign: "center", color: "var(--muted-foreground)" }}>
+                            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "4px" }}>
+                              {!modalSearchTerm.trim() ? "Tous vos clients ont déjà un fil actif" : "Aucun contact trouvé"}
+                            </p>
+                            <p style={{ fontSize: "0.82rem", lineHeight: "1.4" }}>
+                              {!modalSearchTerm.trim() ? "Recherchez un client ci-dessus pour ouvrir directement sa conversation." : "Vérifiez l'orthographe du nom, numéro ou email."}
+                            </p>
+                          </div>
+                        ) : (
+                          filteredContactsList.map((client) => {
+                            const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim() || client.companyName || "Client";
+                            const inChat = hasActiveChat(client);
+                            return (
+                              <div
+                                key={client.id}
+                                className="client-modal-item"
+                                onClick={() => handleStartChatWithContact(client)}
+                              >
+                                <div className="client-modal-avatar">
+                                  {getInitials(fullName)}
+                                </div>
+                                <div className="client-modal-info" style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                                    <span className="client-modal-name">{fullName}</span>
+                                    {inChat && (
+                                      <span style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        fontSize: "11px",
+                                        fontWeight: 600,
+                                        padding: "2px 7px",
+                                        borderRadius: "6px",
+                                        backgroundColor: "rgba(85, 107, 47, 0.12)",
+                                        color: "#556B2F",
+                                        whiteSpace: "nowrap"
+                                      }}>
+                                        <MessageSquare size={11} strokeWidth={2.2} />
+                                        <span>En cours</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
+                                    {client.phone && <span className="font-mono">{client.phone}</span>}
+                                    {client.email && <span>· {client.email}</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Active Call UI Modal */}
+              <AnimatePresence>
+                {activeCall && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    style={{
+                      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                      background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
+                      zIndex: 99999, display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center', color: '#fff',
+                      padding: '24px', textAlign: 'center'
+                    }}
+                  >
+                    <div style={{
+                      width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, #36451C 0%, #556B2F 100%)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
+                      boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
+                    }}>
+                      {activeCall.contactName ? getInitials(activeCall.contactName) : 'CS'}
+                    </div>
+                    <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
+                      {activeCall.contactName}
+                    </h3>
+                    <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
+                      Appel en cours...
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setActiveCall(null)}
+                      style={{
+                        width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
+                        border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)'
+                      }}
+                      title="Raccrocher"
+                    >
+                      <X size={28} />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Document PDF Previews */}
+              <AnimatePresence>
+                {previewQuote && (
+                  <QuotePdfView
+                    quote={previewQuote}
+                    onClose={() => setPreviewQuote(null)}
+                    onDownload={async (q) => {
+                      const targetQ = q || previewQuote;
+                      if (targetQ?.id && typeof targetQ.id === "string" && targetQ.id.length > 10) {
+                        const token = getAuthToken();
+                        try {
+                          const res = await fetch(getApiUrl(`/v1/quotes/${targetQ.id}/pdf`), {
+                            headers: token ? { Authorization: `Bearer ${token}` } : {},
+                            credentials: "include"
+                          });
+                          if (res.ok) {
+                            const blob = await res.blob();
+                            const blobUrl = window.URL.createObjectURL(blob);
+                            const link = document.createElement("a");
+                            link.href = blobUrl;
+                            link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(blobUrl);
+                            return;
+                          }
+                        } catch (err) {
+                          console.error("Erreur téléchargement PDF devis:", err);
+                        }
+                      }
+                      window.print();
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {previewInvoice && (
+                  <InvoicePdfView
+                    invoice={previewInvoice}
+                    onClose={() => setPreviewInvoice(null)}
+                    onDownload={async (inv) => {
+                      const targetInv = inv || previewInvoice;
+                      if (targetInv?.id && typeof targetInv.id === "string" && targetInv.id.length > 10) {
+                        const token = getAuthToken();
+                        try {
+                          const res = await fetch(getApiUrl(`/v1/invoices/${targetInv.id}/pdf`), {
+                            headers: token ? { Authorization: `Bearer ${token}` } : {},
+                            credentials: "include"
+                          });
+                          if (res.ok) {
+                            const blob = await res.blob();
+                            const blobUrl = window.URL.createObjectURL(blob);
+                            const link = document.createElement("a");
+                            link.href = blobUrl;
+                            link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(blobUrl);
+                            return;
+                          }
+                        } catch (err) {
+                          console.error("Erreur téléchargement PDF facture:", err);
+                        }
+                      }
+                      window.print();
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Lightbox Modal Gallery for attached photos */}
+              {typeof document !== "undefined" && createPortal(
+                <AnimatePresence>
+                  {lightboxGallery && (
+                    <motion.div
+                      key="lightbox-backdrop"
+                      className="lightbox-backdrop"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => setLightboxGallery(null)}
+                    >
+                      <motion.div
+                        key="lightbox-content"
+                        className="lightbox-content"
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0.94 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.94 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="lightbox-header">
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
+                            {lightboxGallery.images.length > 1 && (
+                              <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
+                                {lightboxGallery.index + 1} / {lightboxGallery.images.length}
                               </span>
                             )}
                           </div>
-                          <div style={{ display: "flex", gap: "8px", fontSize: "11.5px", color: "var(--muted-foreground)" }}>
-                            {client.phone && <span className="font-mono">{client.phone}</span>}
-                            {client.email && <span>· {client.email}</span>}
+                          <div className="lightbox-actions">
+                            <button
+                              type="button"
+                              className="lightbox-btn"
+                              title="Télécharger l'image"
+                              onClick={(e) => handleDownloadAttachment(
+                                e,
+                                lightboxGallery.images[lightboxGallery.index]?.url,
+                                lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
+                              )}
+                            >
+                              <Download size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              className="lightbox-btn"
+                              onClick={() => setLightboxGallery(null)}
+                              title="Fermer (Échap)"
+                            >
+                              <X size={18} />
+                            </button>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Active Call UI Modal */}
-      <AnimatePresence>
-        {activeCall && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
-              zIndex: 99999, display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', color: '#fff',
-              padding: '24px', textAlign: 'center'
-            }}
-          >
-            <div style={{
-              width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, #36451C 0%, #556B2F 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '2.2rem', fontWeight: 800, marginBottom: 24,
-              boxShadow: '0 0 40px rgba(85, 107, 47, 0.4)'
-            }}>
-              {activeCall.contactName ? getInitials(activeCall.contactName) : 'CS'}
-            </div>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.02em' }}>
-              {activeCall.contactName}
-            </h3>
-            <p style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: 40 }}>
-              Appel en cours...
-            </p>
-            <button
-              type="button"
-              onClick={() => setActiveCall(null)}
-              style={{
-                width: 64, height: 64, borderRadius: '50%', background: '#EF4444',
-                border: 'none', color: '#fff', cursor: 'pointer', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 10px 25px rgba(239, 68, 68, 0.4)'
-              }}
-              title="Raccrocher"
-            >
-              <X size={28} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Document PDF Previews */}
-      <AnimatePresence>
-        {previewQuote && (
-          <QuotePdfView
-            quote={previewQuote}
-            onClose={() => setPreviewQuote(null)}
-            onDownload={async (q) => {
-              const targetQ = q || previewQuote;
-              if (targetQ?.id && typeof targetQ.id === "string" && targetQ.id.length > 10) {
-                const token = getAuthToken();
-                try {
-                  const res = await fetch(getApiUrl(`/v1/quotes/${targetQ.id}/pdf`), {
-                    headers: token ? { Authorization: `Bearer ${token}` } : {},
-                    credentials: "include"
-                  });
-                  if (res.ok) {
-                    const blob = await res.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.href = blobUrl;
-                    link.download = `Devis_${(targetQ.number || 'devis').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(blobUrl);
-                    return;
-                  }
-                } catch (err) {
-                  console.error("Erreur téléchargement PDF devis:", err);
-                }
-              }
-              window.print();
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {previewInvoice && (
-          <InvoicePdfView
-            invoice={previewInvoice}
-            onClose={() => setPreviewInvoice(null)}
-            onDownload={async (inv) => {
-              const targetInv = inv || previewInvoice;
-              if (targetInv?.id && typeof targetInv.id === "string" && targetInv.id.length > 10) {
-                const token = getAuthToken();
-                try {
-                  const res = await fetch(getApiUrl(`/v1/invoices/${targetInv.id}/pdf`), {
-                    headers: token ? { Authorization: `Bearer ${token}` } : {},
-                    credentials: "include"
-                  });
-                  if (res.ok) {
-                    const blob = await res.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.href = blobUrl;
-                    link.download = `Facture_${(targetInv.number || 'facture').replace(/[^a-zA-Z0-9-_]/g, '_')}.pdf`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(blobUrl);
-                    return;
-                  }
-                } catch (err) {
-                  console.error("Erreur téléchargement PDF facture:", err);
-                }
-              }
-              window.print();
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Lightbox Modal Gallery for attached photos */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {lightboxGallery && (
-            <motion.div
-              key="lightbox-backdrop"
-              className="lightbox-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setLightboxGallery(null)}
-            >
-              <motion.div
-                key="lightbox-content"
-                className="lightbox-content"
-                onClick={(e) => e.stopPropagation()}
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.94 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="lightbox-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span className="lightbox-title">{lightboxGallery.images[lightboxGallery.index]?.name || "Photo"}</span>
-                    {lightboxGallery.images.length > 1 && (
-                      <span style={{ fontSize: "12px", color: "var(--muted-foreground, #94a3b8)", fontWeight: 600 }}>
-                        {lightboxGallery.index + 1} / {lightboxGallery.images.length}
-                      </span>
-                    )}
-                  </div>
-                  <div className="lightbox-actions">
-                    <button 
-                      type="button" 
-                      className="lightbox-btn" 
-                      title="Télécharger l'image"
-                      onClick={(e) => handleDownloadAttachment(
-                        e, 
-                        lightboxGallery.images[lightboxGallery.index]?.url, 
-                        lightboxGallery.images[lightboxGallery.index]?.name || "photo.jpg"
-                      )}
-                    >
-                      <Download size={16} />
-                    </button>
-                    <button 
-                      type="button" 
-                      className="lightbox-btn" 
-                      onClick={() => setLightboxGallery(null)}
-                      title="Fermer (Échap)"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
-                </div>
-                <div className="lightbox-body" style={{ position: "relative" }}>
-                  {lightboxGallery.images.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        className="lightbox-nav-btn prev"
-                        title="Précédente (←)"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLightboxGallery(prev => ({
-                            ...prev,
-                            index: (prev.index - 1 + prev.images.length) % prev.images.length
-                          }));
-                        }}
-                      >
-                        <ChevronLeft size={24} />
-                      </button>
-                      <button
-                        type="button"
-                        className="lightbox-nav-btn next"
-                        title="Suivante (→)"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLightboxGallery(prev => ({
-                            ...prev,
-                            index: (prev.index + 1) % prev.images.length
-                          }));
-                        }}
-                      >
-                        <ChevronRight size={24} />
-                      </button>
-                    </>
+                        <div className="lightbox-body" style={{ position: "relative" }}>
+                          {lightboxGallery.images.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                className="lightbox-nav-btn prev"
+                                title="Précédente (←)"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLightboxGallery(prev => ({
+                                    ...prev,
+                                    index: (prev.index - 1 + prev.images.length) % prev.images.length
+                                  }));
+                                }}
+                              >
+                                <ChevronLeft size={24} />
+                              </button>
+                              <button
+                                type="button"
+                                className="lightbox-nav-btn next"
+                                title="Suivante (→)"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLightboxGallery(prev => ({
+                                    ...prev,
+                                    index: (prev.index + 1) % prev.images.length
+                                  }));
+                                }}
+                              >
+                                <ChevronRight size={24} />
+                              </button>
+                            </>
+                          )}
+                          <img
+                            src={lightboxGallery.images[lightboxGallery.index]?.url}
+                            alt={lightboxGallery.images[lightboxGallery.index]?.name}
+                            className="lightbox-full-img"
+                          />
+                        </div>
+                      </motion.div>
+                    </motion.div>
                   )}
-                  <img 
-                    src={lightboxGallery.images[lightboxGallery.index]?.url} 
-                    alt={lightboxGallery.images[lightboxGallery.index]?.name} 
-                    className="lightbox-full-img" 
-                  />
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+                </AnimatePresence>,
+                document.body
+              )}
 
-      {/* Delete Confirmation Modal */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {isDeleteModalOpen && (
-            <motion.div
-              key="delete-modal-backdrop"
-              className="delete-modal-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
-            >
-              <motion.div
-                key="delete-modal-content"
-                className="delete-modal-content"
-                onClick={(e) => e.stopPropagation()}
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
-              >
-                <div className="delete-modal-header">
-                  <div className="delete-modal-icon-wrapper">
-                    <Trash2 size={22} className="delete-modal-icon" />
-                  </div>
-                  <div className="delete-modal-titles">
-                    <h3>Supprimer ?</h3>
-                    <p>
-                      {isDeletingEntireConversation
-                        ? "Voulez-vous supprimer l'intégralité de cette conversation de votre historique CRM ?"
-                        : selectedMessageIds.size > 1
-                          ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
-                          : "Voulez-vous supprimer ce message de votre historique CRM ?"}
-                    </p>
-                  </div>
-                </div>
-                <div className="delete-modal-actions">
-                  <button
-                    type="button"
-                    className="delete-modal-btn cancel"
-                    disabled={isDeleting}
-                    onClick={() => setIsDeleteModalOpen(false)}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="button"
-                    className="delete-modal-btn confirm"
-                    disabled={isDeleting}
-                    onClick={handleDeleteSelectedMessages}
-                  >
-                    {isDeleting ? "Suppression..." : "Supprimer"}
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-    </div>
-  );
+              {/* Delete Confirmation Modal */}
+              {typeof document !== "undefined" && createPortal(
+                <AnimatePresence>
+                  {isDeleteModalOpen && (
+                    <motion.div
+                      key="delete-modal-backdrop"
+                      className="delete-modal-backdrop"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
+                    >
+                      <motion.div
+                        key="delete-modal-content"
+                        className="delete-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                        transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.25 }}
+                      >
+                        <div className="delete-modal-header">
+                          <div className="delete-modal-icon-wrapper">
+                            <Trash2 size={22} className="delete-modal-icon" />
+                          </div>
+                          <div className="delete-modal-titles">
+                            <h3>Supprimer ?</h3>
+                            <p>
+                              {isDeletingEntireConversation
+                                ? "Voulez-vous supprimer l'intégralité de cette conversation de votre historique CRM ?"
+                                : selectedMessageIds.size > 1
+                                  ? `Voulez-vous supprimer ces ${selectedMessageIds.size} messages de votre historique CRM ?`
+                                  : "Voulez-vous supprimer ce message de votre historique CRM ?"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="delete-modal-actions">
+                          <button
+                            type="button"
+                            className="delete-modal-btn cancel"
+                            disabled={isDeleting}
+                            onClick={() => setIsDeleteModalOpen(false)}
+                          >
+                            Annuler
+                          </button>
+                          <button
+                            type="button"
+                            className="delete-modal-btn confirm"
+                            disabled={isDeleting}
+                            onClick={handleDeleteSelectedMessages}
+                          >
+                            {isDeleting ? "Suppression..." : "Supprimer"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>,
+                document.body
+              )}
+            </div>
+            );
 }
 
-export default MessagesPage;
+            export default MessagesPage;

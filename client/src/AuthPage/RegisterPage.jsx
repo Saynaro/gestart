@@ -851,39 +851,27 @@ export default function RegisterPage() {
                                 </div>
                             )}
 
-                            <div className="terms-checkbox-group" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <div className="terms-checkbox-group">
                                 <label className="terms-checkbox-label">
                                     <input
                                         type="checkbox"
-                                        name="acceptProfessionalCapacity"
-                                        checked={formData.acceptProfessionalCapacity}
-                                        onChange={(e) => {
-                                            setFormData(prev => ({ ...prev, acceptProfessionalCapacity: e.target.checked }));
-                                            setError('');
-                                        }}
-                                        required
-                                        className="terms-checkbox-input"
-                                    />
-                                    <span className="terms-checkbox-text">
-                                        Je souscris pour les besoins de mon activité professionnelle et confirme être habilité(e) à engager mon entreprise.
-                                    </span>
-                                </label>
-
-                                <label className="terms-checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        name="acceptTerms"
-                                        checked={formData.acceptTerms && formData.acceptDpa}
+                                        name="acceptLegal"
+                                        checked={Boolean(formData.acceptProfessionalCapacity && formData.acceptTerms && formData.acceptDpa)}
                                         onChange={(e) => {
                                             const checked = e.target.checked;
-                                            setFormData(prev => ({ ...prev, acceptTerms: checked, acceptDpa: checked }));
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                acceptProfessionalCapacity: checked,
+                                                acceptTerms: checked,
+                                                acceptDpa: checked
+                                            }));
                                             setError('');
                                         }}
                                         required
                                         className="terms-checkbox-input"
                                     />
                                     <span className="terms-checkbox-text">
-                                        J'accepte les{' '}
+                                        Je souscris pour mon activité professionnelle et j'accepte les{' '}
                                         <a
                                             href="/cgu"
                                             target="_blank"
@@ -891,9 +879,8 @@ export default function RegisterPage() {
                                             className="terms-link-btn"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            Conditions d'abonnement (CGU / CGV)
-                                        </a>{' '}
-                                        et l'{' '}
+                                            CGU/CGV
+                                        </a>, le{' '}
                                         <a
                                             href="/dpa"
                                             target="_blank"
@@ -901,26 +888,21 @@ export default function RegisterPage() {
                                             className="terms-link-btn"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            Accord de sous-traitance des données (DPA)
+                                            DPA
+                                        </a> et la{' '}
+                                        <a
+                                            href="/confidentialite"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="terms-link-btn"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Politique de confidentialité
                                         </a>.
                                     </span>
                                 </label>
 
-                                <div style={{ fontSize: '0.80rem', color: '#64748B', paddingLeft: '28px', lineHeight: 1.4 }}>
-                                    Consultez notre{' '}
-                                    <a
-                                        href="/confidentialite"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="terms-link-btn"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Politique de confidentialité
-                                    </a>{' '}
-                                    pour connaître l'utilisation de vos données personnelles et vos droits (RGPD).
-                                </div>
-
-                                <label className="terms-checkbox-label" style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '8px', marginTop: '2px' }}>
+                                <label className="terms-checkbox-label terms-optional-row">
                                     <input
                                         type="checkbox"
                                         name="acceptMarketing"
@@ -930,8 +912,8 @@ export default function RegisterPage() {
                                         }}
                                         className="terms-checkbox-input"
                                     />
-                                    <span className="terms-checkbox-text" style={{ fontSize: '0.82rem', color: '#64748B' }}>
-                                        (Facultatif) Je souhaite recevoir par e-mail les actualités, conseils techniques et offres de GestArt.
+                                    <span className="terms-checkbox-text terms-optional-text">
+                                        (Optionnel) Recevoir nos conseils techniques et nouveautés par e-mail.
                                     </span>
                                 </label>
                             </div>

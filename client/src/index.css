@@ -208,6 +208,7 @@
 
 /* Disable auto-zoom on inputs in iOS Safari */
 @media screen and (max-width: 768px) {
+
   input,
   select,
   textarea {
@@ -607,9 +608,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   pointer-events: auto !important;
   cursor: pointer !important;
   user-select: none !important;
-  white-space: nowrap !important;
-  max-width: 90vw !important;
-  text-align: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.4 !important;
+  max-width: min(92vw, 540px) !important;
+  text-align: left !important;
 }
 
 /* ── Dark Mode Toast Adaptation: elevated slate background with clear hairline border ── */
@@ -725,20 +728,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .toast-notification,
   .payments-toast,
   .app-toast-pill {
-    top: 16px !important;
-    padding: 9px 18px !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-    gap: 8px !important;
-    max-width: 92vw !important;
-    white-space: nowrap !important;
-    border-radius: 9999px !important;
-    text-align: center !important;
+    top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    font-weight: 500 !important;
+    gap: 10px !important;
+    max-width: calc(100vw - 28px) !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    border-radius: 14px !important;
+    text-align: left !important;
+    align-items: flex-start !important;
   }
 }
 
 /* PWA Standalone Mode: shift toasts below header & safe-area-inset-top */
 @media (display-mode: standalone) and (max-width: 768px) {
+
   .app-toast,
   .dv-toast,
   .fp-toast,

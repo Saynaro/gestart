@@ -38,10 +38,10 @@ prisma/generated/
 .env
 .env.*
 *.local
-!.env.example
-!.env.docker.example
-!client/.env.example
-!server/.env.example
+.env.example
+.env.docker.example
+client/.env.example
+server/.env.example
 
 # Logs & Coverage
 logs/

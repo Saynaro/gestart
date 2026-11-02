@@ -1,8 +1,8 @@
 # ==============================================================================
 # GESTART CRM — PRODUCTION DOCKER COMPOSE (HETZNER VPS)
 # Architecture:
-#   - Frontend: https://gestart.com
-#   - Backend API & WebSockets: https://api.gestart.com
+#   - Frontend: https://gestart.fr
+#   - Backend API & WebSockets: https://api.gestart.fr
 #   - PostgreSQL 16 (Persistent Volume + Daily Automatic Backups)
 #   - Redis 7 (Password-protected Cache & Rate Limiter)
 # ==============================================================================
@@ -76,7 +76,7 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────────────────────
-  # 4. BACKEND API (api.gestart.com — Express + Prisma + Socket.io)
+  # 4. BACKEND API (api.gestart.fr — Express + Prisma + Socket.io)
   # ─────────────────────────────────────────────────────────────
   server:
     build:
@@ -94,8 +94,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5001
-      FRONTEND_URL: ${FRONTEND_URL:-https://gestart.com}
-      BACKEND_URL: ${BACKEND_URL:-https://api.gestart.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://gestart.fr}
+      BACKEND_URL: ${BACKEND_URL:-https://api.gestart.fr}
       DATABASE_URL: postgresql://${DB_USER:-gestart}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-gestart}?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       REDIS_HOST: redis
@@ -110,7 +110,7 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────────────────────
-  # 5. FRONTEND + REVERSE PROXY NGINX (gestart.com & api.gestart.com)
+  # 5. FRONTEND + REVERSE PROXY NGINX (gestart.fr & api.gestart.fr)
   #    Automatically switches from HTTP to HTTPS when certificates exist
   # ─────────────────────────────────────────────────────────────
   client:
@@ -118,9 +118,9 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        VITE_BACKEND_URL: ${BACKEND_URL:-https://api.gestart.com}
-        VITE_API_URL: ${VITE_API_URL:-https://api.gestart.com/api}
-        VITE_FRONTEND_URL: ${FRONTEND_URL:-https://gestart.com}
+        VITE_BACKEND_URL: ${BACKEND_URL:-https://api.gestart.fr}
+        VITE_API_URL: ${VITE_API_URL:-https://api.gestart.fr/api}
+        VITE_FRONTEND_URL: ${FRONTEND_URL:-https://gestart.fr}
     container_name: gestart-client
     restart: unless-stopped
     depends_on:

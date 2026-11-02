@@ -17,16 +17,16 @@ export const initSocket = (httpServer) => {
                 if (!origin) return callback(null, true);
                 const allowedOrigins = [
                     process.env.FRONTEND_URL,
-                    "https://gestart.com",
-                    "https://www.gestart.com",
-                    "https://app.gestart.com",
+                    "https://gestart.fr",
+                    "https://www.gestart.fr",
+                    "https://app.gestart.fr",
                     "http://localhost:5173",
                     "http://localhost:5174",
                     "http://localhost:3000"
                 ].filter(Boolean);
 
                 const isLocalNetwork = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin);
-                const isGestartDomain = /^https?:\/\/([a-z0-9-]+\.)?gestart\.(com|fr)$/i.test(origin);
+                const isGestartDomain = /^https?:\/\/([a-z0-9-]+\.)?gestart\.fr$/i.test(origin);
 
                 if (allowedOrigins.includes(origin) || isLocalNetwork || isGestartDomain || process.env.NODE_ENV !== "production") {
                     return callback(null, true);

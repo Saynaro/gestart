@@ -608,10 +608,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   pointer-events: auto !important;
   cursor: pointer !important;
   user-select: none !important;
+  width: max-content !important;
+  max-width: min(92vw, 560px) !important;
   white-space: normal !important;
   word-break: break-word !important;
+  overflow-wrap: break-word !important;
   line-height: 1.4 !important;
-  max-width: min(92vw, 540px) !important;
   text-align: left !important;
 }
 
@@ -729,17 +731,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .payments-toast,
   .app-toast-pill {
     top: calc(14px + env(safe-area-inset-top, 0px)) !important;
-    padding: 10px 16px !important;
+    padding: 10px 18px !important;
     font-size: 13px !important;
     line-height: 1.4 !important;
     font-weight: 500 !important;
     gap: 10px !important;
-    max-width: calc(100vw - 28px) !important;
+    width: max-content !important;
+    max-width: calc(100vw - 32px) !important;
     white-space: normal !important;
     word-break: break-word !important;
-    border-radius: 14px !important;
+    overflow-wrap: break-word !important;
+    border-radius: 20px !important;
     text-align: left !important;
-    align-items: flex-start !important;
+    align-items: center !important;
   }
 }
 

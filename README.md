@@ -236,7 +236,7 @@ TWILIO_PHONE_NUMBER="+33..."
 # SMTP / Email & Cloudinary
 SMTP_HOST="smtp.example.com"
 SMTP_PORT=587
-SMTP_USER="contact@gestart.com"
+SMTP_USER="contact@gestart.fr"
 SMTP_PASS="..."
 CLOUDINARY_CLOUD_NAME="..."
 CLOUDINARY_API_KEY="..."

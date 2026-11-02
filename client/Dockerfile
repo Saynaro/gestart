@@ -6,9 +6,9 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Build arguments injected at compile time for Vite
-ARG VITE_BACKEND_URL=https://api.gestart.com
-ARG VITE_API_URL=https://api.gestart.com/api
-ARG VITE_FRONTEND_URL=https://gestart.com
+ARG VITE_BACKEND_URL=https://api.gestart.fr
+ARG VITE_API_URL=https://api.gestart.fr/api
+ARG VITE_FRONTEND_URL=https://gestart.fr
 
 ENV VITE_BACKEND_URL=$VITE_BACKEND_URL \
     VITE_API_URL=$VITE_API_URL \

@@ -902,7 +902,7 @@ export default function RegisterPage() {
                                     </span>
                                 </label>
 
-                                <label className="terms-checkbox-label terms-optional-row">
+                                <label className="terms-checkbox-label">
                                     <input
                                         type="checkbox"
                                         name="acceptMarketing"
@@ -912,7 +912,7 @@ export default function RegisterPage() {
                                         }}
                                         className="terms-checkbox-input"
                                     />
-                                    <span className="terms-checkbox-text terms-optional-text">
+                                    <span className="terms-checkbox-text">
                                         (Optionnel) Recevoir nos conseils techniques et nouveautés par e-mail.
                                     </span>
                                 </label>

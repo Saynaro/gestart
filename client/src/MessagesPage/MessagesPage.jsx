@@ -2716,31 +2716,17 @@ function MessagesPage() {
         {/* 1. EMAIL COMPOSER (Rich mode) */}
         {selectedChannel === "EMAIL" ? (
           <form className="email-composer-form" onSubmit={handleSendMessage}>
-            {/* Dynamic GestArt Relay Info Banner with Lucide Icons (No emojis) */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '12px',
-              padding: '6px 12px',
-              backgroundColor: 'rgba(59, 130, 246, 0.06)',
-              borderBottom: '1px solid rgba(59, 130, 246, 0.15)',
-              fontSize: '11.5px',
-              color: 'var(--muted-foreground)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                {/* Dynamic GestArt Relay Info Banner with Lucide Icons (No emojis) - Hidden on mobile */}
-                <div className="email-relay-banner">
-                  <div className="email-relay-item">
-                    <Mail size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
-                    <span>Expéditeur : <strong style={{ color: 'var(--foreground)' }}>{companyDisplayName} via GestArt</strong> (support.gestart@gmail.com)</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <div className="email-relay-item">
-                      <CornerDownLeft size={12} style={{ color: '#2563eb', flexShrink: 0 }} />
-                      <span>Réponses redirigées vers : <strong style={{ color: 'var(--foreground)' }}>{companyEmailAddress}</strong></span>
-                    </div>
-                  </div>
+            {/* Dynamic GestArt Relay Info Banner with Lucide Icons (No emojis) - Hidden on mobile */}
+            <div className="email-relay-banner">
+              <div className="email-relay-item">
+                <Mail size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
+                <span>Expéditeur : <strong style={{ color: 'var(--foreground)' }}>{companyDisplayName} via GestArt</strong> (support.gestart@gmail.com)</span>
+              </div>
+              <div className="email-relay-item">
+                <CornerDownLeft size={12} style={{ color: '#2563eb', flexShrink: 0 }} />
+                <span>Réponses redirigées vers : <strong style={{ color: 'var(--foreground)' }}>{companyEmailAddress}</strong></span>
+              </div>
+            </div>
 
                   {isEmailMetaExpanded && (
                     <div className="email-composer-meta">

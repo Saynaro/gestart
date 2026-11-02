@@ -940,57 +940,41 @@
   text-decoration: underline;
 }
 
-/* Terms & Conditions Checkbox - Compact & Elegant */
+/* Terms & Conditions Checkbox - Clean, Native Styling */
 .terms-checkbox-group {
-  margin-top: 10px;
-  margin-bottom: 14px;
-  padding: 8px 12px;
-  background: var(--muted, rgba(244, 245, 247, 0.6));
-  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
-  border-radius: 10px;
+  margin-top: 14px;
+  margin-bottom: 18px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.terms-checkbox-group:hover {
-  border-color: rgba(85, 107, 47, 0.3);
+  gap: 10px;
 }
 
 .terms-checkbox-label {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   user-select: none;
 }
 
 .terms-checkbox-input {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   margin-top: 2px;
   accent-color: #556B2F;
   cursor: pointer;
   flex-shrink: 0;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .terms-checkbox-text {
-  font-size: 0.77rem;
-  color: var(--muted-foreground, #64748b);
-  line-height: 1.35;
-}
-
-.terms-optional-row {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding-top: 6px;
-  margin-top: 2px;
-}
-
-.terms-optional-text {
-  font-size: 0.73rem;
-  color: #94a3b8;
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.4;
 }
 
 .terms-link-btn {
@@ -998,7 +982,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  font-size: 0.77rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--primary, #556B2F);
   text-decoration: underline;
@@ -1013,23 +997,26 @@
 
 @media (max-width: 768px) {
   .terms-checkbox-group {
-    margin-top: 8px;
-    margin-bottom: 12px;
-    padding: 7px 10px;
-    gap: 5px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    padding: 0;
+    gap: 10px;
+  }
+
+  .terms-checkbox-input {
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
   }
 
   .terms-checkbox-text {
-    font-size: 0.73rem;
-    line-height: 1.3;
-  }
-
-  .terms-optional-text {
-    font-size: 0.69rem;
+    font-size: 0.86rem;
+    color: #475569;
+    line-height: 1.45;
   }
 
   .terms-link-btn {
-    font-size: 0.73rem;
+    font-size: 0.86rem;
   }
 }
 

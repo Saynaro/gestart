@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView } from "motion/react";
 
 import { cn } from "@/lib/utils"
 
@@ -27,15 +27,18 @@ export const AnimatedList = React.memo(({
   ...props
 }) => {
   const [index, setIndex] = useState(0)
+  const containerRef = useRef(null)
+  const isInView = useInView(containerRef, { once: false, amount: 0.1 })
   const childrenArray = useMemo(() => React.Children.toArray(children), [children])
 
   useEffect(() => {
+    if (!isInView) return
     const interval = setInterval(() => {
       setIndex((prevIndex) => prevIndex + 1)
     }, delay)
 
     return () => clearInterval(interval)
-  }, [delay])
+  }, [delay, isInView])
 
   const itemsToShow = useMemo(() => {
     const result = []
@@ -59,7 +62,7 @@ export const AnimatedList = React.memo(({
   }, [index, childrenArray])
 
   return (
-    <div className={cn(`flex flex-col items-center gap-4`, className)} {...props}>
+    <div ref={containerRef} className={cn(`flex flex-col items-center gap-4`, className)} {...props}>
       <AnimatePresence>
         {itemsToShow.map((item) => (
           <AnimatedListItem key={item.key}>

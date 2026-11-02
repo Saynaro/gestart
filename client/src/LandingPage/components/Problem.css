@@ -72,9 +72,8 @@
 
 @media (max-width: 768px) {
     .problem {
-
-        margin-bottom: 80px;
-        padding: 50px 20px;
+        margin-bottom: 0;
+        padding: 60px 20px;
     }
 
     .problem-title-h1 {

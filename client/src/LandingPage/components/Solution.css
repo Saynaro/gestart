@@ -302,7 +302,20 @@
 
 @media (max-width: 768px) {
     .solution-section {
-        padding: 0 20px;
+        padding: 60px 20px;
+    }
+
+    .solution-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 18px;
+    }
+
+    .solution-badge h1 {
+        font-size: 0.85rem;
+        line-height: 1.2;
+        margin: 0;
     }
 
     .solution-title {

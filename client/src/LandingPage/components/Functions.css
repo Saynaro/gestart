@@ -683,7 +683,7 @@
 
 @media (max-width: 768px) {
     .functions-section {
-        padding: 50px 16px;
+        padding: 60px 20px;
     }
 
     .functions-title {
@@ -694,11 +694,35 @@
         font-size: 1rem;
     }
 
+    .functions-grid {
+        grid-auto-rows: auto !important;
+        gap: 20px !important;
+    }
+
+    .functions-grid>div,
+    .functions-grid>div.tall-bento-card {
+        min-height: unset !important;
+        height: auto !important;
+        padding-top: 0 !important;
+        justify-content: space-between !important;
+    }
+
+    .bento-bg,
+    .tall-bento-card .bento-bg {
+        position: relative !important;
+        inset: auto !important;
+        height: auto !important;
+        padding: 28px 16px 8px 16px !important;
+    }
+
     .sms-mock-phone {
-        width: 220px;
+        width: 240px;
+        height: 200px;
     }
 
     .notif-stack {
         width: 230px;
+        height: 172px;
+        max-height: 172px;
     }
 }

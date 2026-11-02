@@ -105,7 +105,7 @@ export function DiaTextReveal({
   const backgroundImage = useTransform(sweepPos, (pos) =>
     buildGradient(pos, optsRef.current.colors, optsRef.current.textColor))
 
-  const isInView = useInView(spanRef, { once, amount: 0.1 })
+  const isInView = useInView(spanRef, { once: once && !repeat, amount: 0.1 })
 
   useEffect(() => {
     const el = spanRef.current
@@ -141,8 +141,12 @@ export function DiaTextReveal({
       sweepPos.set(SWEEP_END)
       return
     }
-    if (startOnView && !isInView) return
-    if (once && hasPlayedRef.current) return
+    if (startOnView && !isInView) {
+      stopRef.current?.()
+      clearTimeout(timerRef.current)
+      return
+    }
+    if (once && !repeat && hasPlayedRef.current) return
     hasPlayedRef.current = true
     playRef.current()
 
@@ -150,7 +154,7 @@ export function DiaTextReveal({
       stopRef.current?.()
       clearTimeout(timerRef.current)
     };
-  }, [isInView, startOnView, once, prefersReducedMotion, sweepPos])
+  }, [isInView, startOnView, once, repeat, prefersReducedMotion, sweepPos])
 
   const fixedW =
     isMulti && fixedWidth && measuredWidths.length > 0

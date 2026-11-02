@@ -251,4 +251,8 @@
     .comments-carousel-side {
         height: 380px;
     }
+
+    .comments-vertical-carousel [data-slot="carousel-content"] {
+        height: 360px !important;
+    }
 }

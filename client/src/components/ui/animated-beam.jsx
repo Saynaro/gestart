@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export const AnimatedBeam = ({
@@ -27,6 +27,7 @@ export const AnimatedBeam = ({
   const id = rawId.replace(/:/g, "");
   const [pathD, setPathD] = useState("");
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
+  const isInView = useInView(containerRef, { once: false, amount: 0.1 });
 
   // Calculate the path whenever refs change
   useEffect(() => {
@@ -122,12 +123,16 @@ export const AnimatedBeam = ({
             y1: "0%",
             y2: "0%",
           }}
-          animate={{
-            x1: reverse ? "-100%" : "100%",
-            x2: reverse ? "0%" : "200%",
-            y1: "0%",
-            y2: "0%",
-          }}
+          animate={
+            isInView
+              ? {
+                  x1: reverse ? "-100%" : "100%",
+                  x2: reverse ? "0%" : "200%",
+                  y1: "0%",
+                  y2: "0%",
+                }
+              : undefined
+          }
           transition={{
             repeat: Infinity,
             repeatType: "loop",

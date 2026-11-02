@@ -1,27 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils"
-
-function MousePosition() {
-  const [mousePosition, setMousePosition] = useState({
-    x: 0,
-    y: 0,
-  })
-
-  useEffect(() => {
-    const handleMouseMove = (event) => {
-      setMousePosition({ x: event.clientX, y: event.clientY })
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-    };
-  }, [])
-
-  return mousePosition
-}
 
 function hexToRgb(hex) {
   hex = hex.replace("#", "")
@@ -56,15 +35,19 @@ export const Particles = ({
   const canvasContainerRef = useRef(null)
   const context = useRef(null)
   const circles = useRef([])
-  const mousePosition = MousePosition()
   const mouse = useRef({ x: 0, y: 0 })
   const canvasSize = useRef({ w: 0, h: 0 })
-  const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1
+  const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1
   const rafID = useRef(null)
+  const isVisibleRef = useRef(true)
   const resizeTimeout = useRef(null)
   const initCanvasRef = useRef(() => {})
-  const onMouseMoveRef = useRef(() => {})
   const animateRef = useRef(() => {})
+
+  const effectiveQuantity =
+    typeof window !== "undefined" && window.innerWidth < 768
+      ? Math.min(quantity, 35)
+      : quantity
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -73,7 +56,13 @@ export const Particles = ({
     initCanvasRef.current()
     animateRef.current()
 
+    let lastWidth = window.innerWidth
     const handleResize = () => {
+      // On mobile Safari, ignore vertical-only address bar resize to prevent scroll stutter
+      if (window.innerWidth === lastWidth && window.innerWidth < 768) {
+        return
+      }
+      lastWidth = window.innerWidth
       if (resizeTimeout.current) {
         clearTimeout(resizeTimeout.current)
       }
@@ -82,7 +71,39 @@ export const Particles = ({
       }, 200)
     }
 
-    window.addEventListener("resize", handleResize)
+    const handleMouseMove = (event) => {
+      if (!canvasRef.current || !isVisibleRef.current) return
+      const rect = canvasRef.current.getBoundingClientRect()
+      const { w, h } = canvasSize.current
+      const x = event.clientX - rect.left - w / 2
+      const y = event.clientY - rect.top - h / 2
+      const inside = x < w / 2 && x > -w / 2 && y < h / 2 && y > -h / 2
+      if (inside) {
+        mouse.current.x = x
+        mouse.current.y = y
+      }
+    }
+
+    let observer = null
+    if (typeof IntersectionObserver !== "undefined" && canvasContainerRef.current) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          const wasVisible = isVisibleRef.current
+          isVisibleRef.current = entry.isIntersecting
+          if (entry.isIntersecting && !wasVisible) {
+            animateRef.current()
+          } else if (!entry.isIntersecting && rafID.current != null) {
+            window.cancelAnimationFrame(rafID.current)
+            rafID.current = null
+          }
+        },
+        { threshold: 0 }
+      )
+      observer.observe(canvasContainerRef.current)
+    }
+
+    window.addEventListener("resize", handleResize, { passive: true })
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
 
     return () => {
       if (rafID.current != null) {
@@ -91,13 +112,13 @@ export const Particles = ({
       if (resizeTimeout.current) {
         clearTimeout(resizeTimeout.current)
       }
+      if (observer) {
+        observer.disconnect()
+      }
       window.removeEventListener("resize", handleResize)
+      window.removeEventListener("mousemove", handleMouseMove)
     };
   }, [color])
-
-  useEffect(() => {
-    onMouseMoveRef.current()
-  }, [mousePosition.x, mousePosition.y])
 
   useEffect(() => {
     initCanvasRef.current()
@@ -106,20 +127,6 @@ export const Particles = ({
   const initCanvas = () => {
     resizeCanvas()
     drawParticles()
-  }
-
-  const onMouseMove = () => {
-    if (canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect()
-      const { w, h } = canvasSize.current
-      const x = mousePosition.x - rect.left - w / 2
-      const y = mousePosition.y - rect.top - h / 2
-      const inside = x < w / 2 && x > -w / 2 && y < h / 2 && y > -h / 2
-      if (inside) {
-        mouse.current.x = x
-        mouse.current.y = y
-      }
-    }
   }
 
   const resizeCanvas = () => {
@@ -131,11 +138,10 @@ export const Particles = ({
       canvasRef.current.height = canvasSize.current.h * dpr
       canvasRef.current.style.width = `${canvasSize.current.w}px`
       canvasRef.current.style.height = `${canvasSize.current.h}px`
-      context.current.scale(dpr, dpr)
+      context.current.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-      // Clear existing particles and create new ones with exact quantity
       circles.current = []
-      for (let i = 0; i < quantity; i++) {
+      for (let i = 0; i < effectiveQuantity; i++) {
         const circle = circleParams()
         drawCircle(circle)
       }
@@ -193,7 +199,7 @@ export const Particles = ({
 
   const drawParticles = () => {
     clearContext()
-    const particleCount = quantity
+    const particleCount = effectiveQuantity
     for (let i = 0; i < particleCount; i++) {
       const circle = circleParams()
       drawCircle(circle)
@@ -207,6 +213,10 @@ export const Particles = ({
   }
 
   const animate = () => {
+    if (!isVisibleRef.current) {
+      rafID.current = null
+      return
+    }
     clearContext()
     circles.current.forEach((circle, i) => {
       // Handle the alpha value
@@ -255,7 +265,6 @@ export const Particles = ({
   }
 
   initCanvasRef.current = initCanvas
-  onMouseMoveRef.current = onMouseMove
   animateRef.current = animate
 
   return (

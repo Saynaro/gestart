@@ -9,11 +9,18 @@ function Navbar() {
 
     useEffect(() => {
         if (isOpen) {
+            document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
         } else {
+            document.documentElement.style.overflow = "";
+            document.documentElement.style.overflowY = "auto";
+            document.documentElement.style.overflowX = "hidden";
             document.body.style.overflow = "";
+            document.body.style.overflowY = "visible";
+            document.body.style.overflowX = "clip";
         }
         return () => {
+            document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         };
     }, [isOpen]);
@@ -28,11 +35,13 @@ function Navbar() {
 
     const handleScroll = (e, targetId) => {
         e.preventDefault();
-        const element = document.getElementById(targetId);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
         closeMenu();
+        setTimeout(() => {
+            const element = document.getElementById(targetId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 50);
     };
 
     return (

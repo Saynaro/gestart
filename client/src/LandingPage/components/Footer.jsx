@@ -48,15 +48,26 @@ function Footer() {
         { label: "Gestion des cookies", path: "/cookies" }
     ];
 
-    const links = {
-        col1: [
-            { label: "À propos", href: "#solution" },
-            { label: "Blog", href: "#" }
-        ],
-        col2: [
-            { label: "Tarifs", href: "#analytics" },
-            { label: "Contact", href: `mailto:${email}` }
-        ]
+    const productLinks = [
+        { label: "Solution", targetId: "about" },
+        { label: "Fonctionnalités", targetId: "features" },
+        { label: "Tarifs", targetId: "analytics" },
+        { label: "Témoignages", targetId: "testimonials" },
+        { label: "FAQ", targetId: "faq" }
+    ];
+
+    const accessLinks = [
+        { label: "Connexion", path: "/login" },
+        { label: "Essai gratuit 14j", path: "/register" },
+        { label: "Contact & Support", href: `mailto:${email}` }
+    ];
+
+    const handleScrollToSection = (e, targetId) => {
+        e.preventDefault();
+        const element = document.getElementById(targetId);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
     return (
@@ -89,13 +100,17 @@ function Footer() {
                     {/* Right Links Columns */}
                     <div className="footer-links-columns">
 
-                        {/* Column 1 */}
+                        {/* Column 1: Produit */}
                         <motion.div variants={riseItem} className="links-col">
-                            <h4 className="links-col-title">À propos</h4>
+                            <h4 className="links-col-title">Produit</h4>
                             <ul className="links-list">
-                                {links.col1.map((link, idx) => (
+                                {productLinks.map((link, idx) => (
                                     <li key={idx}>
-                                        <a href={link.href} className="footer-nav-link">
+                                        <a
+                                            href={`#${link.targetId}`}
+                                            className="footer-nav-link"
+                                            onClick={(e) => handleScrollToSection(e, link.targetId)}
+                                        >
                                             {link.label}
                                         </a>
                                     </li>
@@ -103,15 +118,21 @@ function Footer() {
                             </ul>
                         </motion.div>
 
-                        {/* Column 2 */}
+                        {/* Column 2: Compte & Aide */}
                         <motion.div variants={riseItem} className="links-col">
-                            <h4 className="links-col-title">Tarifs</h4>
+                            <h4 className="links-col-title">Compte & Aide</h4>
                             <ul className="links-list">
-                                {links.col2.map((link, idx) => (
+                                {accessLinks.map((link, idx) => (
                                     <li key={idx}>
-                                        <a href={link.href} className="footer-nav-link">
-                                            {link.label}
-                                        </a>
+                                        {link.path ? (
+                                            <Link to={link.path} className="footer-nav-link">
+                                                {link.label}
+                                            </Link>
+                                        ) : (
+                                            <a href={link.href} className="footer-nav-link">
+                                                {link.label}
+                                            </a>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

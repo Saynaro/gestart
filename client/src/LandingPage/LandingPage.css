@@ -6,15 +6,21 @@
     --card-foreground: #111827;
     --popover: #FFFFFF;
     --popover-foreground: #111827;
-    --primary: #556B2F;
+    --primary: oklch(0.205 0 0);
     --primary-foreground: #FFFFFF;
     --secondary: #6B7280;
     --secondary-foreground: #FFFFFF;
     --muted: #F3F4F6;
     --muted-foreground: #6B7280;
-    --accent: #556B2F;
+    --accent: oklch(0.205 0 0);
     --accent-foreground: #FFFFFF;
     --border: rgba(0, 0, 0, 0.08);
     background-color: var(--background);
     color: var(--foreground);
+}
+
+@media (max-width: 768px) {
+    .logo-trust-wrapper {
+        margin-top: 40px !important;
+    }
 }

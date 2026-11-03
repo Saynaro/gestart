@@ -106,7 +106,7 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
             return;
         }
         // Si le FB SDK / Meta Embedded Signup est configuré dans le projet
-        if (window.FB && process.env.REACT_APP_META_APP_ID) {
+        if (window.FB && import.meta.env.VITE_META_APP_ID) {
             window.FB.login((response) => {
                 if (response.authResponse?.code) {
                     // Échange du code côté backend
@@ -121,7 +121,7 @@ export default function CommunicationTab({ isMobileView, triggerToast, triggerCo
                     });
                 }
             }, {
-                config_id: process.env.REACT_APP_META_CONFIG_ID,
+                config_id: import.meta.env.VITE_META_CONFIG_ID,
                 response_type: 'code',
                 override_default_response_type: true,
                 extras: {

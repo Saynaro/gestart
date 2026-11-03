@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, X, Loader2, Lock } from "lucide-react";
+import { Users, UserPlus, Shield, Mail, RefreshCw, Trash2, CheckCircle2, AlertTriangle, AlertCircle, X, Loader2, Lock } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import { useSubscription } from "../../utils/useSubscription";
 import PlanLimitBanner from "../../components/PlanLimitBanner";

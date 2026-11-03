@@ -8,6 +8,7 @@ import {
     ArrowRight,
     ArrowLeft,
     Shield,
+    ShieldCheck,
     Star,
     Lock,
     Mail,

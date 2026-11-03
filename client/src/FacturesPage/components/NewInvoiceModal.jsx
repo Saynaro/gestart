@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
-import { Plus, Trash, X, ChevronDown, ChevronRight, MoreHorizontal, Search, Eye, FileText, Check, Edit2, ArrowLeft, ZoomIn, ZoomOut, Palette } from "lucide-react";
+import { Plus, Trash, X, ChevronDown, ChevronRight, MoreHorizontal, Search, Eye, FileText, Check, Edit2, ArrowLeft, ZoomIn, ZoomOut, Palette, AlertCircle } from "lucide-react";
 import InterventionPickerModal from "../../components/InterventionPickerModal";
 import EcheancePickerModal, { computeDueDate, getEcheanceLabel } from "../../components/EcheancePickerModal";
 import MobileEditBottomSheet from "../../ClientPage/components/MobileEditBottomSheet";

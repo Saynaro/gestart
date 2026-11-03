@@ -1072,7 +1072,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {lines.filter(l => l.description.trim() !== "").map((line, idx) => (
+                        {lines.filter(l => (l.description || "").trim() !== "").map((line, idx) => (
                             <tr key={idx} style={{ borderBottom: '1px solid #EAEAE6' }}>
                                 <td style={{ padding: '6pt 8pt' }}>{line.description || "—"}</td>
                                 <td className="text-center" style={{ padding: '6pt', whiteSpace: 'nowrap' }}>{line.qty}</td>
@@ -1291,7 +1291,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
 
                             {/* Render lines list */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {lines.filter(l => l.description.trim() !== "").map((line, idx) => (
+                                {lines.filter(l => (l.description || "").trim() !== "").map((line, idx) => (
                                     <div
                                         key={line.id}
                                         onClick={() => handleStartEditLine(line)}
@@ -1766,7 +1766,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                                 const price = parseFloat(newItemPrice) || 0;
                                                 const itemDesc = newItemName.trim();
                                                 // Append to lines
-                                                setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: itemDesc, qty: 1, unitPrice: price }]);
+                                                setLines([...lines.filter(l => (l.description || "").trim() !== ""), { id: Date.now(), description: itemDesc, qty: 1, unitPrice: price }]);
                                                 setShowCatalogSearch(false);
                                                 setCatalogSearchQuery("");
                                                 setNewItemName("");
@@ -1834,7 +1834,7 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
                                                                 key={item.id}
                                                                 className={`client-search-item ${isSelected ? 'selected' : ''}`}
                                                                 onClick={() => {
-                                                                    setLines([...lines.filter(l => l.description.trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: item.reference || "", urssafCategory: item.urssafCategory || "Vente de marchandises (BIC)", unit: item.unit || "À l'unité" }]);
+                                                                    setLines([...lines.filter(l => (l.description || "").trim() !== ""), { id: Date.now(), description: item.description, qty: 1, unitPrice: item.unitPrice, reference: item.reference || "", urssafCategory: item.urssafCategory || "Vente de marchandises (BIC)", unit: item.unit || "À l'unité" }]);
                                                                     setShowCatalogSearch(false);
                                                                     setCatalogSearchQuery("");
                                                                     setPendingCatalogItem(null);
@@ -2209,7 +2209,11 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
-            onClick={onClose}
+            onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            }}
         >
             <motion.div
                 className="invoice-modal-container wide-invoice-modal-container"
@@ -2560,10 +2564,16 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
 
             {/* Client Search Portal */}
             {showClientSearch && createPortal(
-                <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) setShowClientSearch(false); }}>
-                    <div className="client-search-panel">
+                <div
+                    className="client-search-overlay-wrapper"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (e.target === e.currentTarget) setShowClientSearch(false);
+                    }}
+                >
+                    <div className="client-search-panel" onClick={(e) => e.stopPropagation()}>
                         <div className="client-search-header">
-                            <button type="button" className="client-search-back-btn" onClick={() => setShowClientSearch(false)}><X size={22} /></button>
+                            <button type="button" className="client-search-back-btn" onClick={(e) => { e.stopPropagation(); setShowClientSearch(false); }}><X size={22} /></button>
                             <h3>Sélectionner un client</h3>
                             <div style={{ width: 34 }}></div>
                         </div>
@@ -2644,10 +2654,16 @@ function NewQuoteModal({ onClose, onCreateQuote, initialClient }) {
 
             {/* Catalog Supplies Selector Modal with direct new item addition form */}
             {showCatalogSearch && createPortal(
-                <div className="client-search-overlay-wrapper" onClick={(e) => { if (e.target === e.currentTarget) setShowCatalogSearch(false); }}>
-                    <div className="client-search-panel">
+                <div
+                    className="client-search-overlay-wrapper"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (e.target === e.currentTarget) setShowCatalogSearch(false);
+                    }}
+                >
+                    <div className="client-search-panel" onClick={(e) => e.stopPropagation()}>
                         <div className="article-drawer-header">
-                            <button type="button" className="drawer-round-btn" onClick={() => setShowCatalogSearch(false)}><X size={18} /></button>
+                            <button type="button" className="drawer-round-btn" onClick={(e) => { e.stopPropagation(); setShowCatalogSearch(false); }}><X size={18} /></button>
                             <h2>Sélectionner un article / service</h2>
                             <div style={{ width: 34 }}></div>
                         </div>

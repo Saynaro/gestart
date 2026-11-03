@@ -533,6 +533,21 @@ function MessagesPage() {
           if (prev.some(m => m.id === message.id || (m.twilioSid && m.twilioSid === message.twilioSid) || (m.whatsappMessageId && m.whatsappMessageId === message.whatsappMessageId))) {
             return prev;
           }
+
+          // Si c'est un message sortant qui correspond à un message optimiste temporaire, le remplacer
+          if (message.direction === "OUTGOING") {
+            const tempIdx = prev.findIndex(m =>
+              String(m.id).startsWith("temp_") &&
+              m.channel === message.channel &&
+              (m.body === message.body || (m.subject && m.subject === message.subject))
+            );
+            if (tempIdx !== -1) {
+              const next = [...prev];
+              next[tempIdx] = message;
+              return next;
+            }
+          }
+
           return [...prev, message];
         });
 
@@ -718,7 +733,13 @@ function MessagesPage() {
 
       if (res.success && res.data?.messageLog) {
         const savedLog = res.data.messageLog;
-        setMessages(prev => prev.map(m => m.id === tempId ? savedLog : m));
+        setMessages(prev => {
+          const alreadyHasReal = prev.some(m => m.id === savedLog.id);
+          if (alreadyHasReal) {
+            return prev.filter(m => m.id !== tempId);
+          }
+          return prev.map(m => m.id === tempId ? savedLog : m);
+        });
         scrollToBottom("smooth", 50);
 
         // Mettre à jour la conversation dans la liste

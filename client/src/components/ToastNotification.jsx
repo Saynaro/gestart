@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertTriangle, Info, Sparkles } from 'lucide-react';
 
@@ -117,7 +118,7 @@ export default function ToastNotification({
         return <CheckCircle2 size={20} style={{ color: "#10B981", flexShrink: 0, minWidth: '20px', minHeight: '20px', marginTop: '1px' }} />;
     };
 
-    return (
+    const toastContent = (
         <AnimatePresence mode="wait">
             {isVisible && message && (
                 <motion.div
@@ -144,4 +145,9 @@ export default function ToastNotification({
             )}
         </AnimatePresence>
     );
+
+    if (typeof document !== 'undefined') {
+        return createPortal(toastContent, document.body);
+    }
+    return toastContent;
 }

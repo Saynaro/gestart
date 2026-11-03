@@ -747,7 +747,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* PWA Standalone Mode: shift toasts below header & safe-area-inset-top */
+/* PWA Standalone Mode: align toasts at the top with safe area inset, identical to browser view */
 @media (display-mode: standalone) and (max-width: 768px) {
 
   .app-toast,
@@ -757,7 +757,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .toast-notification,
   .payments-toast,
   .app-toast-pill {
-    top: calc(56px + env(safe-area-inset-top, 44px) + 10px) !important;
+    top: calc(14px + env(safe-area-inset-top, 0px)) !important;
   }
 }
 
@@ -768,7 +768,7 @@ html.is-pwa .custom-toast,
 html.is-pwa .toast-notification,
 html.is-pwa .payments-toast,
 html.is-pwa .app-toast-pill {
-  top: calc(56px + env(safe-area-inset-top, 44px) + 10px) !important;
+  top: calc(14px + env(safe-area-inset-top, 0px)) !important;
 }
 
 /* ── PWA Standalone Safe Area Adjustments (iOS Dynamic Island / Notch) ── */

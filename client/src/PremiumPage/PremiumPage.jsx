@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ToastNotification from "../components/ToastNotification";
@@ -347,6 +348,17 @@ function PremiumPage() {
         description: "",
         defaultTemplate: ""
     });
+
+    // Lock body scroll when any modal/sheet is open on mobile
+    useEffect(() => {
+        if (showCreateModal || showServiceModal || confirmModal) {
+            const originalOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = originalOverflow;
+            };
+        }
+    }, [showCreateModal, showServiceModal, confirmModal]);
 
     // ── Fetch Initial Data ───────────────────────────────────────
     const loadDashboardData = async () => {
@@ -1954,7 +1966,7 @@ function PremiumPage() {
 
             {/* ── MODAL: CRÉER / MODIFIER UNE RÈGLE DE RAPPEL ────────────── */}
             <AnimatePresence>
-                {showCreateModal && (
+                {showCreateModal && createPortal(
                     <motion.div
                         className="rappel-modal-backdrop"
                         onClick={() => setShowCreateModal(false)}
@@ -1999,7 +2011,7 @@ function PremiumPage() {
                                     <X size={18} />
                                 </button>
                             </div>
-                            <form onSubmit={handleSaveAutomationForm}>
+                            <form onSubmit={handleSaveAutomationForm} className="rappel-modal-form">
                                 <div className="rappel-modal-body">
                                     {/* Custom Client selector with Search & Global "Tous les clients" */}
                                     <div className="form-field">
@@ -2247,13 +2259,14 @@ function PremiumPage() {
                                 </div>
                             </form>
                         </motion.div>
-                    </motion.div>
+                    </motion.div>,
+                    document.body
                 )}
             </AnimatePresence>
 
             {/* ── MODAL: AJOUTER UN SERVICE PERSONNALISÉ ─────────────── */}
             <AnimatePresence>
-                {showServiceModal && (
+                {showServiceModal && createPortal(
                     <motion.div
                         className="rappel-modal-backdrop"
                         onClick={() => setShowServiceModal(false)}
@@ -2296,7 +2309,7 @@ function PremiumPage() {
                                     <X size={18} />
                                 </button>
                             </div>
-                            <form onSubmit={handleSaveServiceForm}>
+                            <form onSubmit={handleSaveServiceForm} className="rappel-modal-form">
                                 <div className="rappel-modal-body">
                                     <div className="form-field">
                                         <label className="form-label">Nom de la prestation *</label>
@@ -2382,13 +2395,14 @@ function PremiumPage() {
                                 </div>
                             </form>
                         </motion.div>
-                    </motion.div>
+                    </motion.div>,
+                    document.body
                 )}
             </AnimatePresence>
 
             {/* ── CUSTOM CONFIRMATION DIALOG (ALERT POPUP) ──────────── */}
             <AnimatePresence>
-                {confirmModal && (
+                {confirmModal && createPortal(
                     <div className="rappel-confirm-backdrop" onClick={() => setConfirmModal(null)}>
                         <motion.div
                             className="rappel-confirm-card"
@@ -2433,7 +2447,8 @@ function PremiumPage() {
                                 </button>
                             </div>
                         </motion.div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </AnimatePresence>
         </div>

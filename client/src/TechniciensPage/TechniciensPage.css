@@ -394,26 +394,64 @@
     border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+.tech-token-code {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0.05em;
+    background: #F1F5F9;
+    color: #0F172A;
+    border: 1px solid #E2E8F0;
+}
+
+:root.dark .tech-token-code,
+.dark .tech-token-code {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #F8FAFC !important;
+    border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
 .btn-copy-url {
     flex-shrink: 0;
     white-space: nowrap;
-    padding: 10px 16px;
-    border-radius: 10px;
+    padding: 8px 14px;
+    border-radius: 9px;
     border: none;
-    background: var(--primary, #556B2F);
-    color: #FFF;
+    background-color: #556B2F !important;
+    color: #FFFFFF !important;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    box-shadow: 0 2px 6px rgba(85, 107, 47, 0.25);
     transition: all 0.2s ease;
+}
+
+.btn-copy-url svg {
+    color: #FFFFFF !important;
+    stroke: currentColor !important;
+    flex-shrink: 0;
 }
 
 .btn-copy-url:hover {
     opacity: 0.92;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.35);
+}
+
+.btn-copy-url:active {
+    transform: translateY(0);
+}
+
+:root.dark .btn-copy-url,
+.dark .btn-copy-url {
+    background-color: #556B2F !important;
+    color: #FFFFFF !important;
 }
 
 .share-actions-grid {

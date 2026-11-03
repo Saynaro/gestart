@@ -621,7 +621,7 @@ export default function TechniciensPage() {
                                             return (
                                                 <tr key={inv.id}>
                                                     <td style={{ fontWeight: 600 }}>{inv.email.includes('@gestart.link') ? "Lien public généré" : inv.email}</td>
-                                                    <td><code style={{ background: '#F1F5F9', padding: '4px 8px', borderRadius: '6px', fontWeight: 700 }}>{inv.token}</code></td>
+                                                    <td><code className="tech-token-code">{inv.token}</code></td>
                                                     <td>{new Date(inv.expiresAt).toLocaleDateString('fr-FR')}</td>
                                                     <td>
                                                         <span className={`tech-status-badge ${inv.status === 'ACCEPTED' ? 'active' : 'pending'}`}>
@@ -686,7 +686,7 @@ export default function TechniciensPage() {
 
                                             <div className="tech-mobile-card-body" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Code d'accès :</span>
-                                                <code style={{ background: 'var(--muted)', padding: '4px 8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.82rem' }}>
+                                                <code className="tech-token-code">
                                                     {inv.token}
                                                 </code>
                                             </div>

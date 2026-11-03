@@ -11,27 +11,71 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
     const [strokeColor, setStrokeColor] = useState("#1A1A1A");
     const [strokeWidth, setStrokeWidth] = useState(2.5);
 
-    // Lock background scroll when modal is open
+    // Lock background scroll completely on iOS Safari and desktop when modal is open
     useEffect(() => {
         if (!isOpen) return;
 
-        const prevOverflowHtml = document.documentElement.style.overflow;
-        const prevOverflowBody = document.body.style.overflow;
-        const rootEl = document.getElementById("root");
-        const prevRootOverflow = rootEl ? rootEl.style.overflow : "";
+        const scrollY = window.scrollY;
+        const prevPosition = document.body.style.position;
+        const prevTop = document.body.style.top;
+        const prevWidth = document.body.style.width;
+        const prevOverflow = document.body.style.overflow;
 
-        document.documentElement.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = "100%";
         document.body.style.overflow = "hidden";
-        if (rootEl) rootEl.style.overflow = "hidden";
         document.body.classList.add("modal-open");
 
+        // Prevent touchmove propagation from overlay to background page
+        const handleOverlayTouchMove = (e) => {
+            if (e.target.closest(".signature-modal-card")) return;
+            e.preventDefault();
+        };
+        window.addEventListener("touchmove", handleOverlayTouchMove, { passive: false });
+
         return () => {
-            document.documentElement.style.overflow = prevOverflowHtml || "";
-            document.body.style.overflow = prevOverflowBody || "";
-            if (rootEl) rootEl.style.overflow = prevRootOverflow || "";
+            document.body.style.position = prevPosition;
+            document.body.style.top = prevTop;
+            document.body.style.width = prevWidth;
+            document.body.style.overflow = prevOverflow;
             document.body.classList.remove("modal-open");
+            window.removeEventListener("touchmove", handleOverlayTouchMove);
+            window.scrollTo(0, scrollY);
         };
     }, [isOpen]);
+
+    // Native non-passive touch listeners on canvas to eliminate iOS scroll-while-drawing
+    useEffect(() => {
+        if (!isOpen) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const handleCanvasTouchStart = (e) => {
+            e.preventDefault();
+            startDrawing(e);
+        };
+        const handleCanvasTouchMove = (e) => {
+            e.preventDefault();
+            draw(e);
+        };
+        const handleCanvasTouchEnd = (e) => {
+            e.preventDefault();
+            stopDrawing(e);
+        };
+
+        canvas.addEventListener("touchstart", handleCanvasTouchStart, { passive: false });
+        canvas.addEventListener("touchmove", handleCanvasTouchMove, { passive: false });
+        canvas.addEventListener("touchend", handleCanvasTouchEnd, { passive: false });
+        canvas.addEventListener("touchcancel", handleCanvasTouchEnd, { passive: false });
+
+        return () => {
+            canvas.removeEventListener("touchstart", handleCanvasTouchStart);
+            canvas.removeEventListener("touchmove", handleCanvasTouchMove);
+            canvas.removeEventListener("touchend", handleCanvasTouchEnd);
+            canvas.removeEventListener("touchcancel", handleCanvasTouchEnd);
+        };
+    }, [isOpen, isDrawing, strokeColor, strokeWidth]);
 
     // Canvas sizing and initial setup on open
     useEffect(() => {
@@ -212,9 +256,6 @@ export default function SignaturePadModal({ isOpen, onClose, onSave, existingSig
                         onMouseMove={draw}
                         onMouseUp={stopDrawing}
                         onMouseLeave={stopDrawing}
-                        onTouchStart={startDrawing}
-                        onTouchMove={draw}
-                        onTouchEnd={stopDrawing}
                     />
 
                     {!hasDrawn && (

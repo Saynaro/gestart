@@ -1159,7 +1159,7 @@ function NewInvoiceModal({ onClose, onCreateInvoice, initialClient }) {
             >
 
                 {/* Progress Header matching screenshot layout */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', backgroundColor: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
+                <div className="mobile-wizard-header" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', backgroundColor: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
                     <button
                         type="button"
                         onClick={handleGoBack}

@@ -13,8 +13,9 @@
     justify-content: center;
     z-index: 999999;
     padding: 16px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
     box-sizing: border-box;
 }
 
@@ -32,6 +33,7 @@
     display: flex;
     flex-direction: column;
     animation: signatureModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    touch-action: auto;
 }
 
 @keyframes signatureModalIn {

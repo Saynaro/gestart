@@ -9,10 +9,10 @@ import Header from "../components/Header";
 import PullToRefresh from "../components/PullToRefresh";
 import EventCalendar from "../components/EventCalendar";
 import MobilePlanningView from "./MobilePlanningView";
-import { 
-    ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building, 
-    Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar, 
-    MapPin, FileText, Check, History, CheckCircle2, Camera, PenTool, 
+import {
+    ChevronLeft, ChevronRight, Plus, ChevronDown, X, User, Building,
+    Briefcase, Clock, ArrowLeft, Search, AlertTriangle, Trash2, Calendar,
+    MapPin, FileText, Check, History, CheckCircle2, Camera, PenTool,
     ExternalLink, Filter, ArrowUpDown, Sparkles, Lock, CheckSquare, Square
 } from "lucide-react";
 import InterventionDetailModal, { getInterventionStatusInfo } from "../ClientPage/components/InterventionDetailModal";
@@ -227,7 +227,7 @@ function PlanningPage() {
                             if (cName) setNewClientName(cName);
                         }
                     })
-                    .catch(() => {});
+                    .catch(() => { });
             }
         }
     }, [location.state, clientDetails]);
@@ -418,13 +418,13 @@ function PlanningPage() {
 
             if (historySearch.trim()) {
                 const q = historySearch.toLowerCase();
-                const clientName = item.client 
-                    ? `${item.client.firstName || ''} ${item.client.lastName || ''} ${item.client.companyName || ''}`.toLowerCase() 
+                const clientName = item.client
+                    ? `${item.client.firstName || ''} ${item.client.lastName || ''} ${item.client.companyName || ''}`.toLowerCase()
                     : "";
                 const title = (item.title || "").toLowerCase();
                 const address = (item.address || "").toLowerCase();
-                const tech = item.technician 
-                    ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.toLowerCase() 
+                const tech = item.technician
+                    ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.toLowerCase()
                     : "";
                 if (!clientName.includes(q) && !title.includes(q) && !address.includes(q) && !tech.includes(q)) {
                     return false;
@@ -649,47 +649,64 @@ function PlanningPage() {
     // ── iOS back button / swipe-right gesture ─────────────────────
     // Push a history entry for each modal layer so that the native
     // back gesture pops them in the right order on iPhone Safari.
+    const isProgrammaticBackRef = useRef(false);
+    const showClientSearchRef = useRef(showClientSearch);
+    const showAddModalRef = useRef(showAddModal);
+    const showEditModalRef = useRef(showEditModal);
+    const prevShowAddModalRef = useRef(false);
+    const prevShowEditModalRef = useRef(false);
+    const prevShowClientSearchRef = useRef(false);
+
+    useEffect(() => {
+        showClientSearchRef.current = showClientSearch;
+        showAddModalRef.current = showAddModal;
+        showEditModalRef.current = showEditModal;
+    }, [showClientSearch, showAddModal, showEditModal]);
+
     useEffect(() => {
         if (!isMobile) return;
 
-        if (showClientSearch) {
-            // Client search is the top layer — push its own entry
+        if (showClientSearch && !prevShowClientSearchRef.current) {
             window.history.pushState({ modal: "clientSearch" }, "");
-        } else if (showAddModal) {
+        } else if (showAddModal && !prevShowAddModalRef.current) {
             window.history.pushState({ modal: "add" }, "");
-        } else if (showEditModal) {
+        } else if (showEditModal && !prevShowEditModalRef.current) {
             window.history.pushState({ modal: "edit" }, "");
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        prevShowAddModalRef.current = showAddModal;
+        prevShowEditModalRef.current = showEditModal;
+        prevShowClientSearchRef.current = showClientSearch;
     }, [showAddModal, showEditModal, showClientSearch, isMobile]);
 
     useEffect(() => {
         if (!isMobile) return;
 
-        const handlePopState = (e) => {
-            // iOS back / swipe triggered — close the topmost layer
-            if (showClientSearch) {
-                // Go back to the add/edit modal
+        const handlePopState = () => {
+            if (isProgrammaticBackRef.current) {
+                isProgrammaticBackRef.current = false;
+                return;
+            }
+            // iOS back gesture triggered by user swipe
+            if (showClientSearchRef.current) {
                 setShowClientSearch(false);
                 setClientSearchQuery("");
                 setPendingClientName("");
-                // Keep the underlying modal open — no need to push anything,
-                // the popstate already consumed one entry.
-            } else if (showAddModal) {
+            } else if (showAddModalRef.current) {
                 setShowAddModal(false);
                 if (returnUrlRef.current) {
                     const dest = returnUrlRef.current;
                     returnUrlRef.current = null;
                     navigate(dest);
                 }
-            } else if (showEditModal) {
+            } else if (showEditModalRef.current) {
                 setShowEditModal(false);
             }
         };
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-    }, [isMobile, showClientSearch, showAddModal, showEditModal, navigate]);
+    }, [isMobile, navigate]);
 
     // ── Modal close helpers (keep history stack clean on mobile) ──
     // When the user taps X or Annuler we must consume the history
@@ -704,6 +721,7 @@ function PlanningPage() {
         } else if (location.state?.returnUrl) {
             navigate(location.state.returnUrl);
         } else if (isMobile) {
+            isProgrammaticBackRef.current = true;
             window.history.back();
         }
     };
@@ -712,6 +730,7 @@ function PlanningPage() {
         if (location.state?.returnUrl) {
             navigate(location.state.returnUrl);
         } else if (isMobile) {
+            isProgrammaticBackRef.current = true;
             window.history.back();
         }
     };
@@ -719,7 +738,10 @@ function PlanningPage() {
         setShowClientSearch(false);
         setClientSearchQuery("");
         setPendingClientName("");
-        if (isMobile) window.history.back();
+        if (isMobile) {
+            isProgrammaticBackRef.current = true;
+            window.history.back();
+        }
     };
 
     // ── Desktop calendar handlers ──────────────────────────────────
@@ -787,7 +809,7 @@ function PlanningPage() {
 
         setEditClientId(matched?.id || currentClientId || "");
         setEditClientName(matched?.name || raw.client?.name || item.title || "");
-        
+
         const rawType = raw.type || item.extendedProps?.type || (raw.interventionType?.name) || "Installation";
         const parsed = String(rawType).split(/[,+]/).map(s => s.trim()).filter(Boolean);
         setEditServiceTypes(parsed.length > 0 ? parsed : ["Installation"]);
@@ -805,12 +827,12 @@ function PlanningPage() {
         if (!item || isTechnician) return;
         const raw = item.raw || item;
         const targetId = item.id || raw.id;
-        const clientName = item.client?.name 
+        const clientName = item.client?.name
             || (item.client?.firstName ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() : null)
-            || raw.client?.name 
+            || raw.client?.name
             || (raw.client?.firstName ? `${raw.client.firstName || ''} ${raw.client.lastName || ''}`.trim() : null)
-            || item.title 
-            || raw.title 
+            || item.title
+            || raw.title
             || "ce client";
 
         setSelectedEvent({
@@ -1216,7 +1238,7 @@ function PlanningPage() {
         if (!slotInfo && !newDate) return "";
         const start = slotInfo?.start ? new Date(slotInfo.start) : (newDate ? new Date(newDate) : new Date());
         const end = slotInfo?.end ? new Date(slotInfo.end) : start;
-        
+
         let dateStr = "";
         try {
             const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
@@ -1226,10 +1248,10 @@ function PlanningPage() {
             const months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
             dateStr = `${days[start.getDay()]} ${start.getDate()} ${months[start.getMonth()]} ${start.getFullYear()}`;
         }
-        
+
         const displayStart = currentStart || `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`;
         const displayEnd = currentEnd || `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
-        
+
         return `${dateStr} de ${displayStart} à ${displayEnd}`;
     };
 
@@ -1282,7 +1304,7 @@ function PlanningPage() {
         const pad = (n) => String(n).padStart(2, "0");
         const fmt = (d) =>
             `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
-            
+
         handleMobileOpenAdd({
             start,
             end,
@@ -1341,22 +1363,22 @@ function PlanningPage() {
                                         <div className="modal-datetime-grid">
                                             <div className="modal-field date-col" style={{ margin: 0 }}>
                                                 <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
-                                                <input 
-                                                    type="date" 
-                                                    value={newDate} 
-                                                    onChange={(e) => setNewDate(e.target.value)} 
+                                                <input
+                                                    type="date"
+                                                    value={newDate}
+                                                    onChange={(e) => setNewDate(e.target.value)}
                                                     className="modal-input-time"
-                                                    required 
+                                                    required
                                                 />
                                             </div>
                                             <div className="modal-field time-col" style={{ margin: 0 }}>
                                                 <label className="modal-label"><Clock size={14} /><span>Début</span></label>
-                                                <input 
-                                                    type="time" 
-                                                    value={startTime} 
-                                                    onChange={(e) => setStartTime(e.target.value)} 
+                                                <input
+                                                    type="time"
+                                                    value={startTime}
+                                                    onChange={(e) => setStartTime(e.target.value)}
                                                     className="modal-input-time"
-                                                    required 
+                                                    required
                                                 />
                                             </div>
                                             <div className="modal-field time-col" style={{ margin: 0 }}>
@@ -1364,120 +1386,147 @@ function PlanningPage() {
                                                     <Clock size={14} />
                                                     <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
                                                 </label>
-                                                <input 
-                                                    type="time" 
-                                                    value={endTime} 
-                                                    onChange={(e) => setEndTime(e.target.value)} 
+                                                <input
+                                                    type="time"
+                                                    value={endTime}
+                                                    onChange={(e) => setEndTime(e.target.value)}
                                                     className="modal-input-time"
-                                                    required 
+                                                    required
                                                 />
                                             </div>
                                         </div>
 
-                                    {isTimeInvalid && (
-                                        <div style={{
-                                            color: '#f59e0b',
-                                            fontSize: '12.5px',
-                                            fontWeight: 600,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px',
-                                            padding: '2px 0'
-                                        }}>
-                                            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
-                                            <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
-                                        </div>
-                                    )}
-
-                                    {/* Client Selector */}
-                                    <div className="modal-field">
-                                        <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
-                                        <div 
-                                            className="modal-select-trigger" 
-                                            onClick={() => {
-                                                setClientSearchTarget("add");
-                                                setPendingClientName(newClientName);
-                                                setPendingClientId(newClientId);
-                                                setShowClientSearch(true);
-                                            }}
-                                        >
-                                            <span className="trigger-val">{newClientName || "Sélectionner un client..."}</span>
-                                            <ChevronDown size={16} className="trigger-arrow" />
-                                        </div>
-                                    </div>
-
-                                    {/* Multi-Select Types d'intervention */}
-                                    <div className="modal-field">
-                                        <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <Briefcase size={15} />
-                                                <span>Type(s) d'intervention</span>
+                                        {isTimeInvalid && (
+                                            <div style={{
+                                                color: '#f59e0b',
+                                                fontSize: '12.5px',
+                                                fontWeight: 600,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                padding: '2px 0'
+                                            }}>
+                                                <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                                                <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                             </div>
-                                            <span style={{ fontSize: '0.74rem', color: newServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
-                                                {newServiceTypes.length} sélectionné{newServiceTypes.length > 1 ? "s" : ""}
-                                            </span>
-                                        </label>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
-                                            {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...newServiceTypes])).map((t) => {
-                                                const isSelected = newServiceTypes.includes(t);
-                                                const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
-                                                return (
-                                                    <button
-                                                        key={t}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            if (isSelected) {
-                                                                setNewServiceTypes(newServiceTypes.filter(item => item !== t));
-                                                            } else {
-                                                                setNewServiceTypes([...newServiceTypes, t]);
-                                                            }
-                                                        }}
-                                                        style={{
-                                                            padding: '6px 14px',
-                                                            borderRadius: '20px',
-                                                            fontSize: '0.82rem',
-                                                            fontWeight: 500,
-                                                            border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
-                                                            backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
-                                                            color: isSelected ? '#556B2F' : 'var(--foreground)',
-                                                            cursor: 'pointer',
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            gap: '6px',
-                                                            boxSizing: 'border-box',
-                                                            transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
-                                                        }}
-                                                    >
-                                                        <span>{t}</span>
-                                                        {isCustom && isSelected && (
-                                                            <span 
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
+                                        )}
+
+                                        {/* Client Selector */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
+                                            <div
+                                                className="modal-select-trigger"
+                                                onClick={() => {
+                                                    setClientSearchTarget("add");
+                                                    setPendingClientName(newClientName);
+                                                    setPendingClientId(newClientId);
+                                                    setShowClientSearch(true);
+                                                }}
+                                            >
+                                                <span className="trigger-val">{newClientName || "Sélectionner un client..."}</span>
+                                                <ChevronDown size={16} className="trigger-arrow" />
+                                            </div>
+                                        </div>
+
+                                        {/* Multi-Select Types d'intervention */}
+                                        <div className="modal-field">
+                                            <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <Briefcase size={15} />
+                                                    <span>Type(s) d'intervention</span>
+                                                </div>
+                                                <span style={{ fontSize: '0.74rem', color: newServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
+                                                    {newServiceTypes.length} sélectionné{newServiceTypes.length > 1 ? "s" : ""}
+                                                </span>
+                                            </label>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
+                                                {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...newServiceTypes])).map((t) => {
+                                                    const isSelected = newServiceTypes.includes(t);
+                                                    const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
+                                                    return (
+                                                        <button
+                                                            key={t}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (isSelected) {
                                                                     setNewServiceTypes(newServiceTypes.filter(item => item !== t));
-                                                                }}
-                                                                style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
-                                                            >
-                                                                <X size={12} />
-                                                            </span>
-                                                        )}
-                                                    </button>
-                                                );
-                                            })}
-                                            {showAddCustomType ? (
-                                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                    <input
-                                                        ref={(el) => {
-                                                            addCustomTypeInputRef.current = el;
-                                                            if (el) scrollToCustomInput(el);
-                                                        }}
-                                                        type="text"
-                                                        placeholder="Autre type..."
-                                                        value={addCustomTypeInput}
-                                                        onChange={(e) => setAddCustomTypeInput(e.target.value)}
-                                                        onFocus={(e) => scrollToCustomInput(e.target)}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                                e.preventDefault();
+                                                                } else {
+                                                                    setNewServiceTypes([...newServiceTypes, t]);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                padding: '6px 14px',
+                                                                borderRadius: '20px',
+                                                                fontSize: '0.82rem',
+                                                                fontWeight: 500,
+                                                                border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
+                                                                backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
+                                                                color: isSelected ? '#556B2F' : 'var(--foreground)',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                                boxSizing: 'border-box',
+                                                                transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
+                                                            }}
+                                                        >
+                                                            <span>{t}</span>
+                                                            {isCustom && isSelected && (
+                                                                <span
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setNewServiceTypes(newServiceTypes.filter(item => item !== t));
+                                                                    }}
+                                                                    style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
+                                                                >
+                                                                    <X size={12} />
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                                {showAddCustomType ? (
+                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                        <input
+                                                            ref={(el) => {
+                                                                addCustomTypeInputRef.current = el;
+                                                                if (el) scrollToCustomInput(el);
+                                                            }}
+                                                            type="text"
+                                                            placeholder="Autre type..."
+                                                            value={addCustomTypeInput}
+                                                            onChange={(e) => setAddCustomTypeInput(e.target.value)}
+                                                            onFocus={(e) => scrollToCustomInput(e.target)}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                    e.preventDefault();
+                                                                    const val = addCustomTypeInput.trim();
+                                                                    if (val) {
+                                                                        if (!newServiceTypes.includes(val)) {
+                                                                            setNewServiceTypes([...newServiceTypes, val]);
+                                                                        }
+                                                                        setAddCustomTypeInput("");
+                                                                        setShowAddCustomType(false);
+                                                                    }
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                width: '120px',
+                                                                height: '30px',
+                                                                padding: '0 10px',
+                                                                fontSize: '0.82rem',
+                                                                borderRadius: '16px',
+                                                                border: '1px solid #556B2F',
+                                                                backgroundColor: 'var(--background)',
+                                                                color: 'var(--foreground)',
+                                                                outline: 'none',
+                                                                boxSizing: 'border-box'
+                                                            }}
+                                                            autoFocus
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
                                                                 const val = addCustomTypeInput.trim();
                                                                 if (val) {
                                                                     if (!newServiceTypes.includes(val)) {
@@ -1486,159 +1535,132 @@ function PlanningPage() {
                                                                     setAddCustomTypeInput("");
                                                                     setShowAddCustomType(false);
                                                                 }
-                                                            }
-                                                        }}
-                                                        style={{
-                                                            width: '120px',
-                                                            height: '30px',
-                                                            padding: '0 10px',
-                                                            fontSize: '0.82rem',
-                                                            borderRadius: '16px',
-                                                            border: '1px solid #556B2F',
-                                                            backgroundColor: 'var(--background)',
-                                                            color: 'var(--foreground)',
-                                                            outline: 'none',
-                                                            boxSizing: 'border-box'
-                                                        }}
-                                                        autoFocus
-                                                    />
+                                                            }}
+                                                            style={{
+                                                                padding: '4px 10px',
+                                                                borderRadius: '14px',
+                                                                fontSize: '0.78rem',
+                                                                fontWeight: 600,
+                                                                backgroundColor: '#556B2F',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            OK
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => { setShowAddCustomType(false); setAddCustomTypeInput(""); }}
+                                                            style={{
+                                                                padding: '4px 6px',
+                                                                borderRadius: '14px',
+                                                                fontSize: '0.78rem',
+                                                                backgroundColor: 'transparent',
+                                                                color: 'var(--muted-foreground)',
+                                                                border: 'none',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center'
+                                                            }}
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            const val = addCustomTypeInput.trim();
-                                                            if (val) {
-                                                                if (!newServiceTypes.includes(val)) {
-                                                                    setNewServiceTypes([...newServiceTypes, val]);
+                                                            setShowAddCustomType(true);
+                                                            setTimeout(() => {
+                                                                if (addCustomTypeInputRef.current) {
+                                                                    scrollToCustomInput(addCustomTypeInputRef.current);
+                                                                    addCustomTypeInputRef.current.focus();
                                                                 }
-                                                                setAddCustomTypeInput("");
-                                                                setShowAddCustomType(false);
-                                                            }
+                                                            }, 60);
                                                         }}
                                                         style={{
-                                                            padding: '4px 10px',
-                                                            borderRadius: '14px',
-                                                            fontSize: '0.78rem',
-                                                            fontWeight: 600,
-                                                            backgroundColor: '#556B2F',
-                                                            color: '#fff',
-                                                            border: 'none',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        OK
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => { setShowAddCustomType(false); setAddCustomTypeInput(""); }}
-                                                        style={{
-                                                            padding: '4px 6px',
-                                                            borderRadius: '14px',
-                                                            fontSize: '0.78rem',
+                                                            padding: '6px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: 500,
+                                                            border: '1px dashed var(--border)',
                                                             backgroundColor: 'transparent',
                                                             color: 'var(--muted-foreground)',
-                                                            border: 'none',
                                                             cursor: 'pointer',
                                                             display: 'inline-flex',
-                                                            alignItems: 'center'
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            boxSizing: 'border-box'
                                                         }}
                                                     >
-                                                        <X size={14} />
+                                                        <Plus size={13} /> Autre
                                                     </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setShowAddCustomType(true);
-                                                        setTimeout(() => {
-                                                            if (addCustomTypeInputRef.current) {
-                                                                scrollToCustomInput(addCustomTypeInputRef.current);
-                                                                addCustomTypeInputRef.current.focus();
-                                                            }
-                                                        }, 60);
-                                                    }}
-                                                    style={{
-                                                        padding: '6px 14px',
-                                                        borderRadius: '20px',
-                                                        fontSize: '0.82rem',
-                                                        fontWeight: 500,
-                                                        border: '1px dashed var(--border)',
-                                                        backgroundColor: 'transparent',
-                                                        color: 'var(--muted-foreground)',
-                                                        cursor: 'pointer',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px',
-                                                        boxSizing: 'border-box'
-                                                    }}
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Technicien assigné */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
+                                            <div className="modal-select-wrapper">
+                                                <select
+                                                    value={newTechnicianId}
+                                                    onChange={(e) => setNewTechnicianId(e.target.value)}
+                                                    className="modal-select"
                                                 >
-                                                    <Plus size={13} /> Autre
-                                                </button>
-                                            )}
+                                                    <option value="">Non assigné</option>
+                                                    {techniciansList.map(t => {
+                                                        const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                        const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
+                                                        return (
+                                                            <option key={t.id} value={t.id}>
+                                                                {fullName}{roleLabel}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                                <ChevronDown size={14} className="modal-select-arrow" />
+                                            </div>
+                                        </div>
+
+                                        {/* Adresse */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
+                                            <input
+                                                type="text"
+                                                value={newAddress}
+                                                onChange={(e) => setNewAddress(e.target.value)}
+                                                placeholder="Adresse, étage, code d'accès..."
+                                                className="modal-input-time"
+                                                style={{ width: '100%' }}
+                                            />
+                                        </div>
+
+                                        {/* Instructions / Notes */}
+                                        <div className="modal-field">
+                                            <label className="modal-label"><FileText size={15} /><span>Instructions & Notes (optionnel)</span></label>
+                                            <textarea
+                                                value={newNotes}
+                                                onChange={(e) => setNewNotes(e.target.value)}
+                                                placeholder="Ex: Code porte 45B2, climatisation au 2ème étage..."
+                                                rows={2}
+                                                style={{
+                                                    width: '100%',
+                                                    backgroundColor: 'var(--background)',
+                                                    border: '1.5px solid var(--border)',
+                                                    borderRadius: '10px',
+                                                    padding: '8px 12px',
+                                                    fontSize: '13.5px',
+                                                    fontFamily: 'inherit',
+                                                    color: 'var(--foreground)',
+                                                    outline: 'none',
+                                                    resize: 'vertical',
+                                                    boxSizing: 'border-box'
+                                                }}
+                                            />
                                         </div>
                                     </div>
-
-                                    {/* Technicien assigné */}
-                                    <div className="modal-field">
-                                        <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
-                                        <div className="modal-select-wrapper">
-                                            <select 
-                                                value={newTechnicianId} 
-                                                onChange={(e) => setNewTechnicianId(e.target.value)} 
-                                                className="modal-select"
-                                            >
-                                                <option value="">Non assigné</option>
-                                                {techniciansList.map(t => {
-                                                    const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
-                                                    const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
-                                                    return (
-                                                        <option key={t.id} value={t.id}>
-                                                            {fullName}{roleLabel}
-                                                        </option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <ChevronDown size={14} className="modal-select-arrow" />
-                                        </div>
-                                    </div>
-
-                                    {/* Adresse */}
-                                    <div className="modal-field">
-                                        <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
-                                        <input 
-                                            type="text" 
-                                            value={newAddress} 
-                                            onChange={(e) => setNewAddress(e.target.value)} 
-                                            placeholder="Adresse, étage, code d'accès..."
-                                            className="modal-input-time"
-                                            style={{ width: '100%' }}
-                                        />
-                                    </div>
-
-                                    {/* Instructions / Notes */}
-                                    <div className="modal-field">
-                                        <label className="modal-label"><FileText size={15} /><span>Instructions & Notes (optionnel)</span></label>
-                                        <textarea
-                                            value={newNotes}
-                                            onChange={(e) => setNewNotes(e.target.value)}
-                                            placeholder="Ex: Code porte 45B2, climatisation au 2ème étage..."
-                                            rows={2}
-                                            style={{
-                                                width: '100%',
-                                                backgroundColor: 'var(--background)',
-                                                border: '1.5px solid var(--border)',
-                                                borderRadius: '10px',
-                                                padding: '8px 12px',
-                                                fontSize: '13.5px',
-                                                fontFamily: 'inherit',
-                                                color: 'var(--foreground)',
-                                                outline: 'none',
-                                                resize: 'vertical',
-                                                boxSizing: 'border-box'
-                                            }}
-                                        />
-                                    </div>
-                                </div>
 
                                     <div className="modal-footer-row">
                                         <button type="button" className="modal-cancel-btn" onClick={() => closeAddModal()}>Annuler</button>
@@ -1846,22 +1868,22 @@ function PlanningPage() {
                                             <div className="modal-datetime-grid">
                                                 <div className="modal-field date-col" style={{ margin: 0 }}>
                                                     <label className="modal-label"><Calendar size={14} /><span>Date</span></label>
-                                                    <input 
-                                                        type="date" 
-                                                        value={editDate} 
-                                                        onChange={(e) => setEditDate(e.target.value)} 
+                                                    <input
+                                                        type="date"
+                                                        value={editDate}
+                                                        onChange={(e) => setEditDate(e.target.value)}
                                                         className="modal-input-time"
-                                                        required 
+                                                        required
                                                     />
                                                 </div>
                                                 <div className="modal-field time-col" style={{ margin: 0 }}>
                                                     <label className="modal-label"><Clock size={14} /><span>Début</span></label>
-                                                    <input 
-                                                        type="time" 
-                                                        value={startTime} 
-                                                        onChange={(e) => setStartTime(e.target.value)} 
+                                                    <input
+                                                        type="time"
+                                                        value={startTime}
+                                                        onChange={(e) => setStartTime(e.target.value)}
                                                         className="modal-input-time"
-                                                        required 
+                                                        required
                                                     />
                                                 </div>
                                                 <div className="modal-field time-col" style={{ margin: 0 }}>
@@ -1869,120 +1891,147 @@ function PlanningPage() {
                                                         <Clock size={14} />
                                                         <span>Fin {durationText && <small style={{ color: '#556B2F', fontWeight: 700 }}>({durationText})</small>}</span>
                                                     </label>
-                                                    <input 
-                                                        type="time" 
-                                                        value={endTime} 
-                                                        onChange={(e) => setEndTime(e.target.value)} 
+                                                    <input
+                                                        type="time"
+                                                        value={endTime}
+                                                        onChange={(e) => setEndTime(e.target.value)}
                                                         className="modal-input-time"
-                                                        required 
+                                                        required
                                                     />
                                                 </div>
                                             </div>
 
-                                        {isTimeInvalid && (
-                                            <div style={{
-                                                color: '#f59e0b',
-                                                fontSize: '12.5px',
-                                                fontWeight: 600,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '6px',
-                                                padding: '2px 0'
-                                            }}>
-                                                <AlertTriangle size={15} style={{ flexShrink: 0 }} />
-                                                <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
-                                            </div>
-                                        )}
-
-                                        {/* Client Selector */}
-                                        <div className="modal-field">
-                                            <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
-                                            <div 
-                                                className="modal-select-trigger" 
-                                                onClick={() => {
-                                                    setClientSearchTarget("edit");
-                                                    setPendingClientName(editClientName);
-                                                    setPendingClientId(editClientId);
-                                                    setShowClientSearch(true);
-                                                }}
-                                            >
-                                                <span className="trigger-val">{editClientName || "Sélectionner un client..."}</span>
-                                                <ChevronDown size={16} className="trigger-arrow" />
-                                            </div>
-                                        </div>
-
-                                        {/* Multi-Select Types d'intervention */}
-                                        <div className="modal-field">
-                                            <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <Briefcase size={15} />
-                                                    <span>Type(s) d'intervention</span>
+                                            {isTimeInvalid && (
+                                                <div style={{
+                                                    color: '#f59e0b',
+                                                    fontSize: '12.5px',
+                                                    fontWeight: 600,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    padding: '2px 0'
+                                                }}>
+                                                    <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+                                                    <span>L'heure de fin doit être supérieure à l'heure de début ({startTime}).</span>
                                                 </div>
-                                                <span style={{ fontSize: '0.74rem', color: editServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
-                                                    {editServiceTypes.length} sélectionné{editServiceTypes.length > 1 ? "s" : ""}
-                                                </span>
-                                            </label>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
-                                                {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...editServiceTypes])).map((t) => {
-                                                    const isSelected = editServiceTypes.includes(t);
-                                                    const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
-                                                    return (
-                                                        <button
-                                                            key={t}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                if (isSelected) {
-                                                                    setEditServiceTypes(editServiceTypes.filter(item => item !== t));
-                                                                } else {
-                                                                    setEditServiceTypes([...editServiceTypes, t]);
-                                                                }
-                                                            }}
-                                                            style={{
-                                                                padding: '6px 14px',
-                                                                borderRadius: '20px',
-                                                                fontSize: '0.82rem',
-                                                                fontWeight: 500,
-                                                                border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
-                                                                backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
-                                                                color: isSelected ? '#556B2F' : 'var(--foreground)',
-                                                                cursor: 'pointer',
-                                                                display: 'inline-flex',
-                                                                alignItems: 'center',
-                                                                gap: '6px',
-                                                                boxSizing: 'border-box',
-                                                                transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
-                                                            }}
-                                                        >
-                                                            <span>{t}</span>
-                                                            {isCustom && isSelected && (
-                                                                <span 
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
+                                            )}
+
+                                            {/* Client Selector */}
+                                            <div className="modal-field">
+                                                <label className="modal-label"><User size={15} /><span>Client / Nom du contact</span></label>
+                                                <div
+                                                    className="modal-select-trigger"
+                                                    onClick={() => {
+                                                        setClientSearchTarget("edit");
+                                                        setPendingClientName(editClientName);
+                                                        setPendingClientId(editClientId);
+                                                        setShowClientSearch(true);
+                                                    }}
+                                                >
+                                                    <span className="trigger-val">{editClientName || "Sélectionner un client..."}</span>
+                                                    <ChevronDown size={16} className="trigger-arrow" />
+                                                </div>
+                                            </div>
+
+                                            {/* Multi-Select Types d'intervention */}
+                                            <div className="modal-field">
+                                                <label className="modal-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <Briefcase size={15} />
+                                                        <span>Type(s) d'intervention</span>
+                                                    </div>
+                                                    <span style={{ fontSize: '0.74rem', color: editServiceTypes.length === 0 ? '#f59e0b' : 'var(--muted-foreground)', fontWeight: 600 }}>
+                                                        {editServiceTypes.length} sélectionné{editServiceTypes.length > 1 ? "s" : ""}
+                                                    </span>
+                                                </label>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', alignItems: 'center' }}>
+                                                    {Array.from(new Set([...AVAILABLE_SERVICE_TYPES, ...editServiceTypes])).map((t) => {
+                                                        const isSelected = editServiceTypes.includes(t);
+                                                        const isCustom = !AVAILABLE_SERVICE_TYPES.includes(t);
+                                                        return (
+                                                            <button
+                                                                key={t}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (isSelected) {
                                                                         setEditServiceTypes(editServiceTypes.filter(item => item !== t));
-                                                                    }}
-                                                                    style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
-                                                                >
-                                                                    <X size={12} />
-                                                                </span>
-                                                            )}
-                                                        </button>
-                                                    );
-                                                })}
-                                                {showEditCustomType ? (
-                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                                        <input
-                                                            ref={(el) => {
-                                                                editCustomTypeInputRef.current = el;
-                                                                if (el) scrollToCustomInput(el);
-                                                            }}
-                                                            type="text"
-                                                            placeholder="Autre type..."
-                                                            value={editCustomTypeInput}
-                                                            onChange={(e) => setEditCustomTypeInput(e.target.value)}
-                                                            onFocus={(e) => scrollToCustomInput(e.target)}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter') {
-                                                                    e.preventDefault();
+                                                                    } else {
+                                                                        setEditServiceTypes([...editServiceTypes, t]);
+                                                                    }
+                                                                }}
+                                                                style={{
+                                                                    padding: '6px 14px',
+                                                                    borderRadius: '20px',
+                                                                    fontSize: '0.82rem',
+                                                                    fontWeight: 500,
+                                                                    border: isSelected ? '1px solid #556B2F' : '1px solid var(--border)',
+                                                                    backgroundColor: isSelected ? 'rgba(85, 107, 47, 0.12)' : 'var(--background)',
+                                                                    color: isSelected ? '#556B2F' : 'var(--foreground)',
+                                                                    cursor: 'pointer',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '6px',
+                                                                    boxSizing: 'border-box',
+                                                                    transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease'
+                                                                }}
+                                                            >
+                                                                <span>{t}</span>
+                                                                {isCustom && isSelected && (
+                                                                    <span
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setEditServiceTypes(editServiceTypes.filter(item => item !== t));
+                                                                        }}
+                                                                        style={{ display: 'inline-flex', alignItems: 'center', opacity: 0.7 }}
+                                                                    >
+                                                                        <X size={12} />
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                    {showEditCustomType ? (
+                                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                            <input
+                                                                ref={(el) => {
+                                                                    editCustomTypeInputRef.current = el;
+                                                                    if (el) scrollToCustomInput(el);
+                                                                }}
+                                                                type="text"
+                                                                placeholder="Autre type..."
+                                                                value={editCustomTypeInput}
+                                                                onChange={(e) => setEditCustomTypeInput(e.target.value)}
+                                                                onFocus={(e) => scrollToCustomInput(e.target)}
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === 'Enter') {
+                                                                        e.preventDefault();
+                                                                        const val = editCustomTypeInput.trim();
+                                                                        if (val) {
+                                                                            if (!editServiceTypes.includes(val)) {
+                                                                                setEditServiceTypes([...editServiceTypes, val]);
+                                                                            }
+                                                                            setEditCustomTypeInput("");
+                                                                            setShowEditCustomType(false);
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                style={{
+                                                                    width: '120px',
+                                                                    height: '30px',
+                                                                    padding: '0 10px',
+                                                                    fontSize: '0.82rem',
+                                                                    borderRadius: '16px',
+                                                                    border: '1px solid #556B2F',
+                                                                    backgroundColor: 'var(--background)',
+                                                                    color: 'var(--foreground)',
+                                                                    outline: 'none',
+                                                                    boxSizing: 'border-box'
+                                                                }}
+                                                                autoFocus
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
                                                                     const val = editCustomTypeInput.trim();
                                                                     if (val) {
                                                                         if (!editServiceTypes.includes(val)) {
@@ -1991,159 +2040,132 @@ function PlanningPage() {
                                                                         setEditCustomTypeInput("");
                                                                         setShowEditCustomType(false);
                                                                     }
-                                                                }
-                                                            }}
-                                                            style={{
-                                                                width: '120px',
-                                                                height: '30px',
-                                                                padding: '0 10px',
-                                                                fontSize: '0.82rem',
-                                                                borderRadius: '16px',
-                                                                border: '1px solid #556B2F',
-                                                                backgroundColor: 'var(--background)',
-                                                                color: 'var(--foreground)',
-                                                                outline: 'none',
-                                                                boxSizing: 'border-box'
-                                                            }}
-                                                            autoFocus
-                                                        />
+                                                                }}
+                                                                style={{
+                                                                    padding: '4px 10px',
+                                                                    borderRadius: '14px',
+                                                                    fontSize: '0.78rem',
+                                                                    fontWeight: 600,
+                                                                    backgroundColor: '#556B2F',
+                                                                    color: '#fff',
+                                                                    border: 'none',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                OK
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => { setShowEditCustomType(false); setEditCustomTypeInput(""); }}
+                                                                style={{
+                                                                    padding: '4px 6px',
+                                                                    borderRadius: '14px',
+                                                                    fontSize: '0.78rem',
+                                                                    backgroundColor: 'transparent',
+                                                                    color: 'var(--muted-foreground)',
+                                                                    border: 'none',
+                                                                    cursor: 'pointer',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center'
+                                                                }}
+                                                            >
+                                                                <X size={14} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const val = editCustomTypeInput.trim();
-                                                                if (val) {
-                                                                    if (!editServiceTypes.includes(val)) {
-                                                                        setEditServiceTypes([...editServiceTypes, val]);
+                                                                setShowEditCustomType(true);
+                                                                setTimeout(() => {
+                                                                    if (editCustomTypeInputRef.current) {
+                                                                        scrollToCustomInput(editCustomTypeInputRef.current);
+                                                                        editCustomTypeInputRef.current.focus();
                                                                     }
-                                                                    setEditCustomTypeInput("");
-                                                                    setShowEditCustomType(false);
-                                                                }
+                                                                }, 60);
                                                             }}
                                                             style={{
-                                                                padding: '4px 10px',
-                                                                borderRadius: '14px',
-                                                                fontSize: '0.78rem',
-                                                                fontWeight: 600,
-                                                                backgroundColor: '#556B2F',
-                                                                color: '#fff',
-                                                                border: 'none',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        >
-                                                            OK
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => { setShowEditCustomType(false); setEditCustomTypeInput(""); }}
-                                                            style={{
-                                                                padding: '4px 6px',
-                                                                borderRadius: '14px',
-                                                                fontSize: '0.78rem',
+                                                                padding: '6px 14px',
+                                                                borderRadius: '20px',
+                                                                fontSize: '0.82rem',
+                                                                fontWeight: 500,
+                                                                border: '1px dashed var(--border)',
                                                                 backgroundColor: 'transparent',
                                                                 color: 'var(--muted-foreground)',
-                                                                border: 'none',
                                                                 cursor: 'pointer',
                                                                 display: 'inline-flex',
-                                                                alignItems: 'center'
+                                                                alignItems: 'center',
+                                                                gap: '4px',
+                                                                boxSizing: 'border-box'
                                                             }}
                                                         >
-                                                            <X size={14} />
+                                                            <Plus size={13} /> Autre
                                                         </button>
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setShowEditCustomType(true);
-                                                            setTimeout(() => {
-                                                                if (editCustomTypeInputRef.current) {
-                                                                    scrollToCustomInput(editCustomTypeInputRef.current);
-                                                                    editCustomTypeInputRef.current.focus();
-                                                                }
-                                                            }, 60);
-                                                        }}
-                                                        style={{
-                                                            padding: '6px 14px',
-                                                            borderRadius: '20px',
-                                                            fontSize: '0.82rem',
-                                                            fontWeight: 500,
-                                                            border: '1px dashed var(--border)',
-                                                            backgroundColor: 'transparent',
-                                                            color: 'var(--muted-foreground)',
-                                                            cursor: 'pointer',
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            gap: '4px',
-                                                            boxSizing: 'border-box'
-                                                        }}
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Technicien assigné */}
+                                            <div className="modal-field">
+                                                <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
+                                                <div className="modal-select-wrapper">
+                                                    <select
+                                                        value={editTechnicianId}
+                                                        onChange={(e) => setEditTechnicianId(e.target.value)}
+                                                        className="modal-select"
                                                     >
-                                                        <Plus size={13} /> Autre
-                                                    </button>
-                                                )}
+                                                        <option value="">Non assigné</option>
+                                                        {techniciansList.map(t => {
+                                                            const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
+                                                            const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
+                                                            return (
+                                                                <option key={t.id} value={t.id}>
+                                                                    {fullName}{roleLabel}
+                                                                </option>
+                                                            );
+                                                        })}
+                                                    </select>
+                                                    <ChevronDown size={14} className="modal-select-arrow" />
+                                                </div>
+                                            </div>
+
+                                            {/* Adresse */}
+                                            <div className="modal-field">
+                                                <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
+                                                <input
+                                                    type="text"
+                                                    value={editAddress}
+                                                    onChange={(e) => setEditAddress(e.target.value)}
+                                                    placeholder="Adresse de l'intervention..."
+                                                    className="modal-input-time"
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </div>
+
+                                            {/* Instructions / Notes */}
+                                            <div className="modal-field">
+                                                <label className="modal-label"><FileText size={15} /><span>Instructions & Notes</span></label>
+                                                <textarea
+                                                    value={editNotes}
+                                                    onChange={(e) => setEditNotes(e.target.value)}
+                                                    placeholder="Instructions pour le technicien..."
+                                                    rows={2}
+                                                    style={{
+                                                        width: '100%',
+                                                        backgroundColor: 'var(--background)',
+                                                        border: '1.5px solid var(--border)',
+                                                        borderRadius: '10px',
+                                                        padding: '8px 12px',
+                                                        fontSize: '13.5px',
+                                                        fontFamily: 'inherit',
+                                                        color: 'var(--foreground)',
+                                                        outline: 'none',
+                                                        resize: 'vertical',
+                                                        boxSizing: 'border-box'
+                                                    }}
+                                                />
                                             </div>
                                         </div>
-
-                                        {/* Technicien assigné */}
-                                        <div className="modal-field">
-                                            <label className="modal-label"><Building size={15} /><span>Technicien assigné</span></label>
-                                            <div className="modal-select-wrapper">
-                                                <select 
-                                                    value={editTechnicianId} 
-                                                    onChange={(e) => setEditTechnicianId(e.target.value)} 
-                                                    className="modal-select"
-                                                >
-                                                    <option value="">Non assigné</option>
-                                                    {techniciansList.map(t => {
-                                                        const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.email;
-                                                        const roleLabel = t.role === 'OWNER' ? ' (Dirigeant)' : t.role === 'MANAGER' ? ' (Manager)' : '';
-                                                        return (
-                                                            <option key={t.id} value={t.id}>
-                                                                {fullName}{roleLabel}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
-                                                <ChevronDown size={14} className="modal-select-arrow" />
-                                            </div>
-                                        </div>
-
-                                        {/* Adresse */}
-                                        <div className="modal-field">
-                                            <label className="modal-label"><MapPin size={15} /><span>Adresse de l'intervention</span></label>
-                                            <input 
-                                                type="text" 
-                                                value={editAddress} 
-                                                onChange={(e) => setEditAddress(e.target.value)} 
-                                                placeholder="Adresse de l'intervention..."
-                                                className="modal-input-time"
-                                                style={{ width: '100%' }}
-                                            />
-                                        </div>
-
-                                        {/* Instructions / Notes */}
-                                        <div className="modal-field">
-                                            <label className="modal-label"><FileText size={15} /><span>Instructions & Notes</span></label>
-                                            <textarea
-                                                value={editNotes}
-                                                onChange={(e) => setEditNotes(e.target.value)}
-                                                placeholder="Instructions pour le technicien..."
-                                                rows={2}
-                                                style={{
-                                                    width: '100%',
-                                                    backgroundColor: 'var(--background)',
-                                                    border: '1.5px solid var(--border)',
-                                                    borderRadius: '10px',
-                                                    padding: '8px 12px',
-                                                    fontSize: '13.5px',
-                                                    fontFamily: 'inherit',
-                                                    color: 'var(--foreground)',
-                                                    outline: 'none',
-                                                    resize: 'vertical',
-                                                    boxSizing: 'border-box'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
 
                                         <div className="modal-footer-row edit-footer-row">
                                             <button type="button" className="modal-delete-btn" onClick={handleDeleteEvent}>Supprimer</button>
@@ -2165,25 +2187,25 @@ function PlanningPage() {
             {createPortal(
                 <AnimatePresence>
                     {showDeleteConfirm && (
-                        <div 
-                            className="modal-backdrop" 
-                            style={{ 
-                                zIndex: 10000, 
-                                position: 'fixed', 
-                                top: 0, 
-                                left: 0, 
-                                right: 0, 
-                                bottom: 0, 
-                                backgroundColor: 'rgba(0, 0, 0, 0.55)', 
+                        <div
+                            className="modal-backdrop"
+                            style={{
+                                zIndex: 10000,
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                backgroundColor: 'rgba(0, 0, 0, 0.55)',
                                 backdropFilter: 'blur(4px)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 padding: '16px'
-                            }} 
+                            }}
                             onClick={() => !isDeleting && setShowDeleteConfirm(false)}
                         >
-                            <motion.div 
+                            <motion.div
                                 className="delete-confirm-modal"
                                 onClick={(e) => e.stopPropagation()}
                                 initial={{ opacity: 0, scale: 0.92, y: 10 }}
@@ -2191,23 +2213,24 @@ function PlanningPage() {
                                 exit={{ opacity: 0, scale: 0.92, y: 10 }}
                                 transition={{ type: "spring", duration: 0.25, bounce: 0.15 }}
                                 style={{
-                                    backgroundColor: '#FFFFFF',
+                                    backgroundColor: 'var(--card, #FFFFFF)',
+                                    border: '1px solid var(--border)',
                                     borderRadius: '16px',
                                     padding: '24px',
                                     width: '100%',
                                     maxWidth: '420px',
-                                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+                                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25)',
                                     textAlign: 'center',
                                     position: 'relative',
                                     boxSizing: 'border-box'
                                 }}
                             >
                                 <div style={{
-                                    width: '52px',
-                                    height: '52px',
+                                    width: '54px',
+                                    height: '54px',
                                     borderRadius: '50%',
-                                    backgroundColor: '#FEE2E2',
-                                    color: '#DC2626',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                                    color: '#EF4444',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -2216,11 +2239,11 @@ function PlanningPage() {
                                     <Trash2 size={26} strokeWidth={2.2} />
                                 </div>
 
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--foreground)', margin: '0 0 8px 0' }}>
                                     Supprimer l'intervention ?
                                 </h3>
 
-                                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.45, margin: '0 0 24px 0' }}>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', lineHeight: 1.45, margin: '0 0 24px 0' }}>
                                     Êtes-vous sûr de vouloir supprimer l'intervention de <strong>{editClientName || selectedEvent?.title || "ce client"}</strong> ? Cette action est irréversible.
                                 </p>
 
@@ -2233,9 +2256,9 @@ function PlanningPage() {
                                             flex: 1,
                                             padding: '11px 16px',
                                             borderRadius: '10px',
-                                            border: '1px solid #E5E7EB',
-                                            backgroundColor: '#FFFFFF',
-                                            color: '#374151',
+                                            border: '1px solid var(--border)',
+                                            backgroundColor: 'var(--background)',
+                                            color: 'var(--foreground)',
                                             fontSize: '0.92rem',
                                             fontWeight: 600,
                                             cursor: 'pointer',
@@ -2284,7 +2307,7 @@ function PlanningPage() {
                             <h3 className="pbdm-title">Supprimer {selectedHistoryIds.size} intervention{selectedHistoryIds.size > 1 ? 's' : ''} ?</h3>
                         </div>
                         <p className="pbdm-desc">
-                            Êtes-vous sûr de vouloir supprimer définitivement ces {selectedHistoryIds.size} intervention(s) ?<br/><br/>
+                            Êtes-vous sûr de vouloir supprimer définitivement ces {selectedHistoryIds.size} intervention(s) ?<br /><br />
                             Leurs enregistrements, photos et comptes-rendus seront supprimés. Elles disparaîtront du calendrier, de l'espace technicien et ne seront plus comptabilisées dans le tableau de bord.
                         </p>
                         <div className="pbdm-actions">
@@ -2319,8 +2342,8 @@ function PlanningPage() {
             <div className="client-search-panel">
                 {/* Header */}
                 <div className="client-search-header">
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         className="client-search-back-btn"
                         onClick={() => closeClientSearch()}
                     >
@@ -2334,7 +2357,7 @@ function PlanningPage() {
                 <div className="client-search-bar-container">
                     <div className="client-search-input-wrapper">
                         <Search size={18} className="client-search-icon" />
-                        <input 
+                        <input
                             type="text"
                             placeholder="Nom ou entreprise..."
                             value={clientSearchQuery}
@@ -2348,7 +2371,7 @@ function PlanningPage() {
                 <div className="client-search-list-container">
                     {Object.entries(
                         getGroupedClients(
-                            clientDetails.filter(c => 
+                            clientDetails.filter(c =>
                                 c.name.toLowerCase().includes(clientSearchQuery.toLowerCase())
                             )
                         )
@@ -2359,7 +2382,7 @@ function PlanningPage() {
                                 {list.map(c => {
                                     const isPending = (pendingClientId && pendingClientId === c.id) || pendingClientName === c.name;
                                     return (
-                                        <div 
+                                        <div
                                             key={c.id || c.name}
                                             className={`client-search-item ${(pendingClientId && pendingClientId === c.id) || pendingClientName === c.name ? 'selected' : ''}`}
                                             onClick={() => {
@@ -2387,20 +2410,20 @@ function PlanningPage() {
                         </div>
                     ))}
                     {/* Empty search state */}
-                    {clientDetails.filter(c => 
+                    {clientDetails.filter(c =>
                         c.name.toLowerCase().includes(clientSearchQuery.toLowerCase())
                     ).length === 0 && (
-                        <div className="client-search-empty">
-                            <span>Aucun client ne correspond à votre recherche</span>
-                        </div>
-                    )}
+                            <div className="client-search-empty">
+                                <span>Aucun client ne correspond à votre recherche</span>
+                            </div>
+                        )}
                 </div>
 
                 {/* Footer Buttons */}
                 <div className="client-search-footer">
                     {pendingClientName && (
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             className="client-search-confirm-btn"
                             onClick={() => {
                                 const matched = clientDetails.find(c => c.id === pendingClientId || c.name === pendingClientName);
@@ -2414,17 +2437,15 @@ function PlanningPage() {
                                     setEditClientId(pendingClientId);
                                     if (addr) setEditAddress(addr);
                                 }
-                                setShowClientSearch(false);
-                                setClientSearchQuery("");
-                                setPendingClientName("");
                                 setPendingClientId("");
+                                closeClientSearch();
                             }}
                         >
                             Confirmer — {pendingClientName}
                         </button>
                     )}
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         className={`client-search-add-btn ${pendingClientName ? 'secondary' : ''}`}
                         onClick={async () => {
                             const name = prompt("Nom et prénom (ou entreprise) du nouveau client :");
@@ -2459,9 +2480,8 @@ function PlanningPage() {
                                     } else {
                                         setEditClientName(name.trim());
                                     }
-                                    setShowClientSearch(false);
-                                    setClientSearchQuery("");
-                                    setPendingClientName("");
+                                    setPendingClientId("");
+                                    closeClientSearch();
                                 } catch (err) {
                                     console.error("Create client error:", err);
                                     alert(err.message || "Erreur lors de la création du client");
@@ -2484,325 +2504,325 @@ function PlanningPage() {
                 <Header />
                 <PullToRefresh onRefresh={handleRefresh} disabled={showDetailModal || showAddModal || showEditModal}>
 
-                {/* Mobile Top Navigation Segmented Switcher */}
-                <div className="mobile-planning-segmented-wrap">
-                    <div className="mobile-planning-segmented-nav">
-                        <button
-                            type="button"
-                            className={`mobile-plan-tab-btn ${activePlanningTab === "calendar" ? "active" : ""}`}
-                            onClick={() => setActivePlanningTab("calendar")}
-                        >
-                            <Calendar size={15} />
-                            <span>Calendrier</span>
-                        </button>
-                        <button
-                            type="button"
-                            className={`mobile-plan-tab-btn ${activePlanningTab === "past" ? "active" : ""}`}
-                            onClick={() => setActivePlanningTab("past")}
-                        >
-                            <History size={15} />
-                            <span>Passées & Historique</span>
-                            {periodCounts.past > 0 && (
-                                <span className="tab-counter-badge">{periodCounts.past}</span>
-                            )}
-                        </button>
+                    {/* Mobile Top Navigation Segmented Switcher */}
+                    <div className="mobile-planning-segmented-wrap">
+                        <div className="mobile-planning-segmented-nav">
+                            <button
+                                type="button"
+                                className={`mobile-plan-tab-btn ${activePlanningTab === "calendar" ? "active" : ""}`}
+                                onClick={() => setActivePlanningTab("calendar")}
+                            >
+                                <Calendar size={15} />
+                                <span>Calendrier</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`mobile-plan-tab-btn ${activePlanningTab === "past" ? "active" : ""}`}
+                                onClick={() => setActivePlanningTab("past")}
+                            >
+                                <History size={15} />
+                                <span>Passées & Historique</span>
+                                {periodCounts.past > 0 && (
+                                    <span className="tab-counter-badge">{periodCounts.past}</span>
+                                )}
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                {activePlanningTab === "calendar" ? (
-                    <div className="mobile-planning-calendar-scroll-wrap">
-                        <MobilePlanningView
-                            events={filteredEvents}
-                            selectedDate={mobileSelectedDate}
-                            setSelectedDate={setMobileSelectedDate}
-                            onSelectSlot={isTechnician ? () => {} : handleMobileOpenAdd}
-                            onEventClick={handleMobileOpenEdit}
-                            isExpired={isExpired}
-                        />
-                    </div>
-                ) : (
-                    /* Mobile Past Interventions View */
-                    <div className="mobile-history-view-container">
-                        {/* Search bar & Selection toggle */}
-                        <div className="mobile-history-search-bar-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', marginTop: '2px' }}>
-                            <div className="mobile-history-search-card" style={{ flex: 1, margin: 0 }}>
-                                <div className="mobile-history-search-wrap">
-                                    <Search size={17} className="mobile-history-search-icon" />
-                                    <input
-                                        type="text"
-                                        className="mobile-history-search-input"
-                                        placeholder="Rechercher client, adresse, tech..."
-                                        value={historySearch}
-                                        onChange={(e) => setHistorySearch(e.target.value)}
-                                    />
-                                    {historySearch && (
-                                        <button
-                                            type="button"
-                                            className="mobile-history-clear-btn"
-                                            onClick={() => setHistorySearch("")}
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    )}
+                    {activePlanningTab === "calendar" ? (
+                        <div className="mobile-planning-calendar-scroll-wrap">
+                            <MobilePlanningView
+                                events={filteredEvents}
+                                selectedDate={mobileSelectedDate}
+                                setSelectedDate={setMobileSelectedDate}
+                                onSelectSlot={isTechnician ? () => { } : handleMobileOpenAdd}
+                                onEventClick={handleMobileOpenEdit}
+                                isExpired={isExpired}
+                            />
+                        </div>
+                    ) : (
+                        /* Mobile Past Interventions View */
+                        <div className="mobile-history-view-container">
+                            {/* Search bar & Selection toggle */}
+                            <div className="mobile-history-search-bar-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', marginTop: '2px' }}>
+                                <div className="mobile-history-search-card" style={{ flex: 1, margin: 0 }}>
+                                    <div className="mobile-history-search-wrap">
+                                        <Search size={17} className="mobile-history-search-icon" />
+                                        <input
+                                            type="text"
+                                            className="mobile-history-search-input"
+                                            placeholder="Rechercher client, adresse, tech..."
+                                            value={historySearch}
+                                            onChange={(e) => setHistorySearch(e.target.value)}
+                                        />
+                                        {historySearch && (
+                                            <button
+                                                type="button"
+                                                className="mobile-history-clear-btn"
+                                                onClick={() => setHistorySearch("")}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
+                                {!isTechnician && (
+                                    <button
+                                        type="button"
+                                        className={`history-select-mode-icon-btn ${isSelectionMode ? 'active' : ''}`}
+                                        onClick={() => {
+                                            if (isSelectionMode) {
+                                                handleCancelSelection();
+                                            } else {
+                                                setIsSelectionMode(true);
+                                            }
+                                        }}
+                                        title={isSelectionMode ? "Quitter sélection" : "Sélectionner des interventions"}
+                                        aria-label="Sélectionner"
+                                        style={{
+                                            width: '42px',
+                                            height: '42px',
+                                            minWidth: '42px',
+                                            minHeight: '42px',
+                                            borderRadius: '14px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            border: isSelectionMode ? '1.5px solid #556B2F' : '1px solid var(--border)',
+                                            background: isSelectionMode ? 'rgba(85, 107, 47, 0.15)' : 'var(--card)',
+                                            color: '#556B2F',
+                                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.02)',
+                                            cursor: 'pointer',
+                                            flexShrink: 0,
+                                            padding: 0,
+                                            transition: 'all 0.15s ease'
+                                        }}
+                                    >
+                                        {isSelectionMode ? <X size={20} color="#556B2F" /> : <CheckSquare size={20} color="#556B2F" />}
+                                    </button>
+                                )}
                             </div>
-                            {!isTechnician && (
+
+                            {/* Period Pills Scroll */}
+                            <div className="mobile-history-periods-scroll">
                                 <button
+                                    ref={historyPeriod === "past" ? activeMobilePillRef : null}
                                     type="button"
-                                    className={`history-select-mode-icon-btn ${isSelectionMode ? 'active' : ''}`}
-                                    onClick={() => {
-                                        if (isSelectionMode) {
-                                            handleCancelSelection();
-                                        } else {
-                                            setIsSelectionMode(true);
-                                        }
-                                    }}
-                                    title={isSelectionMode ? "Quitter sélection" : "Sélectionner des interventions"}
-                                    aria-label="Sélectionner"
-                                    style={{
-                                        width: '42px',
-                                        height: '42px',
-                                        minWidth: '42px',
-                                        minHeight: '42px',
-                                        borderRadius: '14px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        border: isSelectionMode ? '1.5px solid #556B2F' : '1px solid var(--border)',
-                                        background: isSelectionMode ? 'rgba(85, 107, 47, 0.15)' : 'var(--card)',
-                                        color: '#556B2F',
-                                        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.02)',
-                                        cursor: 'pointer',
-                                        flexShrink: 0,
-                                        padding: 0,
-                                        transition: 'all 0.15s ease'
+                                    className={`history-period-pill ${historyPeriod === "past" ? "active" : ""}`}
+                                    onClick={(e) => {
+                                        handlePeriodChange("past");
+                                        e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                        e.currentTarget.focus();
                                     }}
                                 >
-                                    {isSelectionMode ? <X size={20} color="#556B2F" /> : <CheckSquare size={20} color="#556B2F" />}
+                                    Passées ({periodCounts.past})
                                 </button>
-                            )}
-                        </div>
-
-                        {/* Period Pills Scroll */}
-                        <div className="mobile-history-periods-scroll">
-                            <button
-                                ref={historyPeriod === "past" ? activeMobilePillRef : null}
-                                type="button"
-                                className={`history-period-pill ${historyPeriod === "past" ? "active" : ""}`}
-                                onClick={(e) => {
-                                    handlePeriodChange("past");
-                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                                    e.currentTarget.focus();
-                                }}
-                            >
-                                Passées ({periodCounts.past})
-                            </button>
-                            <button
-                                ref={historyPeriod === "all" ? activeMobilePillRef : null}
-                                type="button"
-                                className={`history-period-pill ${historyPeriod === "all" ? "active" : ""}`}
-                                onClick={(e) => {
-                                    handlePeriodChange("all");
-                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                                    e.currentTarget.focus();
-                                }}
-                            >
-                                Toutes ({periodCounts.all})
-                            </button>
-                            <button
-                                ref={historyPeriod === "upcoming" ? activeMobilePillRef : null}
-                                type="button"
-                                className={`history-period-pill ${historyPeriod === "upcoming" ? "active" : ""}`}
-                                onClick={(e) => {
-                                    handlePeriodChange("upcoming");
-                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                                    e.currentTarget.focus();
-                                }}
-                            >
-                                À venir ({periodCounts.upcoming})
-                            </button>
-                            <button
-                                ref={historyPeriod === "today" ? activeMobilePillRef : null}
-                                type="button"
-                                className={`history-period-pill ${historyPeriod === "today" ? "active" : ""}`}
-                                onClick={(e) => {
-                                    handlePeriodChange("today");
-                                    e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                                    e.currentTarget.focus();
-                                }}
-                            >
-                                Aujourd'hui ({periodCounts.today})
-                            </button>
-                        </div>
-
-                        {/* Status & Client Filters */}
-                        <div className="mobile-history-filter-row">
-                            <div className="mobile-filter-select-wrap">
-                                <span className="mobile-filter-label">Statut :</span>
-                                <select
-                                    className="mobile-history-select"
-                                    value={historyStatusFilter}
-                                    onChange={(e) => setHistoryStatusFilter(e.target.value)}
+                                <button
+                                    ref={historyPeriod === "all" ? activeMobilePillRef : null}
+                                    type="button"
+                                    className={`history-period-pill ${historyPeriod === "all" ? "active" : ""}`}
+                                    onClick={(e) => {
+                                        handlePeriodChange("all");
+                                        e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                        e.currentTarget.focus();
+                                    }}
                                 >
-                                    {STATUS_OPTIONS.map(opt => (
-                                        <option key={opt.value} value={opt.value}>
-                                            {opt.value === "all" ? `Tous (${statusCounts.all ?? filteredHistoryInterventions.length})` : `${opt.label} (${statusCounts[opt.value] ?? 0})`}
-                                        </option>
-                                    ))}
-                                </select>
+                                    Toutes ({periodCounts.all})
+                                </button>
+                                <button
+                                    ref={historyPeriod === "upcoming" ? activeMobilePillRef : null}
+                                    type="button"
+                                    className={`history-period-pill ${historyPeriod === "upcoming" ? "active" : ""}`}
+                                    onClick={(e) => {
+                                        handlePeriodChange("upcoming");
+                                        e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                        e.currentTarget.focus();
+                                    }}
+                                >
+                                    À venir ({periodCounts.upcoming})
+                                </button>
+                                <button
+                                    ref={historyPeriod === "today" ? activeMobilePillRef : null}
+                                    type="button"
+                                    className={`history-period-pill ${historyPeriod === "today" ? "active" : ""}`}
+                                    onClick={(e) => {
+                                        handlePeriodChange("today");
+                                        e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                                        e.currentTarget.focus();
+                                    }}
+                                >
+                                    Aujourd'hui ({periodCounts.today})
+                                </button>
                             </div>
 
-                            <div className="mobile-filter-select-wrap">
-                                <span className="mobile-filter-label">Client :</span>
-                                <select
-                                    className="mobile-history-select"
-                                    value={historyClientFilter}
-                                    onChange={(e) => setHistoryClientFilter(e.target.value)}
-                                >
-                                    <option value="all">Tous</option>
-                                    {clientDetails.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* List of Interventions */}
-                        <div className="mobile-history-items-list">
-                            {filteredHistoryInterventions.length === 0 ? (
-                                <div className="history-empty-state">
-                                    <History size={38} style={{ opacity: 0.4, margin: '0 auto 10px auto', color: '#556B2F' }} />
-                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Aucune intervention trouvée</h4>
-                                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                        Aucun résultat pour cette période ou vos filtres.
-                                    </p>
+                            {/* Status & Client Filters */}
+                            <div className="mobile-history-filter-row">
+                                <div className="mobile-filter-select-wrap">
+                                    <span className="mobile-filter-label">Statut :</span>
+                                    <select
+                                        className="mobile-history-select"
+                                        value={historyStatusFilter}
+                                        onChange={(e) => setHistoryStatusFilter(e.target.value)}
+                                    >
+                                        {STATUS_OPTIONS.map(opt => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.value === "all" ? `Tous (${statusCounts.all ?? filteredHistoryInterventions.length})` : `${opt.label} (${statusCounts[opt.value] ?? 0})`}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            ) : (
-                                filteredHistoryInterventions.map(item => {
-                                    const d = item.scheduledAt ? new Date(item.scheduledAt) : null;
-                                    const dayNum = d ? d.getDate() : "--";
-                                    const monthStr = d ? d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase() : "";
-                                    const timeStr = d ? d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
-                                    const clientName = item.client 
-                                        ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() || item.client.companyName || "Client"
-                                        : "Client";
-                                    const typeName = item.interventionType?.name || item.type || "Intervention";
-                                    const techName = item.technician 
-                                        ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email
-                                        : "Non assigné";
-                                    const photos = item.photos || [];
-                                    const hasSignature = !!item.clientSignature;
-                                    const statusInfo = getInterventionStatusInfo(item);
-                                    const isSelected = selectedHistoryIds.has(item.id);
 
-                                    return (
-                                        <div
-                                            key={item.id}
-                                            className={`mobile-history-card ${isSelectionMode && isSelected ? 'selected' : ''}`}
-                                            onPointerDown={(e) => handlePointerDownCard(item.id, e)}
-                                            onPointerMove={handlePointerMoveCard}
-                                            onPointerUp={handlePointerUpCard}
-                                            onPointerCancel={handlePointerUpCard}
-                                            onContextMenu={(e) => {
-                                                if (isLongPressTriggeredRef.current) {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                            onClick={(e) => {
-                                                if (isLongPressTriggeredRef.current) {
-                                                    isLongPressTriggeredRef.current = false;
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    return;
-                                                }
-                                                if (isSelectionMode) {
-                                                    toggleSelectHistoryId(item.id);
-                                                } else {
-                                                    setSelectedDetailIntervention(item);
-                                                    setShowDetailModal(true);
-                                                }
-                                            }}
-                                            style={{
-                                                borderColor: isSelectionMode && isSelected ? '#556B2F' : undefined,
-                                                backgroundColor: isSelectionMode && isSelected ? 'rgba(85, 107, 47, 0.06)' : undefined,
-                                                userSelect: 'none',
-                                                WebkitUserSelect: 'none',
-                                                WebkitTouchCallout: 'none',
-                                                touchAction: 'pan-y'
-                                            }}
-                                        >
-                                            <div className="mobile-history-card-top" style={{ display: 'flex', alignItems: 'flex-start' }}>
-                                                {isSelectionMode && (
-                                                    <div className={`bell-selection-circle ${isSelected ? "checked selected" : ""}`} style={{ marginRight: '12px', marginTop: '6px' }}>
-                                                        {isSelected && <Check size={12} color="#ffffff" strokeWidth={3} />}
+                                <div className="mobile-filter-select-wrap">
+                                    <span className="mobile-filter-label">Client :</span>
+                                    <select
+                                        className="mobile-history-select"
+                                        value={historyClientFilter}
+                                        onChange={(e) => setHistoryClientFilter(e.target.value)}
+                                    >
+                                        <option value="all">Tous</option>
+                                        {clientDetails.map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* List of Interventions */}
+                            <div className="mobile-history-items-list">
+                                {filteredHistoryInterventions.length === 0 ? (
+                                    <div className="history-empty-state">
+                                        <History size={38} style={{ opacity: 0.4, margin: '0 auto 10px auto', color: '#556B2F' }} />
+                                        <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 700 }}>Aucune intervention trouvée</h4>
+                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                            Aucun résultat pour cette période ou vos filtres.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    filteredHistoryInterventions.map(item => {
+                                        const d = item.scheduledAt ? new Date(item.scheduledAt) : null;
+                                        const dayNum = d ? d.getDate() : "--";
+                                        const monthStr = d ? d.toLocaleDateString("fr-FR", { month: "short" }).toUpperCase() : "";
+                                        const timeStr = d ? d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
+                                        const clientName = item.client
+                                            ? `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim() || item.client.companyName || "Client"
+                                            : "Client";
+                                        const typeName = item.interventionType?.name || item.type || "Intervention";
+                                        const techName = item.technician
+                                            ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email
+                                            : "Non assigné";
+                                        const photos = item.photos || [];
+                                        const hasSignature = !!item.clientSignature;
+                                        const statusInfo = getInterventionStatusInfo(item);
+                                        const isSelected = selectedHistoryIds.has(item.id);
+
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className={`mobile-history-card ${isSelectionMode && isSelected ? 'selected' : ''}`}
+                                                onPointerDown={(e) => handlePointerDownCard(item.id, e)}
+                                                onPointerMove={handlePointerMoveCard}
+                                                onPointerUp={handlePointerUpCard}
+                                                onPointerCancel={handlePointerUpCard}
+                                                onContextMenu={(e) => {
+                                                    if (isLongPressTriggeredRef.current) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                                onClick={(e) => {
+                                                    if (isLongPressTriggeredRef.current) {
+                                                        isLongPressTriggeredRef.current = false;
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        return;
+                                                    }
+                                                    if (isSelectionMode) {
+                                                        toggleSelectHistoryId(item.id);
+                                                    } else {
+                                                        setSelectedDetailIntervention(item);
+                                                        setShowDetailModal(true);
+                                                    }
+                                                }}
+                                                style={{
+                                                    borderColor: isSelectionMode && isSelected ? '#556B2F' : undefined,
+                                                    backgroundColor: isSelectionMode && isSelected ? 'rgba(85, 107, 47, 0.06)' : undefined,
+                                                    userSelect: 'none',
+                                                    WebkitUserSelect: 'none',
+                                                    WebkitTouchCallout: 'none',
+                                                    touchAction: 'pan-y'
+                                                }}
+                                            >
+                                                <div className="mobile-history-card-top" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                                    {isSelectionMode && (
+                                                        <div className={`bell-selection-circle ${isSelected ? "checked selected" : ""}`} style={{ marginRight: '12px', marginTop: '6px' }}>
+                                                            {isSelected && <Check size={12} color="#ffffff" strokeWidth={3} />}
+                                                        </div>
+                                                    )}
+                                                    <div className="mobile-card-date-badge">
+                                                        <span className="card-day">{dayNum}</span>
+                                                        <span className="card-month">{monthStr}</span>
+                                                        {timeStr && <span className="card-time">{timeStr}</span>}
                                                     </div>
-                                                )}
-                                                <div className="mobile-card-date-badge">
-                                                    <span className="card-day">{dayNum}</span>
-                                                    <span className="card-month">{monthStr}</span>
-                                                    {timeStr && <span className="card-time">{timeStr}</span>}
+
+                                                    <div className="mobile-card-main-meta">
+                                                        <div className="mobile-card-client-row">
+                                                            <span className="mobile-card-client">{clientName}</span>
+                                                            <span className="history-type-badge">{typeName}</span>
+                                                        </div>
+                                                        {item.address && (
+                                                            <span className="mobile-card-address">
+                                                                <MapPin size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                                                <span>{item.address}{item.city ? `, ${item.city}` : ''}</span>
+                                                            </span>
+                                                        )}
+                                                        <span className="mobile-card-tech">
+                                                            <User size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
+                                                            <span>Tech : {techName}</span>
+                                                        </span>
+                                                    </div>
                                                 </div>
 
-                                                <div className="mobile-card-main-meta">
-                                                    <div className="mobile-card-client-row">
-                                                        <span className="mobile-card-client">{clientName}</span>
-                                                        <span className="history-type-badge">{typeName}</span>
+                                                <div className="mobile-history-card-bottom">
+                                                    <div className="history-proof-pills">
+                                                        {hasSignature ? (
+                                                            <span className="proof-pill signed" title="Signature validée">
+                                                                <PenTool size={11} />
+                                                                <span>Signée</span>
+                                                            </span>
+                                                        ) : (
+                                                            <span className="proof-pill" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
+                                                                Non signée
+                                                            </span>
+                                                        )}
+
+                                                        {photos.length > 0 && (
+                                                            <span className="proof-pill photos" title={`${photos.length} photo(s)`}>
+                                                                <Camera size={11} />
+                                                                <span>{photos.length} photo{photos.length > 1 ? 's' : ''}</span>
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    {item.address && (
-                                                        <span className="mobile-card-address">
-                                                            <MapPin size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
-                                                            <span>{item.address}{item.city ? `, ${item.city}` : ''}</span>
+
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span
+                                                            className="history-status-badge"
+                                                            style={{ background: statusInfo.bg, color: statusInfo.color }}
+                                                        >
+                                                            {statusInfo.icon}
+                                                            {statusInfo.label}
                                                         </span>
-                                                    )}
-                                                    <span className="mobile-card-tech">
-                                                        <User size={12} style={{ color: '#556B2F', flexShrink: 0 }} />
-                                                        <span>Tech : {techName}</span>
-                                                    </span>
+                                                        <ChevronRight size={15} style={{ color: 'var(--muted-foreground)' }} />
+                                                    </div>
                                                 </div>
                                             </div>
+                                        );
+                                    })
+                                )}
+                            </div>
 
-                                            <div className="mobile-history-card-bottom">
-                                                <div className="history-proof-pills">
-                                                    {hasSignature ? (
-                                                        <span className="proof-pill signed" title="Signature validée">
-                                                            <PenTool size={11} />
-                                                            <span>Signée</span>
-                                                        </span>
-                                                    ) : (
-                                                        <span className="proof-pill" style={{ background: 'var(--background)', color: 'var(--muted-foreground)' }}>
-                                                            Non signée
-                                                        </span>
-                                                    )}
-
-                                                    {photos.length > 0 && (
-                                                        <span className="proof-pill photos" title={`${photos.length} photo(s)`}>
-                                                            <Camera size={11} />
-                                                            <span>{photos.length} photo{photos.length > 1 ? 's' : ''}</span>
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span
-                                                        className="history-status-badge"
-                                                        style={{ background: statusInfo.bg, color: statusInfo.color }}
-                                                    >
-                                                        {statusInfo.icon}
-                                                        {statusInfo.label}
-                                                    </span>
-                                                    <ChevronRight size={15} style={{ color: 'var(--muted-foreground)' }} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            )}
+                            {/* Spacer at the bottom to ensure the last card is clear of the FAB and bottom bar */}
+                            <div className="mobile-history-bottom-spacer" />
                         </div>
-
-                        {/* Spacer at the bottom to ensure the last card is clear of the FAB and bottom bar */}
-                        <div className="mobile-history-bottom-spacer" />
-                    </div>
-                )}
+                    )}
                 </PullToRefresh>
 
                 <SideBar onFabClick={isTechnician ? null : handleMobileFabClick} hideFab={isTechnician || isSelectionMode} />
@@ -3297,12 +3317,12 @@ function PlanningPage() {
                                         const dayNum = dateObj.getDate().toString().padStart(2, '0');
                                         const monthStr = dateObj.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
                                         const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                                        
-                                        const clientName = item.client 
+
+                                        const clientName = item.client
                                             ? (item.client.companyName || `${item.client.firstName || ''} ${item.client.lastName || ''}`.trim())
                                             : "Client non spécifié";
                                         const typeName = item.interventionType?.name || item.type || "Intervention";
-                                        const techName = item.technician 
+                                        const techName = item.technician
                                             ? `${item.technician.firstName || ''} ${item.technician.lastName || ''}`.trim() || item.technician.email
                                             : "Non assigné";
                                         const photos = item.photos || [];
@@ -3311,8 +3331,8 @@ function PlanningPage() {
                                         const isSelected = selectedHistoryIds.has(item.id);
 
                                         return (
-                                            <div 
-                                                key={item.id} 
+                                            <div
+                                                key={item.id}
                                                 className={`history-item-row ${isSelectionMode && isSelected ? 'selected' : ''}`}
                                                 onClick={() => {
                                                     if (isSelectionMode) {
@@ -3386,7 +3406,7 @@ function PlanningPage() {
                                                     </div>
 
                                                     {/* Status Badge */}
-                                                    <span 
+                                                    <span
                                                         className="history-status-badge"
                                                         style={{ background: statusInfo.bg, color: statusInfo.color }}
                                                     >
@@ -3395,7 +3415,7 @@ function PlanningPage() {
                                                     </span>
 
                                                     {/* Open Button */}
-                                                    <button 
+                                                    <button
                                                         className="history-action-btn"
                                                         onClick={() => {
                                                             setSelectedDetailIntervention(item);

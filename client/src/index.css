@@ -771,6 +771,42 @@ html.is-pwa .app-toast-pill {
   top: calc(56px + env(safe-area-inset-top, 44px) + 10px) !important;
 }
 
+/* ── PWA Standalone Safe Area Adjustments (iOS Dynamic Island / Notch) ── */
+/* Strictly scoped to PWA standalone mode — website browser experience is unaffected */
+html.is-pwa .mobile-wizard-header {
+  padding-top: calc(12px + env(safe-area-inset-top, 44px)) !important;
+}
+
+@media (display-mode: standalone) {
+  .mobile-wizard-header {
+    padding-top: calc(12px + env(safe-area-inset-top, 44px)) !important;
+  }
+}
+
+html.is-pwa .mobile-preview-header {
+  padding-top: calc(14px + env(safe-area-inset-top, 44px)) !important;
+}
+
+@media (display-mode: standalone) {
+  .mobile-preview-header {
+    padding-top: calc(14px + env(safe-area-inset-top, 44px)) !important;
+  }
+}
+
+html.is-pwa .client-search-header {
+  height: calc(60px + env(safe-area-inset-top, 44px)) !important;
+  padding-top: env(safe-area-inset-top, 44px) !important;
+  box-sizing: border-box !important;
+}
+
+@media (display-mode: standalone) {
+  .client-search-header {
+    height: calc(60px + env(safe-area-inset-top, 44px)) !important;
+    padding-top: env(safe-area-inset-top, 44px) !important;
+    box-sizing: border-box !important;
+  }
+}
+
 @keyframes appToastDrop {
   from {
     opacity: 0;

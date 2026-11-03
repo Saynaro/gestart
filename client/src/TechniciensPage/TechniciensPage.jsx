@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import {
     Wrench,
@@ -177,6 +178,31 @@ export default function TechniciensPage() {
     // Delete Technician State & Handler
     const [techToDelete, setTechToDelete] = useState(null);
     const [isDeletingTech, setIsDeletingTech] = useState(false);
+
+    // Lock background scroll when any modal is open on mobile or desktop
+    useEffect(() => {
+        const isModalOpen = showInviteModal || !!techToDelete || !!inviteToRevoke;
+        if (!isModalOpen) return;
+
+        const scrollY = window.scrollY;
+        const prevPosition = document.body.style.position;
+        const prevTop = document.body.style.top;
+        const prevWidth = document.body.style.width;
+        const prevOverflow = document.body.style.overflow;
+
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = "100%";
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.position = prevPosition;
+            document.body.style.top = prevTop;
+            document.body.style.width = prevWidth;
+            document.body.style.overflow = prevOverflow;
+            window.scrollTo(0, scrollY);
+        };
+    }, [showInviteModal, techToDelete, inviteToRevoke]);
 
     const handleDeleteTechnician = async () => {
         if (!techToDelete) return;
@@ -696,11 +722,12 @@ export default function TechniciensPage() {
                                     );
                                 })}
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
 
                     {/* Invite Technician Modal */}
-                    {showInviteModal && (
+                    {showInviteModal && createPortal(
                         <div className="tech-modal-overlay" onClick={() => setShowInviteModal(false)}>
                             <div className="tech-modal-card" onClick={(e) => e.stopPropagation()}>
                                 <div className="tech-modal-header">
@@ -827,7 +854,8 @@ export default function TechniciensPage() {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
 
                     {/* Upgrade Modal for Starter users trying to invite */}
@@ -843,7 +871,7 @@ export default function TechniciensPage() {
                     />
 
                     {/* Delete Technician Warning Modal */}
-                    {techToDelete && (
+                    {techToDelete && createPortal(
                         <div className="tech-modal-overlay" onClick={() => !isDeletingTech && setTechToDelete(null)}>
                             <motion.div
                                 className="tech-modal-card delete-tech-modal-card"
@@ -899,23 +927,24 @@ export default function TechniciensPage() {
                                     >
                                         {isDeletingTech ? (
                                             <>
-                                                <RefreshCw size={16} className="animate-spin" />
-                                                Suppression...
+                                                <RefreshCw size={18} className="animate-spin" style={{ flexShrink: 0 }} />
+                                                <span>Suppression...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <Trash2 size={16} />
-                                                Confirmer
+                                                <Trash2 size={19} style={{ flexShrink: 0 }} />
+                                                <span>Confirmer</span>
                                             </>
                                         )}
                                     </button>
                                 </div>
                             </motion.div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
 
                     {/* Revoke Invitation Warning Modal */}
-                    {inviteToRevoke && (
+                    {inviteToRevoke && createPortal(
                         <div className="tech-modal-overlay" onClick={() => !isRevokingInvite && setInviteToRevoke(null)}>
                             <motion.div
                                 className="tech-modal-card delete-tech-modal-card"
@@ -971,19 +1000,20 @@ export default function TechniciensPage() {
                                     >
                                         {isRevokingInvite ? (
                                             <>
-                                                <RefreshCw size={16} className="animate-spin" />
-                                                Révocation...
+                                                <RefreshCw size={18} className="animate-spin" style={{ flexShrink: 0 }} />
+                                                <span>Révocation...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <Trash2 size={16} />
-                                                Révoquer l'invitation
+                                                <Trash2 size={19} style={{ flexShrink: 0 }} />
+                                                <span>Révoquer l'invitation</span>
                                             </>
                                         )}
                                     </button>
                                 </div>
                             </motion.div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
 
                     {/* Technician Detail Modal (Desktop) / Bottom Sheet (Mobile) */}

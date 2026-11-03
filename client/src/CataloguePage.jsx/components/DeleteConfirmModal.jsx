@@ -37,7 +37,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, articleName }) {
                             Annuler
                         </button>
                         <button className="delete-confirm-btn" onClick={onConfirm}>
-                            <Trash2 size={16} />
+                            <Trash2 size={19} style={{ flexShrink: 0 }} />
                             <span>Supprimer</span>
                         </button>
                     </div>

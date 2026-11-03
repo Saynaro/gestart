@@ -268,15 +268,19 @@
 /* Modal Overlay */
 .tech-modal-overlay {
     position: fixed;
+    inset: 0;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.68);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 9999;
+    z-index: 100000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    box-sizing: border-box;
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 .tech-modal-card {
@@ -288,6 +292,16 @@
     width: 100%;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
     position: relative;
+    box-sizing: border-box;
+    touch-action: auto;
+    margin: auto;
+}
+
+@media (max-width: 600px) {
+    .tech-modal-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
 }
 
 .tech-modal-header {
@@ -328,6 +342,11 @@
     margin: 20px 0;
 }
 
+.dark .share-code-box {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
 .share-code-label {
     font-size: 0.78rem;
     color: var(--muted-foreground);
@@ -345,27 +364,43 @@
     letter-spacing: 0.1em;
 }
 
+.dark .share-code-value {
+    color: #84cc16 !important;
+}
+
 .share-url-input-group {
     display: flex;
+    align-items: center;
     gap: 8px;
     margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .share-url-input {
     flex: 1;
-    padding: 10px 14px;
+    min-width: 0;
+    padding: 10px 12px;
     border-radius: 10px;
     border: 1px solid var(--border, #E2E8F0);
     background: var(--input-background, #F1F5F9);
     font-size: 0.85rem;
     color: var(--foreground);
+    box-sizing: border-box;
+}
+
+.dark .share-url-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .btn-copy-url {
+    flex-shrink: 0;
+    white-space: nowrap;
     padding: 10px 16px;
     border-radius: 10px;
     border: none;
-    background: #3B82F6;
+    background: var(--primary, #556B2F);
     color: #FFF;
     font-weight: 700;
     font-size: 0.85rem;
@@ -373,13 +408,19 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-copy-url:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
 }
 
 .share-actions-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
 .share-channel-btn {
@@ -387,7 +428,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     padding: 14px 10px;
     border-radius: 14px;
     border: 1px solid var(--border);
@@ -395,19 +436,37 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     color: var(--foreground);
+    box-sizing: border-box;
 }
 
 .share-channel-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: var(--muted);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.share-channel-btn.whatsapp { background: rgba(37, 211, 102, 0.08); border-color: rgba(37, 211, 102, 0.3); color: #16A34A; }
-.share-channel-btn.sms { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); color: #2563EB; }
-.share-channel-btn.email { background: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.3); color: #9333EA; }
+.share-channel-btn svg {
+    flex-shrink: 0;
+}
+
+/* Clean, tasteful icon accents without AI neon boxes */
+.share-channel-btn.whatsapp svg { color: #22c55e; }
+.share-channel-btn.sms svg { color: #3b82f6; }
+.share-channel-btn.email svg { color: #a855f7; }
+
+.dark .share-channel-btn {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #F8FAFC !important;
+}
+
+.dark .share-channel-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
 
 /* Delete Action Button in Table */
 .btn-delete-tech-row {
@@ -553,15 +612,17 @@
 }
 
 .btn-confirm-delete {
-    flex: 1;
-    height: 46px;
-    padding: 0 18px;
+    flex: 1.2;
+    min-height: 46px;
+    height: auto;
+    padding: 10px 14px;
     border-radius: 12px;
     border: none;
     background: #EF4444;
     color: #FFFFFF;
     font-weight: 700;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
+    line-height: 1.25;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -569,6 +630,13 @@
     gap: 8px;
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
     transition: all 0.15s ease;
+}
+
+.btn-confirm-delete svg,
+.btn-cancel-delete svg {
+    flex-shrink: 0 !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
 }
 
 .btn-confirm-delete:hover:not(:disabled) {

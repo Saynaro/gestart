@@ -2011,3 +2011,70 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Onboarding Modal Cards (Dark & Light support) ── */
+.onboarding-welcome-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(85, 107, 47, 0.12);
+    color: #465a26;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+:root.dark .onboarding-welcome-badge,
+.dark .onboarding-welcome-badge {
+    background: rgba(163, 230, 53, 0.15) !important;
+    color: #bef264 !important;
+}
+
+.onboarding-step-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #F4F5F7;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.onboarding-step-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.onboarding-step-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #0F172A;
+    line-height: 1.3;
+}
+
+.onboarding-step-subtitle {
+    font-size: 0.82rem;
+    color: var(--muted-foreground);
+    margin-top: 2px;
+}
+
+:root.dark .onboarding-step-card,
+.dark .onboarding-step-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.dark .onboarding-step-card:hover,
+.dark .onboarding-step-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+:root.dark .onboarding-step-title,
+.dark .onboarding-step-title {
+    color: #F8FAFC !important;
+}

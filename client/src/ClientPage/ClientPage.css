@@ -548,6 +548,13 @@
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
 }
 
+.client-delete-confirm-btn svg,
+.client-delete-cancel-btn svg {
+    flex-shrink: 0 !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
+}
+
 .client-delete-confirm-btn:hover:not(:disabled) {
     background-color: #dc2626;
     box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);

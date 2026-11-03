@@ -289,11 +289,11 @@ function HomePage() {
                                 <X size={20} />
                             </button>
 
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(85, 107, 47, 0.12)', color: '#556B2F', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '16px' }}>
+                            <div className="onboarding-welcome-badge">
                                 <Star size={16} fill="currentColor" /> Bienvenue sur GestArt CRM
                             </div>
 
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
                                 Votre espace d'essai est prêt !
                             </h2>
                             <p style={{ color: 'var(--muted-foreground)', fontSize: '0.95rem', marginBottom: '24px', lineHeight: 1.5 }}>
@@ -303,38 +303,38 @@ function HomePage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '28px' }}>
                                 <div
                                     onClick={() => { setShowOnboarding(false); navigate('/devis'); }}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: '1px solid var(--border)', borderRadius: '16px', background: 'var(--input-background, #F4F5F7)', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    className="onboarding-step-card"
                                 >
-                                    <FileText style={{ color: '#556B2F' }} size={22} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Créer mon 1er devis PDF</div>
-                                        <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>Générez un devis climatisation ou plomberie en 2 min</div>
+                                    <FileText style={{ color: '#556B2F', flexShrink: 0 }} size={22} />
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="onboarding-step-title">Créer mon 1er devis PDF</div>
+                                        <div className="onboarding-step-subtitle">Générez un devis climatisation ou plomberie en 2 min</div>
                                     </div>
-                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
                                 </div>
 
                                 <div
                                     onClick={() => { setShowOnboarding(false); navigate('/planning'); }}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: '1px solid var(--border)', borderRadius: '16px', background: 'var(--input-background, #F4F5F7)', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    className="onboarding-step-card"
                                 >
-                                    <Calendar style={{ color: '#2563EB' }} size={22} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Planifier une intervention</div>
-                                        <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>Ajoutez un rendez-vous d'installation ou dépannage</div>
+                                    <Calendar style={{ color: '#2563EB', flexShrink: 0 }} size={22} />
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="onboarding-step-title">Planifier une intervention</div>
+                                        <div className="onboarding-step-subtitle">Ajoutez un rendez-vous d'installation ou dépannage</div>
                                     </div>
-                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
                                 </div>
 
                                 <div
                                     onClick={() => { setShowOnboarding(false); navigate('/settings'); }}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: '1px solid var(--border)', borderRadius: '16px', background: 'var(--input-background, #F4F5F7)', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    className="onboarding-step-card"
                                 >
-                                    <Users style={{ color: '#EAB308' }} size={22} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Inviter mes techniciens</div>
-                                        <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>Donnez accès à l'application mobile à votre équipe</div>
+                                    <Users style={{ color: '#EAB308', flexShrink: 0 }} size={22} />
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="onboarding-step-title">Inviter mes techniciens</div>
+                                        <div className="onboarding-step-subtitle">Donnez accès à l'application mobile à votre équipe</div>
                                     </div>
-                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)' }} />
+                                    <ArrowRight size={18} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
                                 </div>
                             </div>
 

@@ -1178,8 +1178,8 @@ function FacturesPage() {
                                             boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)"
                                         }}
                                     >
-                                        {actionLoading ? <Loader2 size={16} className="spin-loader" /> : <Trash2 size={16} />}
-                                        Supprimer
+                                        {actionLoading ? <Loader2 size={18} className="spin-loader" style={{ flexShrink: 0 }} /> : <Trash2 size={18} style={{ flexShrink: 0 }} />}
+                                        <span>Supprimer</span>
                                     </button>
                                 )}
                             </div>

@@ -1159,7 +1159,7 @@ function ClientPage() {
                                 onClick={confirmDeleteClient}
                                 disabled={deleteLoading}
                             >
-                                <Trash2 size={16} />
+                                <Trash2 size={19} style={{ flexShrink: 0 }} />
                                 <span>{deleteLoading ? "Suppression..." : "Confirmer"}</span>
                             </button>
                         </div>

@@ -827,16 +827,16 @@
   right: 24px;
   z-index: 10000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 14px 20px;
+  padding: 14px 18px;
   border-radius: 16px;
   background: var(--card, #FFFFFF);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   border: 1px solid var(--border);
   font-size: 0.92rem;
   font-weight: 600;
-  max-width: 420px;
+  max-width: 440px;
 }
 
 @media (max-width: 500px) {
@@ -845,7 +845,24 @@
     left: 16px;
     right: 16px;
     max-width: none;
+    padding: 12px 14px;
+    gap: 10px;
   }
+}
+
+.toast-icon {
+  flex-shrink: 0 !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  margin-top: 1px;
+}
+
+.toast-banner span {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.45;
 }
 
 .toast-banner.success {
@@ -870,10 +887,11 @@
   color: var(--muted-foreground);
   cursor: pointer;
   padding: 2px;
-  margin-left: 8px;
+  margin-left: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Digits 6-pin Input */

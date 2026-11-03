@@ -540,7 +540,7 @@ function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit
                                     transition: "all 0.2s ease"
                                 }}
                             >
-                                <Trash2 size={15} />
+                                <Trash2 size={18} style={{ flexShrink: 0 }} />
                                 <span>Supprimer</span>
                             </button>
                         )}

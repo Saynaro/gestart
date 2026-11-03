@@ -624,10 +624,14 @@ export default function RegisterPage() {
                         exit={{ opacity: 0, y: -30, scale: 0.95 }}
                         className={`toast-banner ${toast.type}`}
                     >
-                        {toast.type === 'success' ? <CheckCircle2 size={20} className="toast-icon" /> : <AlertCircle size={20} className="toast-icon" />}
-                        <span>{toast.message}</span>
-                        <button type="button" onClick={() => setToast({ show: false, message: '', type: 'success' })} className="toast-close-btn">
-                            <X size={16} />
+                        {toast.type === 'success' ? (
+                            <CheckCircle2 size={22} className="toast-icon" style={{ flexShrink: 0, minWidth: '22px', minHeight: '22px' }} />
+                        ) : (
+                            <AlertCircle size={22} className="toast-icon" style={{ flexShrink: 0, minWidth: '22px', minHeight: '22px' }} />
+                        )}
+                        <span style={{ flex: 1, minWidth: 0, lineHeight: 1.45 }}>{toast.message}</span>
+                        <button type="button" onClick={() => setToast({ show: false, message: '', type: 'success' })} className="toast-close-btn" style={{ flexShrink: 0 }}>
+                            <X size={18} />
                         </button>
                     </motion.div>
                 )}

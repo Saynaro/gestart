@@ -26,6 +26,12 @@ const createTransporter = () => {
     const pass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : "";
 
     if (user && pass) {
+        const timeoutOptions = {
+            connectionTimeout: 5000,
+            greetingTimeout: 5000,
+            socketTimeout: 7000
+        };
+
         if (host.includes("gmail")) {
             return nodemailer.createTransport({
                 service: "gmail",
@@ -35,7 +41,8 @@ const createTransporter = () => {
                 },
                 tls: {
                     rejectUnauthorized: false
-                }
+                },
+                ...timeoutOptions
             });
         }
 
@@ -49,7 +56,8 @@ const createTransporter = () => {
             },
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+            ...timeoutOptions
         });
     }
 
@@ -75,7 +83,7 @@ export const sendEmail = async ({ to, subject, html, text, attachments }) => {
     }
 
     try {
-        const info = await transporter.sendMail({
+        const sendPromise = transporter.sendMail({
             from,
             to,
             subject,
@@ -83,6 +91,12 @@ export const sendEmail = async ({ to, subject, html, text, attachments }) => {
             html,
             attachments: attachments || []
         });
+
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Délai d'attente SMTP dépassé (timeout 6s)")), 6000)
+        );
+
+        const info = await Promise.race([sendPromise, timeoutPromise]);
         console.log(`[EMAIL SENT] MessageId: ${info.messageId} to ${to}`);
         return { success: true, messageId: info.messageId };
     } catch (error) {

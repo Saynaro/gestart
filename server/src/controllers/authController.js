@@ -1588,12 +1588,22 @@ export const sendVerificationCode = async (req, res) => {
             expiresAt: Date.now() + 15 * 60 * 1000
         });
 
-        // Send Email via Nodemailer or dev fallback
-        await sendVerificationEmail({
+        console.log(`\n==================================================`);
+        console.log(`[AUTH] Verification Code for ${cleanEmail}: ${code}`);
+        console.log(`==================================================\n`);
+
+        // Send Email asynchronously without blocking the user or hanging the HTTP request
+        sendVerificationEmail({
             to: cleanEmail,
             code,
             token,
             firstName: "Nouvel utilisateur"
+        }).then((emailResult) => {
+            if (!emailResult?.success) {
+                console.warn(`[AUTH] Verification email notice for ${cleanEmail}:`, emailResult?.error || "Unknown");
+            }
+        }).catch((err) => {
+            console.error(`[AUTH] Verification email error for ${cleanEmail}:`, err.message);
         });
 
         return res.status(200).json({
@@ -1761,12 +1771,14 @@ export const forgotPassword = async (req, res) => {
             }
         });
 
-        // Send email with reset token & code
-        await sendPasswordResetEmail({
+        // Send email with reset token & code in background
+        sendPasswordResetEmail({
             to: cleanEmail,
             token,
             code,
             firstName: user.firstName || "Utilisateur"
+        }).catch((err) => {
+            console.error(`[AUTH] Password reset email error for ${cleanEmail}:`, err.message);
         });
 
         return res.status(200).json({

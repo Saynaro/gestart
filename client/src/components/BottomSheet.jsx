@@ -2,11 +2,12 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, LogOut, Lock } from "lucide-react";
+import { Settings, LogOut, Lock, Smartphone } from "lucide-react";
 import { getSection1Items } from "./navigationConstants";
 import { handleLogout } from "../utils/auth";
 import { useSubscription } from "../utils/useSubscription";
 import { useUser } from "../utils/useUser";
+import PWAInstallModal from "./PWAInstallModal";
 
 const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCount = 0, unreadSupportCount = 0, onOpenLogout }) => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
     const { role } = useUser();
     const section1Items = getSection1Items(role);
     const [showLogoutModal, setShowLogoutModal] = React.useState(false);
+    const [showPwaModal, setShowPwaModal] = React.useState(false);
     const sheetRef = useRef(null);
 
     // Trap focus and handle escape key close
@@ -171,6 +173,24 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                             {/* Section 2 (Account / Tools) */}
                             <ul className="flex flex-col gap-1">
                                 <li>
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => {
+                                            onClose();
+                                            setShowPwaModal(true);
+                                        }}
+                                        whileTap={{ scale: 0.96 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                        className="w-full relative min-h-[54px] px-4 flex items-center gap-4 transition-all duration-150 rounded-xl outline-none select-none text-foreground hover:bg-black/[0.02] focus-visible:bg-black/[0.02] active:bg-black/[0.04]"
+                                    >
+                                        <Smartphone className="w-[25px] h-[25px] stroke-[1.8] text-[#64748B]" />
+                                        <span className="text-[17px] font-medium">Installer l'application</span>
+                                        <span className="ml-auto bg-[#005371]/10 text-[#005371] dark:bg-[#005371]/30 dark:text-[#38bdf8] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                            PWA
+                                        </span>
+                                    </motion.button>
+                                </li>
+                                <li>
                                     <motion.a
                                         href="/settings"
                                         onClick={(e) => {
@@ -284,6 +304,8 @@ const BottomSheet = ({ isOpen, onClose, activePath, navigateTo, unreadMessagesCo
                 </div>,
                 document.body
             )}
+            {/* PWA Installation Modal */}
+            <PWAInstallModal isOpen={showPwaModal} onClose={() => setShowPwaModal(false)} />
         </AnimatePresence>
     );
 };

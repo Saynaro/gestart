@@ -3,7 +3,7 @@
 .demo-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 9999999 !important;
     background-color: rgba(15, 23, 42, 0.72);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -188,8 +188,10 @@
     justify-content: center;
     padding: 18px 24px;
     background-color: #f8fafc;
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 380px;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .demo-preview-container {
@@ -197,6 +199,33 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+.demo-carousel-viewport {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.demo-carousel-track {
+    display: flex;
+    width: 100%;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+.demo-carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px 8px;
+    box-sizing: border-box;
 }
 
 .demo-preview-image {
@@ -208,6 +237,8 @@
     background-color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     display: block;
+    user-drag: none;
+    -webkit-user-drag: none;
 }
 
 .mobile-frame-wrapper {
@@ -239,6 +270,18 @@
 .demo-info {
     flex: 1;
     max-width: 680px;
+    animation: demoInfoFade 0.25s ease-out;
+}
+
+@keyframes demoInfoFade {
+    from {
+        opacity: 0.3;
+        transform: translateY(3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .demo-step-badge {

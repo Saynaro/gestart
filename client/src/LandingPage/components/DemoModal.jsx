@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { X, ChevronLeft, ChevronRight, Monitor, Smartphone, Check } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Monitor, Smartphone } from "lucide-react";
 import "./DemoModal.css";
 
 const DESKTOP_STEPS = [
@@ -94,21 +95,48 @@ export default function DemoModal({ isOpen, onClose }) {
     const isMobileDevice = typeof window !== "undefined" && window.innerWidth <= 768;
     const [mode, setMode] = useState(isMobileDevice ? "mobile" : "desktop");
     const [currentIndex, setCurrentIndex] = useState(0);
+    const tabsRef = useRef(null);
+    const touchStartX = useRef(null);
 
     const steps = mode === "mobile" ? MOBILE_STEPS : DESKTOP_STEPS;
     const currentStep = steps[currentIndex] || steps[0];
 
+    // Preload all demo images into browser cache immediately
+    useEffect(() => {
+        const allImages = [
+            ...DESKTOP_STEPS.map((s) => s.image),
+            ...MOBILE_STEPS.map((s) => s.image)
+        ];
+        allImages.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+        });
+    }, []);
+
+    // Scroll active tab into view smoothly
+    useEffect(() => {
+        if (!tabsRef.current) return;
+        const activeBtn = tabsRef.current.querySelector(".demo-tab-item.active");
+        if (activeBtn) {
+            activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+    }, [currentIndex]);
+
+    // Initialize mode and lock body scroll on open
     useEffect(() => {
         if (!isOpen) return;
 
-        // Set initial mode based on current screen size when opened
         const isMobileScreen = window.innerWidth <= 768;
         setMode(isMobileScreen ? "mobile" : "desktop");
         setCurrentIndex(0);
 
-        // Lock body scroll
-        const originalOverflow = document.body.style.overflow;
+        const originalBodyOverflow = document.body.style.overflow;
+        const originalHtmlOverflow = document.documentElement.style.overflow;
+        const originalTouchAction = document.body.style.touchAction;
+
         document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.touchAction = "none";
 
         const handleKeyDown = (e) => {
             if (e.key === "Escape") {
@@ -121,11 +149,14 @@ export default function DemoModal({ isOpen, onClose }) {
         };
 
         window.addEventListener("keydown", handleKeyDown);
+
         return () => {
-            document.body.style.overflow = originalOverflow;
+            document.body.style.overflow = originalBodyOverflow;
+            document.documentElement.style.overflow = originalHtmlOverflow;
+            document.body.style.touchAction = originalTouchAction;
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, steps.length]);
+    }, [isOpen, steps.length, onClose]);
 
     const handleSwitchMode = (newMode) => {
         if (newMode === mode) return;
@@ -148,9 +179,27 @@ export default function DemoModal({ isOpen, onClose }) {
         }
     };
 
+    // Touch swipe support for smooth mobile interaction
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+        if (touchStartX.current === null) return;
+        const touchEndX = e.changedTouches[0].clientX;
+        const diffX = touchStartX.current - touchEndX;
+
+        if (diffX > 50) {
+            handleNext();
+        } else if (diffX < -50) {
+            handlePrev();
+        }
+        touchStartX.current = null;
+    };
+
     if (!isOpen) return null;
 
-    return (
+    const modalContent = (
         <div className="demo-overlay" onClick={onClose} role="dialog" aria-modal="true">
             <div className="demo-modal" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
@@ -185,7 +234,7 @@ export default function DemoModal({ isOpen, onClose }) {
                 </div>
 
                 {/* Navigation Tabs */}
-                <div className="demo-tabs">
+                <div className="demo-tabs" ref={tabsRef}>
                     {steps.map((step, idx) => (
                         <button
                             key={step.id}
@@ -199,22 +248,43 @@ export default function DemoModal({ isOpen, onClose }) {
                     ))}
                 </div>
 
-                {/* Main Content Area */}
-                <div className="demo-body">
+                {/* Main Content Area - Smooth Sliding Carousel */}
+                <div
+                    className="demo-body"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
                     <div className={`demo-preview-container ${mode === "mobile" ? "mobile-frame-wrapper" : ""}`}>
-                        <img
-                            key={currentStep.image}
-                            src={currentStep.image}
-                            alt={currentStep.alt}
-                            className={`demo-preview-image ${mode === "mobile" ? "mobile-image" : "desktop-image"}`}
-                            loading="eager"
-                        />
+                        <div className="demo-carousel-viewport">
+                            <div
+                                className="demo-carousel-track"
+                                style={{
+                                    transform: `translateX(-${currentIndex * 100}%)`
+                                }}
+                            >
+                                {steps.map((step, idx) => (
+                                    <div
+                                        key={step.id}
+                                        className="demo-carousel-slide"
+                                        aria-hidden={idx !== currentIndex}
+                                    >
+                                        <img
+                                            src={step.image}
+                                            alt={step.alt}
+                                            className={`demo-preview-image ${mode === "mobile" ? "mobile-image" : "desktop-image"}`}
+                                            loading="eager"
+                                            decoding="async"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Footer with Info & Controls */}
                 <div className="demo-footer">
-                    <div className="demo-info">
+                    <div className="demo-info" key={currentStep.id}>
                         <div className="demo-step-badge">
                             Étape {currentIndex + 1} sur {steps.length}
                         </div>
@@ -247,5 +317,6 @@ export default function DemoModal({ isOpen, onClose }) {
             </div>
         </div>
     );
-}
 
+    return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
+}

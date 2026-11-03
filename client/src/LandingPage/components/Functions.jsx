@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { BentoCard, BentoGrid } from "@/components/ui/bento-grid.jsx";
 import { AnimatedList } from "@/components/ui/animated-list";
 import { AuroraText } from "@/components/ui/aurora-text";
 import "./Functions.css";
+import PWAInstallModal from "@/components/PWAInstallModal";
 import {
     MessageCircle,
     CalendarDays,
@@ -20,6 +22,8 @@ import {
 } from "lucide-react";
 
 export default function Functions() {
+    const [showPwaModal, setShowPwaModal] = useState(false);
+
     return (
         <section className="functions-section">
             <div className="functions-header">
@@ -206,9 +210,10 @@ export default function Functions() {
                     name="Application mobile"
                     description="Vos techniciens accèdent à leur planning et remplissent leurs fiches d'intervention sur la route."
                     Icon={Smartphone}
-                    href="#"
-                    cta="Télécharger l'app"
-                    className="lg:col-span-1 lg:row-span-1"
+                    onCtaClick={() => setShowPwaModal(true)}
+                    cta="Installer l'app"
+                    className="lg:col-span-1 lg:row-span-1 cursor-pointer"
+                    onClick={() => setShowPwaModal(true)}
                     background={
                         <div className="bento-bg bento-mobile-bg">
                             <div className="mobile-app-mock">
@@ -261,6 +266,8 @@ export default function Functions() {
                     }
                 />
             </BentoGrid>
+
+            <PWAInstallModal isOpen={showPwaModal} onClose={() => setShowPwaModal(false)} />
         </section>
     );
 }

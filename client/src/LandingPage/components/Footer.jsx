@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import "./Footer.css";
+import PWAInstallModal from "@/components/PWAInstallModal";
 
 const staggerContainer = {
     hidden: { opacity: 0 },
@@ -36,6 +37,7 @@ const giantTextVariant = {
 };
 
 function Footer() {
+    const [showPwaModal, setShowPwaModal] = useState(false);
     const brandName = "GestArt";
     const description = "Optimisez vos interventions, fidélisez vos clients et automatisez votre facturation en toute simplicité.";
     const email = "support.gestart@gmail.com";
@@ -59,6 +61,7 @@ function Footer() {
     const accessLinks = [
         { label: "Connexion", path: "/login" },
         { label: "Essai gratuit 14j", path: "/register" },
+        { label: "Installer l'app (PWA)", onClick: () => setShowPwaModal(true) },
         { label: "Contact & Support", href: `mailto:${email}` }
     ];
 
@@ -128,6 +131,15 @@ function Footer() {
                                             <Link to={link.path} className="footer-nav-link">
                                                 {link.label}
                                             </Link>
+                                        ) : link.onClick ? (
+                                            <button
+                                                type="button"
+                                                onClick={link.onClick}
+                                                className="footer-nav-link"
+                                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', font: 'inherit' }}
+                                            >
+                                                {link.label}
+                                            </button>
                                         ) : (
                                             <a href={link.href} className="footer-nav-link">
                                                 {link.label}
@@ -194,6 +206,8 @@ function Footer() {
                 </div>
 
             </div>
+
+            <PWAInstallModal isOpen={showPwaModal} onClose={() => setShowPwaModal(false)} />
         </motion.footer>
     );
 }

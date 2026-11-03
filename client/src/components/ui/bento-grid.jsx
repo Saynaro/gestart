@@ -24,6 +24,7 @@ const BentoCard = ({
   description,
   href,
   cta,
+  onCtaClick,
   ...props
 }) => (
   <div
@@ -57,8 +58,9 @@ const BentoCard = ({
           variant="link"
           size="sm"
           className="pointer-events-auto p-0 text-size"
-          render={<a href={href} />}
-          nativeButton={false}>{cta}<ArrowRightIcon className="ms-2 h-4 w-4 rtl:rotate-180" /></Button>
+          onClick={onCtaClick}
+          render={href ? <a href={href} /> : undefined}
+          nativeButton={!href}>{cta}<ArrowRightIcon className="ms-2 h-4 w-4 rtl:rotate-180" /></Button>
       </div>
     </div>
 
@@ -70,8 +72,9 @@ const BentoCard = ({
         variant="link"
         size="sm"
         className="pointer-events-auto p-0 text-size"
-        render={<a href={href} />}
-        nativeButton={false}>{cta}<ArrowRightIcon className="ms-2 h-4 w-4 rtl:rotate-180" /></Button>
+        onClick={onCtaClick}
+        render={href ? <a href={href} /> : undefined}
+        nativeButton={!href}>{cta}<ArrowRightIcon className="ms-2 h-4 w-4 rtl:rotate-180" /></Button>
     </div>
 
     <div

@@ -67,13 +67,63 @@ const createTransporter = () => {
 /**
  * Helper to send email with automatic dev fallback logging
  */
-export const sendEmail = async ({ to, subject, html, text, attachments }) => {
-    const from = process.env.EMAIL_FROM || '"GestArt CRM" <support.gestart@gmail.com>';
+export const sendEmail = async ({ to, subject, html, text, attachments, replyTo }) => {
+    const from = process.env.EMAIL_FROM || '"GestArt CRM" <support@gestart.fr>';
+    const defaultReplyTo = replyTo || process.env.EMAIL_REPLY_TO || "support.gestart@gmail.com";
+
+    // 1. Resend API Integration (Preferred: HTTP API on port 443, never blocked by host firewalls)
+    if (process.env.RESEND_API_KEY) {
+        try {
+            const formattedTo = Array.isArray(to) ? to : [to];
+            const payload = {
+                from,
+                to: formattedTo,
+                subject,
+                html,
+                text: text || undefined,
+                reply_to: defaultReplyTo
+            };
+
+            if (attachments && attachments.length > 0) {
+                payload.attachments = attachments.map(att => ({
+                    filename: att.filename,
+                    content: Buffer.isBuffer(att.content)
+                        ? att.content.toString("base64")
+                        : (typeof att.content === "string" ? Buffer.from(att.content).toString("base64") : att.content)
+                }));
+            }
+
+            const response = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                const errMessage = data?.message || data?.error?.message || response.statusText;
+                console.error(`[RESEND ERROR] Failed to send email to ${to}:`, errMessage);
+                return { success: false, error: errMessage };
+            }
+
+            console.log(`[RESEND SENT] ID: ${data.id} to ${to}`);
+            return { success: true, messageId: data.id };
+        } catch (error) {
+            console.error(`[RESEND NETWORK ERROR] Failed to call Resend API for ${to}:`, error.message);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 2. Fallback to Nodemailer SMTP
     const transporter = createTransporter();
 
     if (!transporter) {
         console.log("--------------------------------------------------");
-        console.log(`[EMAIL SERVICE - DEV FALLBACK]`);
+        console.log(`[EMAIL SERVICE - DEV FALLBACK] No SMTP/Resend configured`);
         console.log(`TO: ${to}`);
         console.log(`SUBJECT: ${subject}`);
         console.log(`ATTACHMENTS: ${attachments ? attachments.length + ' file(s)' : 'None'}`);
@@ -89,6 +139,7 @@ export const sendEmail = async ({ to, subject, html, text, attachments }) => {
             subject,
             text,
             html,
+            replyTo: defaultReplyTo,
             attachments: attachments || []
         });
 

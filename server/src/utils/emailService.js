@@ -381,6 +381,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
 
     const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
     const companyEmail = company?.email || relayUser;
+    const senderDisplayEmail = connection?.emailAddress || companyEmail || relayUser;
     const fromAddress = connection?.emailAddress
         ? (connection.displayName ? `"${connection.displayName}" <${connection.emailAddress}>` : `"${companyName}" <${connection.emailAddress}>`)
         : `"${companyName} via GestArt" <${relayUser}>`;
@@ -436,7 +437,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
 
                 <!-- Footer -->
                 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.6;">
-                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${connection.emailAddress}" style="color: #64748B; text-decoration: underline;">${connection.emailAddress}</a>)</p>
+                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${senderDisplayEmail}" style="color: #64748B; text-decoration: underline;">${senderDisplayEmail}</a>)</p>
                     <p style="margin: 0; font-size: 11px; color: #94A3B8;">💡 Pensez à vérifier vos courriers indésirables / spams si besoin.</p>
                     <p style="margin-top: 6px; margin-bottom: 0;">© ${new Date().getFullYear()} ${companyName}</p>
                 </div>
@@ -445,7 +446,7 @@ export const sendQuoteClientEmail = async ({ to, quote, company, signatureUrl, s
         </html>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre devis ${docNumber} d'un montant de ${totalTtc} € TTC.\n\nVous pouvez le consulter et le signer en ligne ici : ${signatureUrl}\n\n(Si besoin, vérifiez vos courriers indésirables/spams. Expéditeur : ${senderDisplayEmail})\n\nCordialement,\n${companyName}`;
 
     let attachments = [];
     try {
@@ -568,6 +569,7 @@ export const sendInvoiceClientEmail = async ({
 
     const relayUser = process.env.SMTP_USER || "support.gestart@gmail.com";
     const companyEmail = company?.email || relayUser;
+    const senderDisplayEmail = connection?.emailAddress || companyEmail || relayUser;
     const fromAddress = connection?.emailAddress
         ? (connection.displayName ? `"${connection.displayName}" <${connection.emailAddress}>` : `"${companyName}" <${connection.emailAddress}>`)
         : `"${companyName} via GestArt" <${relayUser}>`;
@@ -727,7 +729,7 @@ export const sendInvoiceClientEmail = async ({
 
                 <!-- Footer -->
                 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8; line-height: 1.6;">
-                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${connection.emailAddress}" style="color: #64748B; text-decoration: underline;">${connection.emailAddress}</a>)</p>
+                    <p style="margin: 0 0 4px 0;">Envoyé par <strong>${companyName}</strong> (<a href="mailto:${senderDisplayEmail}" style="color: #64748B; text-decoration: underline;">${senderDisplayEmail}</a>)</p>
                     <p style="margin: 0; font-size: 11px; color: #94A3B8;">💡 Pensez à vérifier vos courriers indésirables / spams si besoin.</p>
                     <p style="margin-top: 6px; margin-bottom: 0;">© ${new Date().getFullYear()} ${companyName}</p>
                 </div>
@@ -736,7 +738,7 @@ export const sendInvoiceClientEmail = async ({
         </html>
     `;
 
-    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : ${connection.emailAddress})\n\nCordialement,\n${companyName}`;
+    const text = `Bonjour ${clientName},\n\nVeuillez trouver ci-joint votre facture ${docNumber} d'un montant de ${totalTtc} € TTC.\n\n${paymentTextGuide}\n\nLien direct de consultation : ${paymentUrl}\n\n(Si besoin, vérifiez vos spams. Expéditeur : ${senderDisplayEmail})\n\nCordialement,\n${companyName}`;
 
     let attachments = [];
     try {

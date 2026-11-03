@@ -722,8 +722,7 @@ export default function TechniciensPage() {
                                     );
                                 })}
                             </div>
-                        </div>,
-                        document.body
+                        </div>
                     )}
 
                     {/* Invite Technician Modal */}

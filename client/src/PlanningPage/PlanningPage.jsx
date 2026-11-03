@@ -2712,7 +2712,7 @@ function PlanningPage() {
                                             : "Non assigné";
                                         const photos = item.photos || [];
                                         const hasSignature = !!item.clientSignature;
-                                        const statusInfo = getInterventionStatusInfo(item);
+                                        const statusInfo = getInterventionStatusInfo(item) || { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
                                         const isSelected = selectedHistoryIds.has(item.id);
 
                                         return (
@@ -2805,10 +2805,10 @@ function PlanningPage() {
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                         <span
                                                             className="history-status-badge"
-                                                            style={{ background: statusInfo.bg, color: statusInfo.color }}
+                                                            style={{ background: statusInfo?.bg || "rgba(85, 107, 47, 0.12)", color: statusInfo?.color || "#556B2F" }}
                                                         >
-                                                            {statusInfo.icon}
-                                                            {statusInfo.label}
+                                                            {statusInfo?.icon}
+                                                            {statusInfo?.label || "En attente"}
                                                         </span>
                                                         <ChevronRight size={15} style={{ color: 'var(--muted-foreground)' }} />
                                                     </div>
@@ -3327,7 +3327,7 @@ function PlanningPage() {
                                             : "Non assigné";
                                         const photos = item.photos || [];
                                         const hasSignature = !!item.clientSignature;
-                                        const statusInfo = getInterventionStatusInfo(item);
+                                        const statusInfo = getInterventionStatusInfo(item) || { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
                                         const isSelected = selectedHistoryIds.has(item.id);
 
                                         return (
@@ -3408,10 +3408,10 @@ function PlanningPage() {
                                                     {/* Status Badge */}
                                                     <span
                                                         className="history-status-badge"
-                                                        style={{ background: statusInfo.bg, color: statusInfo.color }}
+                                                        style={{ background: statusInfo?.bg || "rgba(85, 107, 47, 0.12)", color: statusInfo?.color || "#556B2F" }}
                                                     >
-                                                        {statusInfo.icon}
-                                                        {statusInfo.label}
+                                                        {statusInfo?.icon}
+                                                        {statusInfo?.label || "En attente"}
                                                     </span>
 
                                                     {/* Open Button */}

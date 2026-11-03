@@ -308,6 +308,9 @@ function MobilePlanningView({ events, setEvents, onEventClick, onSelectSlot, sel
                                 </p>
                             </div>
                         )}
+
+                        {/* Bottom spacer so the last intervention card never hides behind bottom nav or FAB */}
+                        <div className="mobile-planning-bottom-spacer" />
                     </motion.div>
                 </AnimatePresence>
             </div>

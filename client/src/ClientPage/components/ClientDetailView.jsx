@@ -318,12 +318,12 @@ function ClientDetailView({ selectedClient, setSelectedClient, getClientDetails,
                                                         <span style={{
                                                             fontSize: '11px',
                                                             fontWeight: 700,
-                                                            color: statusBadge.color,
-                                                            backgroundColor: statusBadge.bg,
+                                                            color: statusBadge?.color || '#556B2F',
+                                                            backgroundColor: statusBadge?.bg || 'rgba(85, 107, 47, 0.12)',
                                                             padding: '2px 8px',
                                                             borderRadius: '12px'
                                                         }}>
-                                                            {statusBadge.label}
+                                                            {statusBadge?.label || 'En attente'}
                                                         </span>
                                                     </div>
                                                     <span className="history-card-date">{item.date}</span>

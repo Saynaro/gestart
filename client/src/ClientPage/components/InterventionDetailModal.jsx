@@ -51,6 +51,7 @@ export const getInterventionStatusInfo = (item) => {
         }
     }
 
+    return { label: "En attente", color: "#556B2F", bg: "rgba(85, 107, 47, 0.12)", icon: <Calendar size={13} /> };
 };
 
 function InterventionDetailModal({ isOpen, onClose, intervention, client, onEdit, onDelete }) {

@@ -9,8 +9,8 @@ export default function PremiumTab({ isMobileView, triggerToast }) {
 
     // Accounting Integration
     const [accountingSoftware, setAccountingSoftware] = useState("Pennylane"); // Pennylane | Indy | QuickBooks
-    const [apiKey, setApiKey] = useState("sk_live_pennylane_9984712938472918");
-    const [orgId, setOrgId] = useState("org_dupont_clim_06");
+    const [apiKey, setApiKey] = useState("");
+    const [orgId, setOrgId] = useState("");
     const [syncOnSend, setSyncOnSend] = useState(true);
     const [syncOnPayment, setSyncOnPayment] = useState(true);
     const [syncOnCreation, setSyncOnCreation] = useState(false);
